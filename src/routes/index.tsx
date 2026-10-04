@@ -4,30 +4,23 @@ import {
   BookOpen,
   Bot,
   CircuitBoard,
+  ExternalLink,
   Globe2,
   Handshake,
   Instagram,
   Lightbulb,
   Mail,
   MapPin,
-  MessageCircle,
   Network,
   Newspaper,
   Radio,
   Users,
   Wrench,
 } from "lucide-react";
-import {
-  FormEvent,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
+import type { FormEvent, ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SiteShell } from "@/components/site/site-shell";
-import { engineeringAreas } from "@/content/site-content";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
@@ -62,33 +55,85 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const communityActions = [
+/* -------------------------------------------------------------------------- */
+/* DADOS                                                                      */
+/* -------------------------------------------------------------------------- */
+
+const communityLinks = [
   {
-    icon: MessageCircle,
     number: "01",
-    label: "Pedir ajuda",
-    title: "Uma dúvida pode ser o começo de uma conexão.",
+    platform: "DISCORD",
+    title: "FTC Discord",
     copy:
-      "Queremos criar um espaço onde equipes possam encontrar orientação, experiências e caminhos para resolver problemas reais.",
-    to: "/comunidade",
+      "Uma comunidade internacional independente voltada especificamente para a FIRST Tech Challenge. Equipes, estudantes, mentores e pessoas da comunidade compartilham dúvidas, soluções, projetos e experiências.",
+    type: "INTERNACIONAL",
+    focus: "FTC • Programação • Mecânica",
+    year: "2025",
+    href: "https://discord.gg/ftc",
+    brand: "discord" as const,
   },
   {
-    icon: Users,
     number: "02",
-    label: "Encontrar um mentor",
-    title: "Experiência compartilhada encurta caminhos.",
+    platform: "REDDIT",
+    title: "r/FTC",
     copy:
-      "Aproximar estudantes, equipes, professores e profissionais é parte central do que queremos construir.",
-    to: "/comunidade",
+      "Comunidade global dedicada exclusivamente à FIRST Tech Challenge. Um espaço para discutir robôs, programação, CAD, estratégia, competição e desenvolvimento de equipes.",
+    type: "GLOBAL",
+    focus: "FTC • Robótica • Estratégia",
+    year: "2025",
+    href: "https://www.reddit.com/r/FTC/",
+    brand: "reddit" as const,
   },
   {
-    icon: Globe2,
     number: "03",
-    label: "Compartilhar conhecimento",
-    title: "O que aprendemos não precisa ficar na oficina.",
+    platform: "DISCORD",
+    title: "FTC WI.R.E.S",
     copy:
-      "Documentação, projetos, experiências e aprendizados podem continuar circulando muito depois de um teste ou competição.",
-    to: "/comunidade",
+      "Comunidade dedicada ao ecossistema FTC, criada para colaboração e compartilhamento de recursos entre equipes e participantes da competição.",
+    type: "INTERNACIONAL",
+    focus: "FTC • Recursos • Colaboração",
+    year: "2025",
+    href: "https://discord.gg/uwC6CzRm",
+    brand: "discord" as const,
+  },
+] as const;
+
+const mentorLinks = [
+  {
+    number: "01",
+    platform: "BRASIL",
+    title: "Robótica DHEL",
+    copy:
+      "Equipe de profissionais brasileiros com experiência como treinadores, educadores e mentores em competições FIRST, incluindo FTC. Atua com formação, estratégia, programação, design e desenvolvimento de equipes.",
+    type: "BRASIL",
+    focus: "FTC • Formação • Engenharia",
+    year: "2025",
+    href: "https://roboticadhel.com.br/",
+    icon: Handshake,
+  },
+  {
+    number: "02",
+    platform: "FTC",
+    title: "Mentor Platform",
+    copy:
+      "Plataforma independente criada especificamente para aproximar equipes FIRST Tech Challenge de mentores voluntários especialistas em STEAM.",
+    type: "INTERNACIONAL",
+    focus: "FTC • Especialistas • STEAM",
+    year: "2025",
+    href: "https://ftcmentor.henriquesilva.dev/",
+    icon: Network,
+  },
+  {
+    number: "03",
+    platform: "FTC",
+    title: "Technical Mentor Resources",
+    copy:
+      "Materiais técnicos para mentores que trabalham diretamente com equipes FTC, incluindo programação, construção, controle, CAD e desenvolvimento do robô.",
+    type: "INTERNACIONAL",
+    focus: "FTC • CAD • Software",
+    year: "2025",
+    href: "https://ftc-docs.firstinspires.org/en/latest/persona_pages/mentor_tech/mentor_tech.html",
+    icon: Wrench,
   },
 ] as const;
 
@@ -125,7 +170,7 @@ const principles = [
 
 const timeline = [
   {
-    date: "08.2025",
+    date: "2025",
     title: "O começo",
     copy:
       "A MECATIGER nasce no SESI SENAI Maracanaú com a vontade de aprender, competir e construir uma equipe capaz de ir além do campo.",
@@ -192,9 +237,9 @@ const updates = [
   {
     number: "02",
     label: "Comunidade",
-    title: "MECATIGER Community",
+    title: "Portal FTC",
     copy:
-      "O Hub está sendo preparado para futuras conexões entre equipes, estudantes, professores e profissionais.",
+      "Encontre comunidades, canais e espaços independentes dedicados à FIRST Tech Challenge.",
     to: "/comunidade",
   },
   {
@@ -206,6 +251,10 @@ const updates = [
     to: "/meca-ai",
   },
 ] as const;
+
+/* -------------------------------------------------------------------------- */
+/* COMPONENTES                                                                */
+/* -------------------------------------------------------------------------- */
 
 function Reveal({
   children,
@@ -268,7 +317,6 @@ function CountUp({ value }: { value: number | null }) {
 
     const duration = 1000;
     const start = performance.now();
-    const startValue = 0;
 
     let frame = 0;
 
@@ -276,11 +324,7 @@ function CountUp({ value }: { value: number | null }) {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
 
-      setDisplay(
-        Math.floor(
-          startValue + (value - startValue) * eased,
-        ),
-      );
+      setDisplay(Math.floor(value * eased));
 
       if (progress < 1) {
         frame = requestAnimationFrame(animate);
@@ -312,6 +356,7 @@ function useVisitorCount() {
       }
 
       const visitorKey = "mecatiger-visitor-counted-v1";
+
       const alreadyCounted =
         window.localStorage.getItem(visitorKey) === "1";
 
@@ -354,6 +399,7 @@ function useVisitorCount() {
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
+
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "duplicate" | "error"
   >("idle");
@@ -441,6 +487,50 @@ function NewsletterForm() {
   );
 }
 
+function CommunityBrand({
+  brand,
+}: {
+  brand: "discord" | "reddit";
+}) {
+  if (brand === "discord") {
+    return (
+      <img
+        src="https://cdn.simpleicons.org/discord/ffffff"
+        alt="Discord"
+        className="size-6"
+      />
+    );
+  }
+
+  return (
+    <img
+      src="https://cdn.simpleicons.org/reddit/ffffff"
+      alt="Reddit"
+      className="size-6"
+    />
+  );
+}
+
+function ExternalLinkCard({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-7 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] text-primary transition-[gap] duration-300 hover:gap-3"
+    >
+      {children}
+      <ExternalLink className="size-4" />
+    </a>
+  );
+}
+
 function ArrowLink({
   to,
   children,
@@ -459,6 +549,10 @@ function ArrowLink({
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* HOME                                                                       */
+/* -------------------------------------------------------------------------- */
+
 function HomePage() {
   const visitorCount = useVisitorCount();
 
@@ -467,18 +561,23 @@ function HomePage() {
       {/* HERO */}
       <section className="relative min-h-[min(900px,100svh)] overflow-hidden pt-18">
         <div className="absolute inset-0 bg-background" />
+
         <div className="technical-grid absolute inset-0 opacity-30" />
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_24%,hsl(var(--primary)/0.18),transparent_34%)]" />
 
         <div className="absolute -right-40 top-24 h-[32rem] w-[32rem] rotate-45 border border-primary/20" />
+
         <div className="absolute -right-24 top-44 h-[24rem] w-[24rem] rotate-45 border border-primary/10" />
+
         <div className="absolute right-20 top-72 h-4 w-4 bg-primary shadow-[0_0_0_10px_hsl(var(--primary)/0.08)]" />
 
         <div className="absolute left-[-20%] top-[58%] h-px w-[140%] rotate-[-8deg] bg-primary/20" />
+
         <div className="absolute left-[-20%] top-[68%] h-px w-[140%] rotate-[-8deg] bg-foreground/10" />
 
         <div className="kinetic-one absolute -left-24 top-48 h-36 w-[135%] bg-primary/10 backdrop-blur-md" />
+
         <div className="kinetic-two absolute -right-24 top-[55%] h-20 w-[130%] bg-foreground/5 backdrop-blur-sm" />
 
         <div className="relative mx-auto flex min-h-[calc(min(900px,100svh)-4.5rem)] max-w-7xl flex-col justify-end px-5 pb-12 sm:px-6 md:pb-16 lg:px-8">
@@ -505,8 +604,8 @@ function HomePage() {
           </p>
 
           <p className="reveal-three mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Uma equipe de robótica que também quer ser ponto de encontro para
-            pessoas, conhecimento, projetos e novas possibilidades.
+            Uma equipe de robótica que também quer ser ponto de encontro
+            para pessoas, conhecimento, projetos e novas possibilidades.
           </p>
 
           <div className="reveal-three mt-8 flex flex-col gap-3 sm:flex-row">
@@ -517,7 +616,11 @@ function HomePage() {
               </Link>
             </Button>
 
-            <Button variant="industrialOutline" size="lg" asChild>
+            <Button
+              variant="industrialOutline"
+              size="lg"
+              asChild
+            >
               <Link to="/equipe">
                 Conheça nossa história
                 <ArrowRight />
@@ -537,7 +640,7 @@ function HomePage() {
         <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y divide-border md:grid-cols-4 md:divide-y-0">
           {[
             ["32578", "FTC Team"],
-            ["08.2025", "Fundação"],
+            ["2025", "Fundação"],
             ["02", "Temporada"],
             ["CE", "Maracanaú"],
           ].map(([value, label], index) => (
@@ -571,7 +674,9 @@ function HomePage() {
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               UMA EQUIPE É O
               <br />
-              <span className="text-primary">PONTO DE PARTIDA.</span>
+              <span className="text-primary">
+                PONTO DE PARTIDA.
+              </span>
             </h2>
 
             <p className="mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
@@ -618,43 +723,47 @@ function HomePage() {
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               UMA EQUIPE
               <br />
-              <span className="text-primary">EM CONSTRUÇÃO.</span>
+              <span className="text-primary">
+                EM CONSTRUÇÃO.
+              </span>
             </h2>
 
             <p className="mt-7 max-w-4xl text-lg leading-relaxed text-muted-foreground">
-              A MECATIGER é uma equipe de robótica do SESI SENAI Maracanaú,
-              criada em agosto de 2025. Hoje estamos em nossa segunda temporada
-              da FIRST Tech Challenge, um programa da FIRST em que equipes de
-              estudantes, com apoio de mentores, projetam, constroem,
+              A MECATIGER é uma equipe de robótica do SESI SENAI
+              Maracanaú, criada em 2025. Hoje estamos em nossa segunda
+              temporada da FIRST Tech Challenge, um programa em que equipes
+              de estudantes, com apoio de mentores, projetam, constroem,
               programam e operam robôs enquanto desenvolvem competências de
               STEM, engenharia, colaboração e resolução de problemas.
             </p>
           </Reveal>
 
           <div className="mt-14 grid gap-px border border-border bg-border">
-            {timeline.map(({ date, title, copy }, index) => (
-              <Reveal key={title} delay={index * 80}>
-                <article className="grid gap-6 bg-background p-6 sm:grid-cols-[8rem_1fr_auto] sm:items-start sm:p-8">
-                  <span className="font-display text-3xl text-primary">
-                    {date}
-                  </span>
+            {timeline.map(
+              ({ date, title, copy }, index) => (
+                <Reveal key={title} delay={index * 80}>
+                  <article className="grid gap-6 bg-background p-6 sm:grid-cols-[8rem_1fr_auto] sm:items-start sm:p-8">
+                    <span className="font-display text-3xl text-primary">
+                      {date}
+                    </span>
 
-                  <div>
-                    <h3 className="font-display text-4xl leading-none sm:text-5xl">
-                      {title}
-                    </h3>
+                    <div>
+                      <h3 className="font-display text-4xl leading-none sm:text-5xl">
+                        {title}
+                      </h3>
 
-                    <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                      {copy}
-                    </p>
-                  </div>
+                      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                        {copy}
+                      </p>
+                    </div>
 
-                  <span className="text-sm font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </article>
-              </Reveal>
-            ))}
+                    <span className="text-sm font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </article>
+                </Reveal>
+              ),
+            )}
           </div>
 
           <div className="mt-10 grid gap-px border border-border bg-border md:grid-cols-2">
@@ -689,13 +798,15 @@ function HomePage() {
                   <br />
                   QUE O
                   <br />
-                  <span className="text-primary">ROBÔ.</span>
+                  <span className="text-primary">
+                    ROBÔ.
+                  </span>
                 </h3>
 
                 <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                  Cada temporada traz um robô diferente. O que permanece são
-                  as pessoas, os aprendizados, os projetos e a vontade de
-                  abrir novos caminhos para quem também quer aprender.
+                  Cada temporada traz um robô diferente. O que permanece
+                  são as pessoas, os aprendizados, os projetos e a vontade
+                  de abrir novos caminhos para quem também quer aprender.
                 </p>
 
                 <ArrowLink to="/equipe">
@@ -711,14 +822,18 @@ function HomePage() {
       <section className="section-band">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:items-end lg:px-8">
           <Reveal>
-            <span className="eyebrow">03 / Nossa missão</span>
+            <span className="eyebrow">
+              03 / Nossa missão
+            </span>
 
             <h2 className="mt-5 font-display text-6xl leading-[0.88] sm:text-8xl">
               A TECNOLOGIA
               <br />
               É NOSSA
               <br />
-              <span className="text-primary">PONTE.</span>
+              <span className="text-primary">
+                PONTE.
+              </span>
             </h2>
           </Reveal>
 
@@ -730,8 +845,9 @@ function HomePage() {
             <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
               Existem equipes que podem precisar de uma explicação, um
               professor que pode encontrar um projeto, um profissional que
-              pode orientar uma decisão e um estudante que só precisa descobrir
-              por onde começar. O Hub existe para criar essas pontes.
+              pode orientar uma decisão e um estudante que só precisa
+              descobrir por onde começar. O Hub existe para criar essas
+              pontes.
             </p>
 
             <div className="mt-8 border-l-2 border-primary pl-5">
@@ -749,67 +865,133 @@ function HomePage() {
         </div>
       </section>
 
-      {/* COMUNIDADE */}
+      {/* COMUNIDADES FTC */}
       <section className="relative overflow-hidden border-y border-border bg-card section-band">
         <div className="absolute inset-0">
           <div className="technical-grid absolute inset-0 opacity-20" />
 
-          <div className="absolute right-[-8rem] top-16 h-96 w-96 rounded-full border border-primary/10" />
-          <div className="absolute right-[-3rem] top-32 h-72 w-72 rounded-full border border-primary/10" />
+          <div className="absolute -right-24 top-20 size-80 rounded-full border border-primary/10" />
+
+          <div className="absolute -right-8 top-44 size-52 rounded-full border border-primary/10" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <Reveal>
             <span className="eyebrow">
-              04 / MECATIGER Community
+              04 / Comunidades FTC
             </span>
 
-            <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
-              UMA DÚVIDA PODE
-              <br />
-              SER O COMEÇO
-              <br />
-              DE UMA <span className="text-primary">CONEXÃO.</span>
-            </h2>
+            <div className="mt-5 grid gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+              <div>
+                <h2 className="max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
+                  ENCONTRE
+                  <br />
+                  <span className="text-primary">
+                    SUA COMUNIDADE.
+                  </span>
+                </h2>
+              </div>
 
-            <p className="mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              Queremos transformar o Hub em um espaço onde quem procura
-              conhecimento encontra pessoas, materiais, experiências e
-              possibilidades de colaboração.
-            </p>
+              <div>
+                <p className="max-w-2xl text-lg leading-relaxed text-foreground sm:text-xl">
+                  Você não precisa entrar em mais uma comunidade. O Hub
+                  existe para ajudar você a encontrar as que já existem
+                  dentro do ecossistema FTC.
+                </p>
+
+                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  Discord, Reddit e outros espaços independentes onde
+                  equipes compartilham conhecimento, dúvidas, projetos e
+                  experiências.
+                </p>
+              </div>
+            </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-px border border-border bg-border md:grid-cols-3">
-            {communityActions.map(
-              ({ icon: Icon, number, label, title, copy, to }, index) => (
-                <Reveal key={label} delay={index * 100}>
-                  <article className="group h-full bg-background p-6 transition-colors duration-300 hover:bg-accent sm:p-8">
+          <div className="mt-14 grid gap-px border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
+            {communityLinks.map(
+              (
+                {
+                  number,
+                  platform,
+                  title,
+                  copy,
+                  type,
+                  focus,
+                  year,
+                  href,
+                  brand,
+                },
+                index,
+              ) => (
+                <Reveal key={title} delay={index * 70}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex h-full flex-col bg-background p-6 transition-colors duration-300 hover:bg-accent sm:p-8"
+                  >
                     <div className="flex items-center justify-between">
-                      <Icon className="size-7 text-primary" />
+                      <div className="flex size-12 items-center justify-center border border-primary/25 bg-card">
+                        <CommunityBrand brand={brand} />
+                      </div>
 
-                      <span className="font-display text-3xl text-primary/50">
+                      <span className="font-display text-3xl text-primary/40">
                         {number}
                       </span>
                     </div>
 
-                    <p className="mt-12 text-xs font-bold uppercase tracking-[0.14em] text-primary">
-                      {label}
-                    </p>
+                    <div className="mt-10 flex items-center justify-between gap-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+                        {platform}
+                      </p>
+
+                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                        {year}
+                      </span>
+                    </div>
 
                     <h3 className="mt-3 font-display text-4xl leading-none sm:text-5xl">
                       {title}
                     </h3>
 
-                    <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-5 flex-1 text-sm leading-relaxed text-muted-foreground">
                       {copy}
                     </p>
 
-                    <ArrowLink to={to}>Entrar na comunidade</ArrowLink>
-                  </article>
+                    <div className="mt-7 grid grid-cols-2 gap-px border border-border bg-border">
+                      <div className="bg-card p-3">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                          Abrangência
+                        </p>
+
+                        <p className="mt-1 text-xs font-semibold uppercase">
+                          {type}
+                        </p>
+                      </div>
+
+                      <div className="bg-card p-3">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                          Foco
+                        </p>
+
+                        <p className="mt-1 text-xs font-semibold">
+                          {focus}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-7 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] text-primary transition-[gap] duration-300 group-hover:gap-3">
+                      Acessar comunidade
+                      <ExternalLink className="size-4" />
+                    </div>
+                  </a>
                 </Reveal>
               ),
             )}
           </div>
+
+          
         </div>
       </section>
 
@@ -817,18 +999,22 @@ function HomePage() {
       <section className="section-band">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <Reveal>
-            <span className="eyebrow">05 / Números reais</span>
+            <span className="eyebrow">
+              05 / Números reais
+            </span>
 
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               CRESCIMENTO QUE
               <br />
-              <span className="text-primary">A GENTE CONSEGUE MEDIR.</span>
+              <span className="text-primary">
+                A GENTE CONSEGUE MEDIR.
+              </span>
             </h2>
 
             <p className="mt-7 max-w-3xl text-base leading-relaxed text-muted-foreground">
-              O Hub vai registrar dados reais da comunidade à medida que ela
-              crescer. Sem estimativas inventadas e sem transformar uma métrica
-              em outra.
+              O Hub vai registrar dados reais da comunidade à medida que
+              ela crescer. Sem estimativas inventadas e sem transformar
+              uma métrica em outra.
             </p>
           </Reveal>
 
@@ -837,48 +1023,43 @@ function HomePage() {
               {
                 value: visitorCount,
                 label: "Visitantes",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Estudantes",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Equipes",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Professores",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Cidades",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Países",
-                suffix: "",
               },
               {
                 value: 0,
                 label: "Mentorias",
-                suffix: "",
               },
               {
-                value: "date",
+                value: null,
                 label: "Atuação",
-                suffix: "",
+                staticValue: "2025",
               },
             ].map((item, index) => (
               <Reveal key={item.label} delay={index * 60}>
                 <div className="bg-card p-5 sm:p-7">
                   <p className="font-display text-4xl text-foreground sm:text-5xl">
-                    {item.value === "date" ? "08.2025" : <CountUp value={item.value} />}
+                    {item.staticValue ?? (
+                      <CountUp value={item.value} />
+                    )}
                   </p>
 
                   <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
@@ -910,125 +1091,165 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CONEXÃO DIGITAL */}
+      {/* PRIMEIRO PASSO / MENTORES */}
       <section className="relative overflow-hidden border-y border-border bg-card section-band">
         <div className="absolute inset-0">
           <div className="technical-grid absolute inset-0 opacity-20" />
 
-          <div className="absolute left-[8%] top-[24%] size-2 bg-primary" />
-          <div className="absolute left-[26%] top-[55%] size-2 bg-primary/60" />
-          <div className="absolute right-[26%] top-[35%] size-2 bg-primary/70" />
-          <div className="absolute right-[8%] top-[62%] size-2 bg-primary/50" />
+          <div className="absolute left-[10%] top-[18%] size-1.5 bg-primary" />
+
+          <div className="absolute left-[31%] top-[78%] size-1.5 bg-primary/50" />
+
+          <div className="absolute right-[25%] top-[24%] size-1.5 bg-primary/70" />
+
+          <div className="absolute right-[10%] top-[73%] size-1.5 bg-primary/40" />
         </div>
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <Reveal>
-            <span className="eyebrow">06 / Conexões</span>
+            <span className="eyebrow">
+              06 / Primeiro passo
+            </span>
 
-            <h2 className="mt-5 font-display text-6xl leading-[0.88] sm:text-8xl">
-              A INTERNET
-              <br />
-              É SÓ O
-              <br />
-              <span className="text-primary">PRIMEIRO PASSO.</span>
-            </h2>
-
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-              Em vez de um mapa, queremos mostrar uma rede. Um estudante.
-              Uma equipe. Um professor. Um mentor. Um profissional. Pessoas
-              diferentes conectadas por uma mesma vontade de aprender e
-              construir.
-            </p>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <div className="relative min-h-[28rem] overflow-hidden border border-border bg-background p-6 sm:p-10">
-              <div className="technical-grid absolute inset-0 opacity-30" />
-
-              <div className="relative flex min-h-[24rem] flex-col justify-between">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  <span>REDE MECATIGER</span>
-                  <span>FASE 01</span>
-                </div>
-
-                <div className="relative my-10 flex-1">
-                  <div className="absolute left-1/2 top-1/2 flex size-28 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/40 bg-card">
-                    <div className="text-center">
-                      <span className="block font-display text-3xl text-primary">
-                        MECA
-                      </span>
-                      <span className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
-                        HUB
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="connection-line absolute left-[14%] top-[22%] h-px w-[33%] rotate-[18deg]" />
-                  <div className="connection-line absolute right-[14%] top-[22%] h-px w-[33%] rotate-[-18deg]" />
-                  <div className="connection-line absolute left-[13%] bottom-[24%] h-px w-[35%] rotate-[-18deg]" />
-                  <div className="connection-line absolute right-[13%] bottom-[24%] h-px w-[35%] rotate-[18deg]" />
-                  <div className="connection-line absolute left-1/2 top-[12%] h-[25%] w-px -translate-x-1/2" />
-                  <div className="connection-line absolute bottom-[12%] left-1/2 h-[25%] w-px -translate-x-1/2" />
-
-                  <span className="network-node absolute left-[7%] top-[8%]">
-                    ESTUDANTE
+            <div className="mt-5 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+              <div>
+                <h2 className="max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
+                  SAIBA
+                  <br />
+                  <span className="text-primary">
+                    POR ONDE
                   </span>
+                  <br />
+                  COMEÇAR.
+                </h2>
+              </div>
 
-                  <span className="network-node absolute right-[4%] top-[8%]">
-                    EQUIPE
-                  </span>
+              <div>
+                <p className="max-w-2xl text-lg leading-relaxed text-foreground">
+                  Uma dúvida técnica. Um projeto travado. Uma equipe
+                  procurando orientação.
+                </p>
 
-                  <span className="network-node absolute bottom-[9%] left-[4%]">
-                    PROFESSOR
-                  </span>
-
-                  <span className="network-node absolute bottom-[9%] right-[2%]">
-                    MENTOR
-                  </span>
-
-                  <span className="network-node absolute left-1/2 top-[2%] -translate-x-1/2">
-                    PROFISSIONAL
-                  </span>
-
-                  <span className="network-node absolute bottom-[2%] left-1/2 -translate-x-1/2">
-                    COMUNIDADE
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="border border-border p-3">
-                    <p className="font-display text-2xl text-primary">
-                      WEB
-                    </p>
-
-                    <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                      Canal inicial
-                    </p>
-                  </div>
-
-                  <div className="border border-border p-3">
-                    <p className="font-display text-2xl text-primary">
-                      01
-                    </p>
-
-                    <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                      Hub ativo
-                    </p>
-                  </div>
-
-                  <div className="border border-border p-3">
-                    <p className="font-display text-2xl text-primary">
-                      ∞
-                    </p>
-
-                    <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                      Possibilidades
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  Às vezes, o próximo passo é encontrar a comunidade certa
+                  ou alguém com a experiência necessária para ajudar.
+                </p>
               </div>
             </div>
           </Reveal>
+
+          <div className="mt-14 grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+            <Reveal>
+              <div className="border border-border bg-background p-7 sm:p-10">
+                <span className="eyebrow">
+                  Mentoria FTC
+                </span>
+
+                <h3 className="mt-5 max-w-xl font-display text-5xl leading-[0.9] sm:text-6xl">
+                  ENCONTRE
+                  <br />
+                  <span className="text-primary">
+                    EXPERIÊNCIA.
+                  </span>
+                </h3>
+
+                <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  Mentores podem ajudar uma equipe a encurtar caminhos,
+                  analisar decisões e desenvolver novas competências.
+                  O Hub reúne portas de entrada para esse tipo de conexão.
+                </p>
+
+                <a
+                  href="https://ftcmentor.henriquesilva.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 inline-flex items-center gap-2 border border-primary bg-primary px-5 py-3 text-sm font-bold uppercase tracking-[0.08em] text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  Encontrar mentoria
+                  <ExternalLink className="size-4" />
+                </a>
+              </div>
+            </Reveal>
+
+            <div className="grid gap-px border border-border bg-border md:grid-cols-3">
+              {mentorLinks.map(
+                (
+                  {
+                    icon: Icon,
+                    number,
+                    platform,
+                    title,
+                    copy,
+                    type,
+                    focus,
+                    year,
+                    href,
+                  },
+                  index,
+                ) => (
+                  <Reveal key={title} delay={index * 70}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex h-full flex-col bg-background p-6 transition-colors duration-300 hover:bg-accent sm:p-7"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex size-11 items-center justify-center border border-primary/25 bg-card">
+                          <Icon className="size-5 text-primary" />
+                        </div>
+
+                        <span className="font-display text-2xl text-primary/40">
+                          {number}
+                        </span>
+                      </div>
+
+                      <div className="mt-8 flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                          {platform}
+                        </p>
+
+                        <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                          {year}
+                        </span>
+                      </div>
+
+                      <h3 className="mt-3 font-display text-3xl leading-none">
+                        {title}
+                      </h3>
+
+                      <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
+                        {copy}
+                      </p>
+
+                      <div className="mt-6 border-t border-border pt-4">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                          Tipo
+                        </p>
+
+                        <p className="mt-1 text-xs font-semibold uppercase">
+                          {type}
+                        </p>
+
+                        <p className="mt-3 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                          Especialidade
+                        </p>
+
+                        <p className="mt-1 text-xs font-semibold">
+                          {focus}
+                        </p>
+                      </div>
+
+                      <div className="mt-7 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] text-primary transition-[gap] duration-300 group-hover:gap-3">
+                        Conhecer recurso
+                        <ExternalLink className="size-4" />
+                      </div>
+                    </a>
+                  </Reveal>
+                ),
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1036,12 +1257,16 @@ function HomePage() {
       <section className="section-band">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <Reveal>
-            <span className="eyebrow">07 / Explore nossos projetos</span>
+            <span className="eyebrow">
+              07 / Explore nossos projetos
+            </span>
 
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               A ROBÓTICA É
               <br />
-              <span className="text-primary">UMA DAS NOSSAS LINGUAGENS.</span>
+              <span className="text-primary">
+                UMA DAS NOSSAS LINGUAGENS.
+              </span>
             </h2>
 
             <p className="mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground">
@@ -1053,7 +1278,17 @@ function HomePage() {
 
           <div className="mt-12 grid gap-px border border-border bg-border md:grid-cols-3">
             {resources.map(
-              ({ number, label, title, copy, to, icon: Icon }, index) => (
+              (
+                {
+                  number,
+                  label,
+                  title,
+                  copy,
+                  to,
+                  icon: Icon,
+                },
+                index,
+              ) => (
                 <Reveal key={label} delay={index * 90}>
                   <Link
                     to={to}
@@ -1095,12 +1330,16 @@ function HomePage() {
       <section className="border-y border-border bg-card section-band">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end lg:px-8">
           <Reveal>
-            <span className="eyebrow">08 / As pessoas</span>
+            <span className="eyebrow">
+              08 / As pessoas
+            </span>
 
             <h2 className="mt-5 font-display text-6xl leading-[0.88] sm:text-8xl">
               QUEM FAZ
               <br />
-              <span className="text-primary">TUDO ISSO ACONTECER.</span>
+              <span className="text-primary">
+                TUDO ISSO ACONTECER.
+              </span>
             </h2>
           </Reveal>
 
@@ -1128,8 +1367,6 @@ function HomePage() {
 
                   <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
                     As fotografias reais da equipe serão adicionadas aqui.
-                    Nenhuma imagem gerada por IA será utilizada para
-                    representar integrantes reais.
                   </p>
                 </div>
 
@@ -1146,19 +1383,22 @@ function HomePage() {
       <section className="section-band">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <Reveal>
-            <span className="eyebrow">09 / Temporada</span>
+            <span className="eyebrow">
+              09 / Temporada
+            </span>
 
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               A MEQUINHA
               <br />
-              <span className="text-primary">FAZ PARTE.</span>
+              <span className="text-primary">
+                FAZ PARTE.
+              </span>
             </h2>
 
             <p className="mt-7 max-w-3xl text-base leading-relaxed text-muted-foreground">
-              O robô continua tendo sua própria página, documentação e espaço
-              técnico. Mas dentro do Hub ele aparece na dimensão correta:
-              como parte do trabalho da equipe, e não como o motivo de
-              existência da plataforma.
+              O robô continua tendo sua própria página, documentação e
+              espaço técnico. Mas dentro do Hub ele aparece na dimensão
+              correta: como parte do trabalho da equipe.
             </p>
           </Reveal>
 
@@ -1205,13 +1445,24 @@ function HomePage() {
             <h2 className="mt-5 max-w-5xl font-display text-6xl leading-[0.88] sm:text-8xl">
               O QUE ESTÁ
               <br />
-              <span className="text-primary">ACONTECENDO AGORA.</span>
+              <span className="text-primary">
+                ACONTECENDO AGORA.
+              </span>
             </h2>
           </Reveal>
 
           <div className="mt-12 grid gap-px border border-border bg-border md:grid-cols-3">
             {updates.map(
-              ({ number, label, title, copy, to }, index) => (
+              (
+                {
+                  number,
+                  label,
+                  title,
+                  copy,
+                  to,
+                },
+                index,
+              ) => (
                 <Reveal key={title} delay={index * 100}>
                   <Link
                     to={to}
@@ -1252,6 +1503,7 @@ function HomePage() {
               <div className="technical-grid absolute inset-0 opacity-20" />
 
               <div className="absolute -right-20 -top-20 size-64 rounded-full border border-primary/10" />
+
               <div className="absolute -right-8 top-12 size-32 rounded-full border border-primary/10" />
 
               <div className="relative grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-end">
@@ -1262,7 +1514,9 @@ function HomePage() {
 
                   <h2 className="mt-5 max-w-4xl font-display text-6xl leading-[0.88] sm:text-8xl">
                     FIQUE POR DENTRO DO QUE{" "}
-                    <span className="text-primary">ESTAMOS CRIANDO.</span>
+                    <span className="text-primary">
+                      ESTAMOS CRIANDO.
+                    </span>
                   </h2>
 
                   <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
@@ -1301,7 +1555,9 @@ function HomePage() {
                 <h2 className="mt-3 font-display text-6xl leading-none">
                   CONSTRUA
                   <br />
-                  <span className="text-primary">COM A GENTE.</span>
+                  <span className="text-primary">
+                    COM A GENTE.
+                  </span>
                 </h2>
 
                 <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -1332,9 +1588,9 @@ function HomePage() {
                   </h2>
 
                   <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                    Uma futura inteligência baseada nos conteúdos oficiais da
-                    equipe para tornar nossa história e nosso conhecimento
-                    ainda mais acessíveis.
+                    Uma futura inteligência baseada nos conteúdos oficiais
+                    da equipe para tornar nossa história e nosso
+                    conhecimento ainda mais acessíveis.
                   </p>
 
                   <div className="mt-8 flex items-center gap-3 border border-border bg-background p-4">
