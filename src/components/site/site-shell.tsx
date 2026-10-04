@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Instagram, Mail, Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
+
 import { Button } from "@/components/ui/button";
 import { primaryNav } from "@/content/site-content";
 
@@ -11,8 +12,12 @@ function Brand() {
       className="group flex min-w-0 items-center gap-3"
       aria-label="MECATIGER — início"
     >
-      <span className="brand-shield grid h-10 w-9 shrink-0 place-items-center bg-primary font-display text-xl leading-none text-primary-foreground transition-transform group-hover:-translate-y-0.5">
-        M
+      <span className="grid h-10 w-10 shrink-0 place-items-center">
+        <img
+          src="/Screenshot_20261004_131612_Instagram.jpg"
+          alt=""
+          className="h-full w-full object-contain transition-transform group-hover:-translate-y-0.5"
+        />
       </span>
 
       <span className="min-w-0 leading-none">
