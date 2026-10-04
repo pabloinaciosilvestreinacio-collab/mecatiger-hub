@@ -1,15 +1,15 @@
 export const primaryNav = [
+  { label: "Comunidade", to: "/comunidade" },
   { label: "A equipe", to: "/equipe" },
-  { label: "Nosso robô", to: "/robo" },
-  { label: "Temporada", to: "/temporada" },
+  { label: "Projetos", to: "/projetos" },
   { label: "Engenharia", to: "/engenharia" },
   { label: "Diário", to: "/diario" },
+  { label: "Temporada", to: "/temporada" },
+  { label: "Meca AI", to: "/meca-ai" },
   { label: "Competições", to: "/competicoes" },
-  { label: "Comunidade", to: "/comunidade" },
-  { label: "Projetos", to: "/projetos" },
   { label: "Galeria", to: "/galeria" },
   { label: "Parceiros", to: "/parceiros" },
-  { label: "Meca AI", to: "/meca-ai" },
+  { label: "Nosso robô", to: "/robo" },
   { label: "Contato", to: "/contato" },
 ] as const;
 

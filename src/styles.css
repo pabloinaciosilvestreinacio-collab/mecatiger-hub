@@ -213,3 +213,64 @@ body { overflow-x: hidden; }
   html { scroll-behavior: auto; }
   .kinetic-one, .kinetic-two, .reveal-one, .reveal-two, .reveal-three { animation: none; }
 }
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 48px, 0);
+  transition:
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.connection-line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--primary) 55%, transparent),
+    transparent
+  );
+  transform-origin: left center;
+  animation: connection-flow 4s ease-in-out infinite;
+}
+
+.network-node {
+  border: 1px solid color-mix(in oklab, var(--primary) 35%, transparent);
+  background: color-mix(in oklab, var(--background) 85%, transparent);
+  padding: 0.45rem 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+@keyframes connection-flow {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .connection-line {
+    animation: none;
+  }
+}
