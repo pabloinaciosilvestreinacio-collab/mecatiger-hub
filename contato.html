@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conectar com a MECATIGER</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="site-header"><div class="container header-inner"><a class="brand" href="index.html#top"><img src="public/Screenshot_20261004_131612_Instagram.jpg" alt="" /><span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span></a><a class="button outline" href="index.html#comunidade">← Voltar à comunidade</a></div></header>
+    <main class="contact-page"><section class="page-hero"><div class="container"><span class="eyebrow">Conexão direta</span><h1 class="display">FALE COM A<br /><span class="accent">MECATIGER.</span></h1><p class="page-intro">Preencha o formulário. Ao enviar, abriremos uma mensagem pronta no Gmail ou no seu aplicativo de e-mail com o assunto correto.</p></div></section>
+      <section class="section-band"><div class="container contact-form-layout"><form class="contact-form" id="contact-form"><label for="nome">Seu nome</label><input id="nome" name="nome" required placeholder="Como podemos chamar você?" /><label for="equipe">Equipe, escola ou organização</label><input id="equipe" name="equipe" placeholder="Opcional" /><label for="mensagem">Mensagem</label><textarea id="mensagem" name="mensagem" rows="7" required placeholder="Explique sua dúvida, proposta ou área de interesse."></textarea><button class="button" type="submit">Abrir e-mail para enviar →</button><a class="fallback-mail" id="fallback-mail" href="mailto:mecatiger6@gmail.com">Se o Gmail não abrir, envie para mecatiger6@gmail.com</a></form><aside class="contact-aside"><span class="split-label stem-label">DESTINO</span><h2 class="display" id="contact-title">CONEXÃO<br /><span class="accent">ABERTA.</span></h2><p>Este contato chega à equipe da MECATIGER em <strong>mecatiger6@gmail.com</strong>. Responderemos conforme a disponibilidade da equipe.</p><div class="contact-note">Não usamos formulário falso: o botão monta a mensagem e abre o serviço de e-mail escolhido.</div></aside></div></section>
+    </main>
+    <script>
+      const copy = {
+        ajuda: ['Pedido de ajuda FTC', 'Pedido de ajuda'],
+        stem: ['Solicitar conexão STEM MecaTiger', 'Conexão STEM'],
+        compartilhar: ['Compartilhar conhecimento FTC', 'Compartilhar conhecimento'],
+        'zero-first': ['Do 0 à FIRST', 'Do 0 à FIRST'],
+        contato: ['Contato MecaTiger', 'Contato geral']
+      };
+      const type = new URLSearchParams(location.search).get('tipo') || 'contato';
+      const [subject, label] = copy[type] || copy.contato;
+      document.getElementById('contact-title').innerHTML = `${label.toUpperCase()}<br /><span class="accent">MECATIGER.</span>`;
+      const form = document.getElementById('contact-form');
+      const fallback = document.getElementById('fallback-mail');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const data = new FormData(form);
+        const body = `Nome: ${data.get('nome')}\nEquipe/escola: ${data.get('equipe') || 'Não informado'}\n\nMensagem:\n${data.get('mensagem')}`;
+        const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=mecatiger6@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = gmail;
+      });
+      fallback.href = `mailto:mecatiger6@gmail.com?subject=${encodeURIComponent(subject)}`;
+    </script>
+  </body>
+</html>
