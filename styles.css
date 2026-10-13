@@ -184,3 +184,27 @@ body { background:var(--bg); color:#fff; font-family:"Inter","Barlow",sans-serif
 body.panel-open { overflow:hidden; }
 @keyframes panel-in { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
 @media (max-width:620px) { .panel-inner { padding-top:92px; } .panel-header { flex-direction:column; } .panel-close { align-self:flex-end; } }
+
+.registration-panel { background:rgba(0,0,0,.96); }
+.registration-inner { width:min(1040px,calc(100% - 32px)); }
+.registration-layout { display:grid; grid-template-columns:minmax(0,.88fr) minmax(360px,1.12fr); gap:24px; margin-top:34px; }
+.registration-reason,.registration-form { padding:32px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+.registration-reason { border-color:rgba(242,138,26,.4); }
+.registration-reason h3 { margin:30px 0 0; font-size:clamp(42px,5vw,66px); line-height:.88; }
+.registration-reason p { margin:20px 0 0; color:var(--muted); line-height:1.6; }
+.registration-reason ul { display:grid; gap:12px; margin:24px 0 0; padding:0 0 0 18px; color:var(--bone); line-height:1.5; }
+.privacy-note { padding-top:18px; border-top:1px solid var(--line); font-size:12px; }
+.registration-form { display:grid; gap:10px; align-content:start; }
+.registration-form label:not(.consent-line) { margin-top:7px; color:var(--bone); font:600 11px "JetBrains Mono",monospace; letter-spacing:.04em; text-transform:uppercase; }
+.registration-form input:not([type="checkbox"]),.registration-form select { width:100%; border:1px solid var(--line); border-radius:6px; padding:14px; outline:0; background:#000; color:#fff; font:15px Inter,sans-serif; }
+.registration-form input:not([type="checkbox"]):focus,.registration-form select:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(242,138,26,.12); }
+.registration-form select { appearance:auto; }
+.registration-form .other-country[hidden] { display:none; }
+.consent-line { display:flex; align-items:flex-start; gap:10px; margin-top:16px; color:var(--muted); font-size:12px; line-height:1.45; }
+.consent-line input { flex:0 0 auto; accent-color:var(--orange); margin-top:2px; }
+.registration-form .button { margin-top:12px; cursor:pointer; }
+.registration-form .button:disabled { cursor:wait; opacity:.55; }
+.registration-status { min-height:20px; margin:4px 0 0; color:var(--orange); font-size:12px; line-height:1.45; }
+.registration-skip { justify-self:start; border:0; padding:0; background:transparent; color:var(--muted); cursor:pointer; font:600 11px "JetBrains Mono",monospace; text-decoration:underline; text-underline-offset:4px; }
+.registration-skip:hover { color:var(--bone); }
+@media (max-width:800px) { .registration-layout { grid-template-columns:1fr; } .registration-reason,.registration-form { padding:24px; } }
