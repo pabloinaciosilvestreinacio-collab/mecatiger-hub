@@ -15,6 +15,7 @@ create table if not exists public.community_registrations (
 create table if not exists public.community_metrics (
   id smallint primary key check (id = 1),
   people_count bigint not null default 0,
+  states_count bigint not null default 0,
   countries_count bigint not null default 0,
   students_count bigint not null default 0,
   mentors_count bigint not null default 0,
@@ -33,11 +34,12 @@ set search_path = public
 as $$
 begin
   insert into public.community_metrics (
-    id, people_count, countries_count, students_count, mentors_count, updated_at
+    id, people_count, states_count, countries_count, students_count, mentors_count, updated_at
   )
   select
     1,
     count(*)::bigint,
+    count(distinct state) filter (where country = 'Brasil' and state <> 'Exterior')::bigint,
     count(distinct country)::bigint,
     count(*) filter (where profile_role in ('estudante', 'competidor'))::bigint,
     count(*) filter (where profile_role in ('mentor', 'professor'))::bigint,
@@ -45,6 +47,7 @@ begin
   from public.community_registrations
   on conflict (id) do update set
     people_count = excluded.people_count,
+    states_count = excluded.states_count,
     countries_count = excluded.countries_count,
     students_count = excluded.students_count,
     mentors_count = excluded.mentors_count,
