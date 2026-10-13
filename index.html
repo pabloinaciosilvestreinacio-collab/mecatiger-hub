@@ -42,7 +42,7 @@
         </div>
       </section>
 
-      <section class="stats impact-stats" aria-label="Alcance da MECATIGER"><div class="container impact-layout"><div class="globe" role="img" aria-label="Planeta Terra conectando a comunidade MecaTiger"><div class="globe-surface"><i class="land land-a"></i><i class="land land-b"></i><i class="land land-c"></i></div><div class="globe-orbit orbit-a"><b>↗</b></div><div class="globe-orbit orbit-b"><b>↗</b></div></div><div class="stats-grid">
+      <section class="stats impact-stats" aria-label="Alcance da MECATIGER"><div class="container impact-layout"><div class="globe" role="img" aria-label="Planeta Terra com continentes reais conectando a comunidade MecaTiger"><div class="globe-surface"><img class="globe-map" src="https://upload.wikimedia.org/wikipedia/commons/d/db/Simplified_World_Map.svg" alt="" /><span class="globe-shine"></span></div><div class="globe-orbit orbit-a"><b>↗</b></div><div class="globe-orbit orbit-b"><b>↗</b></div></div><div class="stats-grid">
         <div class="stat"><div class="stat-value display">0</div><div class="stat-label">Pessoas atingidas</div></div>
         <div class="stat"><div class="stat-value display">0</div><div class="stat-label">Países conectados</div></div>
         <div class="stat"><div class="stat-value display">0</div><div class="stat-label">Estudantes</div></div>
@@ -99,7 +99,7 @@
       const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('visible')), { threshold: 0.12 });
       document.querySelectorAll('.section-band, .stats, .project-card, .community-grid article, .community-split > div, .simulator-panel, .timeline-item, .split > div').forEach((element) => { element.classList.add('reveal'); observer.observe(element); });
       const links = [...document.querySelectorAll('.nav-link')];
-      const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      const sections = links.map((link) => document.getElementById((link.hash || '').slice(1))).filter(Boolean);
       const navObserver = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id)); }), { rootMargin: '-35% 0px -55% 0px' });
       sections.forEach((section) => navObserver.observe(section));
       const emailSubjects = { ajuda: 'Pedido de ajuda FTC', stem: 'Solicitar conexão STEM MecaTiger', compartilhar: 'Compartilhar conhecimento FTC', 'zero-first': 'Do 0 à FIRST', contato: 'Contato MecaTiger' };
