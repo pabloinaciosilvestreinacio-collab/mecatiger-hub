@@ -239,3 +239,14 @@ body.panel-open { overflow:hidden; }
   .globe-map,.globe-routes .route { animation:none; }
   .route-dot { display:none; }
 }
+
+.impact-stats .stats-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.registration-check-hint { margin:0 0 4px; color:var(--muted); font-size:11px; line-height:1.45; }
+@media (max-width:980px) and (min-width:621px) { .impact-stats .stats-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .impact-stats .stat:nth-child(-n+3) { border-bottom:1px solid var(--line); } .impact-stats .stat:nth-child(3) { border-right:0; } }
+
+/* Ajuste final do globo: somente o laranja da identidade MecaTiger. */
+.globe::before,.globe::after { display:none; }
+.globe-surface { border-color:rgba(242,138,26,.88); background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.2),transparent 10%),radial-gradient(circle at 65% 70%,rgba(242,138,26,.13),transparent 64%),#050505; box-shadow:0 0 38px rgba(242,138,26,.18),inset -16px -12px 26px rgba(0,0,0,.78); }
+.globe-routes .route,.globe-routes .route-b,.globe-routes .route-c { stroke:rgba(242,138,26,.82); }
+.route-dot,.dot-b,.dot-c { fill:var(--orange); filter:drop-shadow(0 0 2px rgba(242,138,26,1)); }
+.globe-shine::before,.globe-shine::after { display:none; }
