@@ -166,6 +166,8 @@ body { background:var(--bg); color:#fff; font-family:"Inter","Barlow",sans-serif
 .globe-surface { display:block; isolation:isolate; }
 .globe-map { position:absolute; left:-54%; top:7%; width:208%; height:86%; object-fit:contain; opacity:.95; filter:brightness(0) saturate(100%) invert(57%) sepia(97%) saturate(1270%) hue-rotate(358deg) brightness(101%) contrast(103%); animation:map-spin 16s linear infinite; }
 .globe-shine { position:absolute; inset:0; z-index:2; border-radius:50%; background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.22),transparent 17%),linear-gradient(105deg,rgba(0,0,0,.48),transparent 45%,rgba(0,0,0,.5)); pointer-events:none; }
+.map-credit { position:absolute; right:0; bottom:-24px; z-index:4; color:var(--muted); font:10px "JetBrains Mono",monospace; text-transform:uppercase; letter-spacing:.08em; text-decoration:none; opacity:.72; transition:color .2s,opacity .2s; }
+.map-credit:hover { color:var(--orange); opacity:1; }
 @keyframes map-spin { from { transform:translateX(0); } 50% { transform:translateX(-24%); } to { transform:translateX(0); } }
 
 .site-panel { position:fixed; inset:0; z-index:50; overflow:auto; background:rgba(0,0,0,.92); backdrop-filter:blur(14px); animation:panel-in .38s ease both; }
