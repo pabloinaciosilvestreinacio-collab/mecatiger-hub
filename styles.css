@@ -126,3 +126,39 @@ body { background:var(--bg); color:#fff; font-family:"Inter","Barlow",sans-serif
 .evidence-facts span { padding:9px 12px; border:1px solid var(--line); color:var(--orange); font:600 11px "JetBrains Mono",monospace; text-transform:uppercase; }
 .evidence-placeholder { display:grid; place-items:center; min-height:130px; margin-top:28px; border:1px dashed rgba(242,138,26,.38); color:var(--muted); font:600 11px "JetBrains Mono",monospace; letter-spacing:.08em; text-align:center; }
 @media (max-width:900px) { .impact-layout { grid-template-columns:1fr; } .globe { width:140px; height:140px; } .origin-action { grid-column:auto; } }
+
+/* Globo de conexão: Terra abstrata nas cores MECATIGER, com órbitas e setas. */
+.globe { overflow:visible; border:0; background:none; box-shadow:none; animation:none; }
+.globe-surface { position:absolute; inset:10px; overflow:hidden; border:1px solid rgba(59,158,255,.82); border-radius:50%; background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.3),transparent 10%),radial-gradient(circle at 65% 70%,rgba(59,158,255,.36),transparent 64%),#07101e; box-shadow:0 0 38px rgba(59,158,255,.2),inset -16px -12px 26px rgba(0,0,0,.65); animation:earth-turn 12s linear infinite; }
+.globe-surface::before,.globe-surface::after { content:""; position:absolute; inset:-8px -42px; border:1px solid rgba(146,129,247,.46); border-radius:50%; transform:rotate(23deg); }
+.globe-surface::after { inset:-32px -8px; border-color:rgba(242,138,26,.32); transform:rotate(-23deg); }
+.land { position:absolute; display:block; background:linear-gradient(135deg,var(--orange),var(--violet)); opacity:.86; filter:drop-shadow(0 0 6px rgba(242,138,26,.25)); }
+.land-a { width:54px; height:35px; left:24px; top:36px; border-radius:62% 34% 55% 28%; transform:rotate(-18deg); }
+.land-b { width:32px; height:54px; right:30px; top:58px; border-radius:42% 64% 30% 62%; transform:rotate(28deg); }
+.land-c { width:46px; height:22px; left:54px; bottom:28px; border-radius:56% 30% 48% 70%; transform:rotate(12deg); background:linear-gradient(90deg,var(--blue),var(--orange)); }
+.globe-orbit { position:absolute; inset:-9px -26px; border:1px solid rgba(242,138,26,.65); border-radius:50%; transform:rotate(-25deg); animation:orbit-turn 6s linear infinite; }
+.globe-orbit b { position:absolute; right:4px; top:50%; display:grid; place-items:center; width:22px; height:22px; border-radius:50%; background:var(--orange); color:#000; font:700 14px/1 Inter,sans-serif; transform:translateY(-50%) rotate(25deg); }
+.orbit-b { inset:18px -16px; border-color:rgba(146,129,247,.7); transform:rotate(58deg); animation-duration:8s; animation-direction:reverse; }
+.orbit-b b { right:auto; left:-2px; background:var(--violet); transform:translateY(-50%) rotate(-58deg); }
+@keyframes earth-turn { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+@keyframes orbit-turn { from { transform:rotate(-25deg); } to { transform:rotate(335deg); } }
+.community-split { grid-template-columns:repeat(3,1fr); }
+.community-resource { border-color:rgba(59,158,255,.38) !important; }
+.reddit-label { color:var(--blue) !important; }
+.section-band { scroll-margin-top:92px; }
+@keyframes tab-focus { 0% { opacity:.55; transform:translateY(20px); } 100% { opacity:1; transform:none; } }
+.section-band:target { animation:tab-focus .7s ease both; }
+.contact-form-layout { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr); gap:24px; }
+.contact-form,.contact-aside { padding:34px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+.contact-form { display:grid; gap:10px; }
+.contact-form label { margin-top:8px; color:var(--bone); font:600 11px "JetBrains Mono",monospace; text-transform:uppercase; }
+.contact-form input,.contact-form textarea { width:100%; border:1px solid var(--line); border-radius:6px; padding:14px; outline:0; background:#000; color:#fff; font:15px Inter,sans-serif; }
+.contact-form input:focus,.contact-form textarea:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(242,138,26,.12); }
+.contact-form textarea { resize:vertical; }
+.contact-form .button { margin-top:12px; cursor:pointer; }
+.fallback-mail { margin-top:4px; color:var(--muted); font-size:12px; text-decoration:underline; }
+.contact-aside h2 { margin:24px 0 0; font-size:clamp(58px,7vw,90px); line-height:.84; }
+.contact-aside p { margin:22px 0 0; color:var(--muted); line-height:1.6; }
+.contact-note { margin-top:26px; padding:16px; border-left:2px solid var(--orange); color:var(--muted); font-size:13px; line-height:1.5; }
+@media (max-width:900px) { .community-split,.contact-form-layout { grid-template-columns:1fr; } }
+@media (max-width:620px) { .contact-form,.contact-aside { padding:24px; } }
