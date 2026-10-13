@@ -208,3 +208,34 @@ body.panel-open { overflow:hidden; }
 .registration-skip { justify-self:start; border:0; padding:0; background:transparent; color:var(--muted); cursor:pointer; font:600 11px "JetBrains Mono",monospace; text-decoration:underline; text-underline-offset:4px; }
 .registration-skip:hover { color:var(--bone); }
 @media (max-width:800px) { .registration-layout { grid-template-columns:1fr; } .registration-reason,.registration-form { padding:24px; } }
+
+/* Rotas vivas: o mapa se desloca continuamente para sugerir a rotação da Terra,
+   enquanto pontos luminosos percorrem conexões aéreas entre continentes. */
+.globe-surface { animation:none; }
+.globe-surface::before,.globe-surface::after { display:none; }
+.globe-map { animation:map-scroll 20s linear infinite; will-change:transform; }
+.globe-routes { position:absolute; inset:0; z-index:3; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.globe-routes .route { fill:none; stroke:rgba(242,138,26,.8); stroke-width:.85; stroke-linecap:round; stroke-dasharray:1.5 2.6; filter:drop-shadow(0 0 1.5px rgba(242,138,26,.9)); animation:route-dash 3.8s linear infinite; }
+.globe-routes .route-b { stroke:rgba(146,129,247,.9); animation-duration:4.6s; animation-direction:reverse; }
+.globe-routes .route-c { stroke:rgba(59,158,255,.92); animation-duration:3.2s; }
+.route-dot { fill:var(--orange); filter:drop-shadow(0 0 2px rgba(242,138,26,1)); }
+.dot-b { fill:var(--violet); filter:drop-shadow(0 0 2px rgba(146,129,247,1)); }
+.dot-c { fill:var(--blue); filter:drop-shadow(0 0 2px rgba(59,158,255,1)); }
+.globe-shine { z-index:4; }
+.globe-orbit { display:none; }
+@keyframes map-scroll { from { transform:translateX(0); } to { transform:translateX(-48%); } }
+@keyframes route-dash { from { stroke-dashoffset:0; } to { stroke-dashoffset:-18; } }
+
+.legal-details { display:grid; gap:8px; margin-top:14px; }
+.legal-details details { border:1px solid rgba(255,255,255,.12); border-radius:8px; background:rgba(0,0,0,.32); }
+.legal-details summary { padding:12px 14px; color:var(--bone); cursor:pointer; font:600 11px "JetBrains Mono",monospace; letter-spacing:.04em; text-transform:uppercase; list-style:none; }
+.legal-details summary::-webkit-details-marker { display:none; }
+.legal-details summary::before { content:"+"; display:inline-block; width:18px; color:var(--orange); font-size:15px; }
+.legal-details details[open] summary::before { content:"−"; }
+.legal-details p { margin:0; padding:0 14px 14px 32px; color:var(--muted); font-size:12px; line-height:1.55; }
+.legal-details a { color:var(--orange); }
+.consent-line strong { color:var(--bone); font-weight:600; }
+@media (prefers-reduced-motion:reduce) {
+  .globe-map,.globe-routes .route { animation:none; }
+  .route-dot { display:none; }
+}
