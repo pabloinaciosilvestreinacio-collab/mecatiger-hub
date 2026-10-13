@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   </head>
   <body>
     <header class="site-header">
@@ -25,6 +25,7 @@
           <a class="nav-link" href="#comunidade">Comunidade</a>
           <a class="nav-link" href="#historia">A equipe</a>
           <a class="nav-link" href="#missao">Missão</a>
+          <a class="nav-link" href="#simulador">Simulador</a>
           <a class="nav-link" href="#contato">Contato</a>
         </nav>
       </div>
@@ -77,8 +78,9 @@
         <span class="eyebrow">03 / Meca Tiger Community</span>
         <h2 class="section-title display">CONHECIMENTO<br /><span class="accent">NÃO TEM FRONTEIRAS.</span></h2>
         <p class="section-copy">Não precisamos estar fisicamente juntos para construir juntos. A comunidade conecta estudantes, equipes, professores e mentores para trocar experiências e resolver problemas em conjunto.</p>
-        <div class="community-grid"><article><span class="community-icon">?</span><h3 class="display">Pedir ajuda</h3><p>Compartilhe uma dúvida, um desafio ou um problema e encontre novas possibilidades para avançar.</p></article><article><span class="community-icon">↗</span><h3 class="display">Encontrar um mentor</h3><p>Conecte quem precisa de orientação com pessoas que já percorreram caminhos semelhantes.</p></article><article><span class="community-icon">✦</span><h3 class="display">Compartilhar conhecimento</h3><p>Publique experiências, soluções, tutoriais e aprendizados para que eles alcancem mais pessoas.</p></article></div>
+        <div class="community-grid"><article class="action-card first-action"><span class="community-icon">?</span><span class="action-label">FIRST · ajuda técnica</span><h3 class="display">Pedir ajuda</h3><p>Compartilhe uma dúvida, um desafio ou um problema e encontre novas possibilidades para avançar.</p><a class="text-action" href="mailto:mecatiger6@gmail.com?subject=Pedido%20de%20ajuda%20FTC">Enviar pedido <span>↗</span></a></article><article class="action-card stem-action"><span class="community-icon">↗</span><span class="action-label">STEM · mentoria</span><h3 class="display">Encontrar um mentor</h3><p>Conecte quem precisa de orientação com pessoas que já percorreram caminhos semelhantes.</p><a class="text-action" href="https://ftcmentor.henriquesilva.dev/" target="_blank" rel="noreferrer">Ver plataforma <span>↗</span></a></article><article class="action-card share-action"><span class="community-icon">✦</span><span class="action-label">Comunidade · colaboração</span><h3 class="display">Compartilhar conhecimento</h3><p>Publique experiências, soluções, tutoriais e aprendizados para que eles alcancem mais pessoas.</p><a class="text-action" href="mailto:mecatiger6@gmail.com?subject=Compartilhar%20conhecimento%20FTC">Quero compartilhar <span>↗</span></a></article></div>
         <div class="areas"><span>Programação</span><span>Mecânica</span><span>Elétrica</span><span>Visão computacional</span><span>CAD</span><span>Fabricação</span><span>Estratégia</span><span>Gestão</span><span>Captação</span></div>
+        <div class="community-split"><div><span class="split-label first-label">REDE FIRST</span><h3 class="display">Compita melhor<br />com quem já vive o desafio.</h3><p>Fóruns, documentação e equipes FTC para dúvidas de jogo, programação, construção e estratégia.</p><a class="text-action" href="https://ftc-community.firstinspires.org/latest" target="_blank" rel="noreferrer">Abrir comunidade FIRST <span>↗</span></a></div><div><span class="split-label stem-label">REDE STEM</span><h3 class="display">Aprenda com outras<br />áreas e pessoas.</h3><p>Mentores e profissionais de mecânica, elétrica, CAD, fabricação e captação para transformar uma dúvida em conexão.</p><a class="text-action" href="mailto:mecatiger6@gmail.com?subject=Conexão%20STEM%20MecaTiger">Solicitar conexão STEM <span>↗</span></a></div></div>
       </div></section>
 
       <section class="history section-band" id="historia"><div class="container">
@@ -96,9 +98,19 @@
 
       <section class="section-band mission" id="missao"><div class="container"><span class="eyebrow">05 / De Maracanaú para o mundo</span><h2 class="section-title display">A TECNOLOGIA<br />É NOSSA<br /><span class="accent">PONTE.</span></h2><p class="section-copy">Estamos em Maracanaú, mas o conhecimento não precisa ficar limitado à nossa cidade. Queremos compartilhar o que aprendemos, trocar experiências e criar conexões que atravessem distâncias.</p><div class="mission-line"><span>MARACANAÚ</span><i></i><span>BRASIL</span><i></i><span>MUNDO</span></div></div></section>
 
-      <section class="cta-band" id="contato"><div class="container cta-inner"><div><span>O HUB ESTÁ COMEÇANDO AQUI.</span><h2 class="display">Vamos construir juntos.</h2></div><a class="button" href="mailto:mecatiger6@gmail.com">Falar com a equipe →</a></div></section>
+      <section class="simulator section-band" id="simulador"><div class="container"><span class="eyebrow">06 / Ferramenta em construção</span><h2 class="section-title display">TESTE IDEIAS<br /><span class="accent">ANTES DA ARENA.</span></h2><p class="section-copy">O MecaSim será o simulador de autônomos da comunidade MecaTiger: arena BIOBUZZ, pontos de partida, trajetórias, telemetria e diagnóstico em um só lugar.</p><div class="simulator-panel"><div class="simulator-mark display">MECA<span>SIM</span></div><div><span class="code-label">STATUS: DESENVOLVIMENTO ATIVO</span><p>Estamos preparando uma área para simular o robô, revisar movimentos e compartilhar rotinas com outras equipes.</p><a class="button outline" href="mailto:mecatiger6@gmail.com?subject=Quero%20acompanhar%20o%20MecaSim">Quero acompanhar o MecaSim →</a></div></div></div></section>
+
+      <section class="cta-band" id="contato"><div class="container"><span class="eyebrow cta-eyebrow">07 / Conexão direta</span><div class="cta-inner"><div><span>O HUB ESTÁ COMEÇANDO AQUI.</span><h2 class="display">Vamos construir juntos.</h2><p>Parcerias, mentoria, imprensa, projetos ou comunidade: escolha o caminho e fale com a equipe.</p></div><div class="contact-actions"><a class="button" href="mailto:mecatiger6@gmail.com?subject=Contato%20MecaTiger">Enviar e-mail →</a><a class="button dark-button" href="https://www.instagram.com/mecatiger_ftc/" target="_blank" rel="noreferrer">Instagram ↗</a><a class="button dark-button" href="mailto:mecatiger6@gmail.com?subject=Convite%20WhatsApp%20MecaTiger">Pedir convite da comunidade →</a></div></div></div></section>
     </main>
 
-    <footer><div class="container"><div class="footer-top"><div><a class="brand" href="#top"><img src="public/Screenshot_20261004_131612_Instagram.jpg" alt="" /><span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span></a><p class="footer-copy">FTC Team #32578<br />Maracanaú — Ceará — Brasil<br /><a href="mailto:mecatiger6@gmail.com">mecatiger6@gmail.com</a></p></div><nav class="footer-nav" aria-label="Rodapé"><a href="#ecossistema">Ecossistema</a><a href="#historia">A equipe</a><a href="#missao">Missão</a><a href="#contato">Contato</a></nav></div><div class="footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><div class="footer-links"><a href="https://www.instagram.com/mecatiger_ftc/">Instagram</a><a href="mailto:mecatiger6@gmail.com">E-mail</a><span>Privacidade</span><span>Termos</span></div></div></div></footer>
+    <footer><div class="container"><div class="footer-top"><div><a class="brand" href="#top"><img src="public/Screenshot_20261004_131612_Instagram.jpg" alt="" /><span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span></a><p class="footer-copy">Equipe FTC #32578<br />Maracanaú — Ceará — Brasil<br /><a href="mailto:mecatiger6@gmail.com">mecatiger6@gmail.com</a></p></div><nav class="footer-nav" aria-label="Rodapé"><a href="#ecossistema">Ecossistema</a><a href="#projetos">Projetos</a><a href="#comunidade">Comunidade</a><a href="#historia">A equipe</a><a href="#simulador">MecaSim</a><a href="#contato">Contato</a></nav></div><div class="footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><div class="footer-links"><a href="https://www.instagram.com/mecatiger_ftc/">Instagram</a><a href="mailto:mecatiger6@gmail.com">E-mail</a><span>Privacidade</span><span>Termos</span></div></div></div></footer>
+    <script>
+      const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('visible')), { threshold: 0.12 });
+      document.querySelectorAll('.section-band, .stats, .project-card, .community-grid article, .community-split > div, .simulator-panel, .timeline-item, .split > div').forEach((element) => { element.classList.add('reveal'); observer.observe(element); });
+      const links = [...document.querySelectorAll('.nav-link')];
+      const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      const navObserver = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id)); }), { rootMargin: '-35% 0px -55% 0px' });
+      sections.forEach((section) => navObserver.observe(section));
+    </script>
   </body>
 </html>
