@@ -287,3 +287,17 @@ body.panel-open { overflow:hidden; }
   .team-roster { grid-template-columns:1fr; }
   .member-card { grid-template-columns:76px 1fr; }
 }
+
+
+/* Estados editoriais da versão oficial: materiais reais entram quando estiverem disponíveis. */
+.project-progress { display:inline-flex; align-items:center; gap:7px; margin-top:14px; padding:7px 9px; border:1px solid rgba(242,138,26,.45); border-radius:999px; color:var(--orange); font:600 10px "JetBrains Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
+.project-progress::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--orange); box-shadow:0 0 8px rgba(242,138,26,.85); animation:progress-pulse 1.8s ease-in-out infinite; }
+.progress-card { display:grid; gap:8px; border:1px solid rgba(242,138,26,.34); border-radius:12px; background:linear-gradient(135deg,rgba(242,138,26,.1),rgba(0,0,0,.22)); }
+.progress-card .progress-kicker { color:var(--orange); font:600 10px "JetBrains Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
+.progress-card strong { color:var(--bone); font-size:20px; line-height:1.05; }
+.progress-card > span:last-child { color:var(--muted); font-size:13px; line-height:1.5; }
+.evidence-placeholder.progress-card { place-items:start; min-height:150px; margin-top:28px; padding:24px; text-align:left; }
+.community-progress { margin-top:30px; padding:24px 26px; }
+.simulator-progress { margin:12px 0 0; }
+@keyframes progress-pulse { 0%,100% { opacity:.55; transform:scale(.85); } 50% { opacity:1; transform:scale(1.15); } }
+@media (prefers-reduced-motion:reduce) { .project-progress::before { animation:none; } }
