@@ -39,7 +39,7 @@ begin
     1,
     count(*)::bigint,
     count(distinct country)::bigint,
-    count(*) filter (where profile_role = 'estudante')::bigint,
+    count(*) filter (where profile_role in ('estudante', 'competidor'))::bigint,
     count(*) filter (where profile_role in ('mentor', 'professor'))::bigint,
     timezone('utc', now())
   from public.community_registrations
