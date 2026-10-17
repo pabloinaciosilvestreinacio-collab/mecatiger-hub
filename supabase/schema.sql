@@ -64,8 +64,8 @@ for each statement execute function public.refresh_community_metrics();
 alter table public.community_registrations enable row level security;
 alter table public.community_metrics enable row level security;
 
-revoke all on public.community_registrations from anon, authenticated;
-revoke all on sequence public.community_registrations_id_seq from anon, authenticated;
+revoke all on public.community_registrations from public, anon, authenticated;
+revoke all on sequence public.community_registrations_id_seq from public, anon, authenticated;
 
 drop policy if exists "Visitors can submit a consented registration" on public.community_registrations;
 
@@ -105,7 +105,7 @@ $function$;
 revoke all on function public.register_community_member(text, text, text, text, text, boolean) from public, anon, authenticated;
 grant execute on function public.register_community_member(text, text, text, text, text, boolean) to anon, authenticated;
 
-revoke all on public.community_metrics from anon, authenticated;
+revoke all on public.community_metrics from public, anon, authenticated;
 grant select on public.community_metrics to anon, authenticated;
 
 drop policy if exists "Visitors can read aggregate metrics" on public.community_metrics;
