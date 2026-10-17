@@ -194,6 +194,7 @@
       const countrySelect = document.getElementById('cadastro-pais');
       const otherCountry = document.getElementById('cadastro-outro-pais');
       countrySelect.addEventListener('change', () => { const isOther = countrySelect.value === '__outro__'; otherCountry.hidden = !isOther; otherCountry.required = isOther; if (!isOther) otherCountry.value = ''; });
+      const previewRegistrationMode = new URLSearchParams(location.search).get('cadastro') === 'teste' || location.hash === '#cadastro-teste';
       function markRegistrationSeen() { try { sessionStorage.setItem('mecatiger-registration-seen', '1'); } catch (_) {} }
       document.querySelectorAll('[data-skip-registration]').forEach((button) => button.addEventListener('click', () => { markRegistrationSeen(); closePanels(); }));
       registrationForm.addEventListener('submit', async (event) => {
@@ -250,7 +251,6 @@
         }
       });
       loadCommunityMetrics();
-      const previewRegistrationMode = new URLSearchParams(location.search).get('cadastro') === 'teste' || location.hash === '#cadastro-teste';
       try { if (previewRegistrationMode || (!localStorage.getItem('mecatiger-registration-complete') && !sessionStorage.getItem('mecatiger-registration-seen'))) setTimeout(() => openPanel(panels.registration), 900); } catch (_) { setTimeout(() => openPanel(panels.registration), 900); }
     </script>
   </body>
