@@ -65,6 +65,7 @@ alter table public.community_registrations enable row level security;
 alter table public.community_metrics enable row level security;
 
 revoke all on public.community_registrations from anon, authenticated;
+revoke all on sequence public.community_registrations_id_seq from anon, authenticated;
 
 drop policy if exists "Visitors can submit a consented registration" on public.community_registrations;
 
