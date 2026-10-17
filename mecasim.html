@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Estado atual do simulador Meca Sim da equipe MecaTiger FTC #32578." />
+    <meta name="theme-color" content="#282a2c" />
+    <title>Meca Sim · MECATIGER FTC #32578</title>
+    <link rel="icon" href="public/mecatiger-favicon.png" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      .sim-page { min-height: calc(100vh - 160px); padding: 90px 0; }
+      .sim-card { max-width: 820px; margin-top: 34px; padding: clamp(24px,5vw,48px); border: 1px solid rgba(242,138,26,.45); border-radius: 16px; background: linear-gradient(135deg,rgba(242,138,26,.09),rgba(0,0,0,.25)); }
+      .sim-card p { max-width: 680px; color: var(--muted); line-height: 1.65; }
+      .sim-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+      .sim-status { display:inline-flex; padding:8px 12px; border:1px solid rgba(242,138,26,.55); border-radius:999px; color:var(--orange); font:600 11px "JetBrains Mono",monospace; text-transform:uppercase; }
+      .sim-note { margin-top:24px; padding-left:16px; border-left:2px solid var(--orange); }
+      @media (max-width:620px) { .sim-page { padding:56px 0; } .sim-actions > * { width:100%; text-align:center; } }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html#top" aria-label="MECATIGER — início">
+          <img src="public/Screenshot_20261004_131612_Instagram.jpg" alt="" />
+          <span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span>
+        </a>
+        <a class="button outline" href="index.html#simulador">← Voltar ao Hub</a>
+      </div>
+    </header>
+    <main id="top" class="sim-page">
+      <div class="container">
+        <span class="eyebrow">Projeto · Meca Sim</span>
+        <h1 class="display">MECA<span class="accent">SIM</span></h1>
+        <p class="section-copy">Simulador desenvolvido pela equipe MecaTiger para testar rotinas e movimentos FTC em uma arena virtual.</p>
+        <section class="sim-card" aria-labelledby="sim-status-title">
+          <span class="sim-status">Versão web: não disponível</span>
+          <h2 class="display" id="sim-status-title">ACESSO À VERSÃO<br /><span class="accent">DO PROJETO.</span></h2>
+          <p>Este Hub ainda não hospeda uma demonstração online do Meca Sim. O repositório do projeto contém o código e as instruções de execução local; confira o README antes de baixar ou executar qualquer versão.</p>
+          <div class="sim-actions">
+            <a class="button" href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim">Abrir repositório Meca Sim ↗</a>
+            <a class="button outline" href="index.html#simulador">Voltar à seção do simulador</a>
+          </div>
+          <p class="sim-note">Esta página é informativa. Ela não executa o simulador no navegador nem afirma que uma versão foi publicada.</p>
+        </section>
+      </div>
+    </main>
+    <footer><div class="container footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><a href="mailto:mecatiger6@gmail.com">mecatiger6@gmail.com</a></div></footer>
+  </body>
+</html>

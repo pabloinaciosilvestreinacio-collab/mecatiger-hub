@@ -30,8 +30,8 @@ create or replace function public.refresh_community_metrics()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
-as $$
+set search_path = ''
+as $
 begin
   insert into public.community_metrics (
     id, people_count, states_count, countries_count, students_count, mentors_count, updated_at
@@ -64,18 +64,48 @@ for each statement execute function public.refresh_community_metrics();
 alter table public.community_registrations enable row level security;
 alter table public.community_metrics enable row level security;
 
-revoke all on public.community_registrations from anon, authenticated;
-grant insert on public.community_registrations to anon, authenticated;
-grant usage, select on sequence public.community_registrations_id_seq to anon, authenticated;
+revoke all on public.community_registrations from public, anon, authenticated;
+revoke all on sequence public.community_registrations_id_seq from public, anon, authenticated;
 
 drop policy if exists "Visitors can submit a consented registration" on public.community_registrations;
-create policy "Visitors can submit a consented registration"
-on public.community_registrations
-for insert
-to anon, authenticated
-with check (consent = true);
 
-revoke all on public.community_metrics from anon, authenticated;
+create or replace function public.register_community_member(
+  p_email text,
+  p_profile_role text,
+  p_team_or_school text,
+  p_state text,
+  p_country text,
+  p_consent boolean
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+begin
+  if p_consent is distinct from true then
+    raise exception 'Consent is required' using errcode = '42501';
+  end if;
+
+  insert into public.community_registrations (
+    email, profile_role, team_or_school, state, country, consent
+  )
+  values (
+    lower(trim(p_email)),
+    p_profile_role,
+    trim(p_team_or_school),
+    trim(p_state),
+    trim(p_country),
+    true
+  )
+  on conflict (email) do nothing;
+end;
+$function$;
+
+revoke all on function public.register_community_member(text, text, text, text, text, boolean) from public, anon, authenticated;
+grant execute on function public.register_community_member(text, text, text, text, text, boolean) to anon, authenticated;
+
+revoke all on public.community_metrics from public, anon, authenticated;
 grant select on public.community_metrics to anon, authenticated;
 
 drop policy if exists "Visitors can read aggregate metrics" on public.community_metrics;
