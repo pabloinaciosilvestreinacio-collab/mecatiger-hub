@@ -5,7 +5,7 @@
 - Baseline inspecionado: branch main, commit ef8fcdb31ffba7c7132074fbc41970eab803b071 (17/10/2026).
 - Site: HTML/CSS/JavaScript estático; sem etapa de build.
 - Supabase: o repositório contém supabase/schema.sql; sua presença não confirma que o SQL esteja aplicado nem que as políticas no projeto remoto coincidam com o arquivo.
-- Meca Sim: o Hub pode apontar para o repositório, mas ainda não oferece demonstração web hospedada.
+- Meca Sim: o Hub aponta para uma página informativa e para o repositório; ainda não existe demonstração web hospedada.
 - Publicação: não iniciada. Domínio e DNS não foram tocados.
 
 ## Configuração de preview recomendada
@@ -19,16 +19,17 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 | Verificação | Estado | Evidência / próximo passo |
 |---|---|---|
 | Inspeção de estrutura e baseline | Executado | main contém index.html, styles.css, contato.html, evidencias.html, public/ e supabase/schema.sql. |
-| Leitura do README e fluxo de cadastro documentado | Executado | Modo #cadastro-teste é simulado; fluxo final usa cadastro consentido e evita duplicidade. |
+| Leitura do README e fluxo de cadastro | Executado | Confirmados cadastro, perfil entusiasta, modo #cadastro-teste simulado e tratamento documentado de e-mail duplicado. |
 | Revisão estática do SQL versionado | Executado, limitada ao arquivo | RLS ativada; cadastro tem política de INSERT com consentimento; métricas têm SELECT limitado a id = 1; sem SELECT público na tabela de e-mails. |
+| Revisão do patch e links internos novos | Executado | PR altera quatro arquivos; index.html direciona para mecasim.html; a nova página aponta para o repositório existente. |
 | Estado efetivo da RLS remota | Não executado | Exige acesso ao projeto Supabase. Verificar policies, grants, triggers e chaves sem revelar segredos. |
 | Build | Não aplicável | Site sem build step. |
-| Validação HTML e links internos | Planejado | Rodar validator no preview e verificar todas as âncoras/arquivos. |
-| Chromium desktop e mobile | Planejado | Inspecionar layout, teclado, foco, console e requests de rede no preview. |
-| Contraste e acessibilidade | Planejado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido. |
-| Cadastro com usuário de teste | Planejado | Usar e-mail controlado; verificar sucesso, duplicidade e atualização das métricas sem enumerar e-mails. |
-| Preview hospedado | Planejado | Conectar a branch do PR no Cloudflare Pages. Ainda não foi criada URL de preview. |
-| HTTPS do preview | Planejado | Validar somente após provisionamento de preview. |
+| Validação HTML completa e links externos | Não executado | Executar validator e abrir os links no preview. |
+| Chromium desktop e mobile | Não executado | Ainda não existe URL de preview; testar layout, teclado, foco, console e requests de rede. |
+| Contraste e acessibilidade | Não executado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido no preview. |
+| Cadastro com usuário de teste | Não executado | Usar e-mail controlado; verificar sucesso, duplicidade e atualização de métricas sem enumerar e-mails. |
+| Preview hospedado | Pendente | Conectar a branch do PR ao Cloudflare Pages. Não foi criada URL de preview. |
+| HTTPS do preview | Pendente | Validar após provisionamento do preview. |
 | Domínio próprio, DNS e HTTPS final | Não executado | Só após compra/provisionamento do domínio e autorização expressa para DNS/publicação. |
 
 ## Segurança do Supabase
