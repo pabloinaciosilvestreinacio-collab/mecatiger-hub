@@ -4,7 +4,7 @@
 
 - Baseline inspecionado: branch main, commit ef8fcdb31ffba7c7132074fbc41970eab803b071 (17/10/2026).
 - Site: HTML/CSS/JavaScript estático; sem etapa de build.
-- Supabase: o repositório contém supabase/schema.sql; sua presença não confirma que o SQL esteja aplicado nem que as políticas no projeto remoto coincidam com o arquivo.
+- Supabase: inspeção remota somente leitura confirmou RLS nas tabelas de cadastro e métricas; grants/policies observados são descritos abaixo. O arquivo versionado ainda não contém a correção RPC aplicada no projeto remoto.
 - Meca Sim: o Hub aponta para uma página informativa e para o repositório; ainda não existe demonstração web hospedada.
 - Publicação: não iniciada. Domínio e DNS não foram tocados.
 
@@ -20,14 +20,17 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 |---|---|---|
 | Inspeção de estrutura e baseline | Executado | main contém index.html, styles.css, contato.html, evidencias.html, public/ e supabase/schema.sql. |
 | Leitura do README e fluxo de cadastro | Executado | Confirmados cadastro, perfil entusiasta, modo #cadastro-teste simulado e tratamento documentado de e-mail duplicado. |
-| Revisão estática do SQL versionado | Executado, limitada ao arquivo | RLS ativada; cadastro tem política de INSERT com consentimento; métricas têm SELECT limitado a id = 1; sem SELECT público na tabela de e-mails. |
+| Revisão estática do SQL versionado | Executado | RLS ativada; cadastro aceita INSERT com consentimento; métricas têm SELECT limitado a id = 1; tabela de e-mails sem SELECT público. |
+| Verificação somente leitura da RLS e grants remotos | Executado | RLS ativa nas duas tabelas; anon/authenticated têm INSERT no cadastro e SELECT apenas na linha agregada; função trigger SECURITY DEFINER sem EXECUTE público. |
+| Revisão de enumeração de e-mail | Executado; achado confirmado no código | A restrição UNIQUE devolve HTTP 409 e o frontend informa que o e-mail existe. A RLS não remove esse canal lateral. PR propõe RPC com resposta idêntica em novo/duplicado; SQL ainda não aplicado ao Supabase. |
+| Busca estática por credenciais privilegiadas e sinks dinâmicos | Executado | Nenhuma service-role/secret key encontrada; a chave publishable é pública. Uso de innerHTML na página de contato recebe somente rótulos de uma lista fixa; cadastro usa textContent. |
 | Revisão do patch e links internos novos | Executado | PR altera quatro arquivos; index.html direciona para mecasim.html; a nova página aponta para o repositório existente. |
-| Estado efetivo da RLS remota | Não executado | Exige acesso ao projeto Supabase. Verificar policies, grants, triggers e chaves sem revelar segredos. |
+| Estado efetivo de RLS/grants remotos | Executado, somente leitura | RLS nas duas tabelas; cadastro público com INSERT (antes da RPC), sem SELECT; métricas com SELECT em id = 1; função de trigger SECURITY DEFINER com EXECUTE restrito. |
 | Build | Não aplicável | Site sem build step. |
 | Validação HTML completa e links externos | Não executado | Executar validator e abrir os links no preview. |
 | Chromium desktop e mobile | Não executado | Ainda não existe URL de preview; testar layout, teclado, foco, console e requests de rede. |
 | Contraste e acessibilidade | Não executado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido no preview. |
-| Cadastro com usuário de teste | Não executado | Usar e-mail controlado; verificar sucesso, duplicidade e atualização de métricas sem enumerar e-mails. |
+| Cadastro com usuário de teste | Não executado | Aplicar a mudança RPC em branch de desenvolvimento Supabase e usar e-mail controlado; comparar resposta para cadastro novo/duplicado e verificar métricas. |
 | Preview hospedado | Pendente | Conectar a branch do PR ao Cloudflare Pages. Não foi criada URL de preview. |
 | HTTPS do preview | Pendente | Validar após provisionamento do preview. |
 | Domínio próprio, DNS e HTTPS final | Não executado | Só após compra/provisionamento do domínio e autorização expressa para DNS/publicação. |

@@ -16,9 +16,9 @@ A página apresenta cadastro opcional com e-mail, perfil (incluindo entusiasta d
 
 As métricas exibidas são agregadas no Supabase: pessoas cadastradas, estados brasileiros distintos, países, estudantes e professores/mentores. O navegador pode inserir um cadastro consentido e ler somente a linha agregada de métricas; a lista de e-mails não é exposta pela API pública. O schema persistente está em supabase/schema.sql.
 
-Para revisar o formulário em toda entrada durante a prévia, use index.html#cadastro-teste. Esse modo força o painel de cadastro e simula o envio sem gravar no banco. Sem o modo de teste, a versão final respeita o cadastro salvo no navegador e trata e-mail duplicado pelo índice único no banco.
+Para revisar o formulário em toda entrada durante a prévia, use index.html#cadastro-teste. Esse modo força o painel de cadastro e simula o envio sem gravar no banco. Sem o modo de teste, a página envia o cadastro consentido à função RPC do Supabase. O índice único evita contagem duplicada, e a resposta não informa se um e-mail já existe. A migration correspondente precisa estar aplicada no ambiente Supabase antes de testar o cadastro real.
 
-A chave publishable/anon usada no navegador é pública por natureza e depende das políticas RLS. Nunca coloque service_role, secret keys ou credenciais privilegiadas no HTML. A revisão de supabase/schema.sql não comprova que o SQL foi aplicado nem que a configuração remota atual seja igual ao arquivo. Antes de produção, confirme a RLS efetiva e teste com contas descartáveis.
+A chave publishable/anon usada no navegador é pública por natureza e depende das políticas RLS. A função RPC de cadastro reduz a exposição da tabela ao retirar INSERT direto do papel público. Nunca coloque service_role, secret keys ou credenciais privilegiadas no HTML. A revisão de supabase/schema.sql não comprova que o SQL foi aplicado nem que a configuração remota atual seja igual ao arquivo. Antes de produção, confirme a RLS efetiva e teste com contas descartáveis.
 
 ## Projetos e Meca Sim
 
