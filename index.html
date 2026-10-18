@@ -283,7 +283,10 @@
         if (event.target.closest('a')) setMobileNavOpen(false);
       });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') setMobileNavOpen(false);
+        if (event.key === 'Escape' && mobileNavToggle.getAttribute('aria-expanded') === 'true') {
+          setMobileNavOpen(false);
+          mobileNavToggle.focus();
+        }
       });
     </script>
   </body>
