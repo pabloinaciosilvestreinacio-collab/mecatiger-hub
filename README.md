@@ -24,7 +24,7 @@ A chave publishable/anon usada no navegador é pública por natureza e depende d
 
 Os cards de projetos, evidências, comunidade e simulador mostram EM DESENVOLVIMENTO ou EM PREPARAÇÃO até que os materiais reais sejam publicados.
 
-A página mecasim.html informa que ainda não existe demonstração web hospedada neste Hub e direciona ao repositório Meca Sim. Ela é apenas informativa e não executa o simulador. O projeto Meca Sim não foi modificado por este repositório.
+A página mecasim.html informa que ainda não existe demonstração web hospedada neste Hub e direciona às instruções do repositório Meca Sim. O repositório de destino é privado, portanto exige uma conta GitHub autorizada. A execução é local (Python 3.10+ e JDK 17+) e o Java roda com as permissões da conta do usuário; use apenas código confiável. A página é informativa e não executa o simulador. O projeto Meca Sim não foi modificado por este repositório.
 
 ## Verificações e rollback
 
