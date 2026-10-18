@@ -30,7 +30,9 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 | Sintaxe JavaScript e modo #cadastro-teste (simulação local) | Executado | Node --check passou nos scripts inline; handler simulado confirmou mensagem de teste sem chamadas fetch; campo Outro país alterna rótulo/campo e limpa valor ao voltar para Brasil. |
 | Validação HTML completa e links externos | Não executado | Executar validator e abrir os links no preview. |
 | Parse das páginas, links locais e labels de formulário | Executado | Quatro páginas analisadas; links/âncoras locais resolvidos, IDs sem duplicidade e labels associados. Campo condicional Outro país recebeu rótulo visível quando ativado. |
-| Chromium desktop e mobile | Não executado | Ainda não existe URL de preview; testar layout, teclado, foco, console e requests de rede. |
+| Preview rápido via HTMLPreview (desktop) | Executado | Commit b50f2a2 carregou no Chromium em viewport 1363×936; `#cadastro-teste` confirmou envio simulado com dados fictícios; a página do Meca Sim abriu. Nenhum erro de console da página foi observado. |
+| Ajustes responsivos e navegação móvel | Implementado; revisão estática executada | Adicionados menu móvel com estado acessível, grade de métricas em duas colunas em telas pequenas, espaçamentos/tipografia adaptados, foco visível e redução de movimento. |
+| Chromium em viewport mobile | Não executado | O navegador disponível nesta sessão não oferece controle de viewport; validar em celular ou viewport de 390 px antes da aprovação final. |
 | Contraste e acessibilidade | Não executado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido no preview. |
 | Cadastro com usuário de teste | Não executado | Aplicar a mudança RPC em branch de desenvolvimento Supabase e usar e-mail controlado; comparar resposta para cadastro novo/duplicado e verificar métricas. |
 | Preview hospedado | Pendente | Conectar a branch do PR ao Cloudflare Pages. Não foi criada URL de preview. |
