@@ -27,7 +27,20 @@
           <a class="nav-link" href="#simulador">Simulador</a>
           <a class="nav-link" href="#contato">Contato</a>
         </nav>
+        <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Abrir menu">
+          <span aria-hidden="true">☰</span>
+        </button>
       </div>
+      <nav class="mobile-menu" id="mobile-menu" aria-label="Navegação móvel" hidden>
+        <div class="mobile-nav">
+          <a href="#projetos">Projetos</a>
+          <a href="#comunidade">Comunidade</a>
+          <a href="#equipe">A equipe</a>
+          <a href="#missao">Missão</a>
+          <a href="#simulador">Simulador</a>
+          <a href="#contato">Contato</a>
+        </div>
+      </nav>
     </header>
 
     <main id="top">
@@ -253,6 +266,25 @@
       });
       loadCommunityMetrics();
       try { if (previewRegistrationMode || (!localStorage.getItem('mecatiger-registration-complete') && !sessionStorage.getItem('mecatiger-registration-seen'))) setTimeout(() => openPanel(panels.registration), 900); } catch (_) { setTimeout(() => openPanel(panels.registration), 900); }
+    </script>
+    <script>
+      const mobileNavToggle = document.querySelector('.menu-toggle');
+      const mobileNav = document.getElementById('mobile-menu');
+      function setMobileNavOpen(open) {
+        mobileNav.hidden = !open;
+        mobileNavToggle.setAttribute('aria-expanded', String(open));
+        mobileNavToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+        mobileNavToggle.querySelector('span').textContent = open ? '×' : '☰';
+      }
+      mobileNavToggle.addEventListener('click', () => {
+        setMobileNavOpen(mobileNavToggle.getAttribute('aria-expanded') !== 'true');
+      });
+      mobileNav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) setMobileNavOpen(false);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setMobileNavOpen(false);
+      });
     </script>
   </body>
 </html>
