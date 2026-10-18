@@ -5,7 +5,7 @@
 - Baseline inspecionado: branch main, commit ef8fcdb31ffba7c7132074fbc41970eab803b071 (17/10/2026).
 - Site: HTML/CSS/JavaScript estático; sem etapa de build.
 - Supabase: inspeção remota somente leitura confirmou RLS nas tabelas de cadastro e métricas. Este PR propõe uma RPC em supabase/schema.sql; ela ainda não foi aplicada ao projeto remoto.
-- Meca Sim: o Hub aponta para uma página informativa e para o repositório; ainda não existe demonstração web hospedada.
+- Meca Sim: há uma prévia estática interativa no Hub para campo e trajetória visual; a aplicação completa segue local no repositório público, sem Pages/homepage verificado.
 - Publicação: não iniciada. Domínio e DNS não foram tocados.
 
 ## Configuração de preview recomendada
@@ -24,7 +24,7 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 | Verificação somente leitura da RLS e grants remotos | Executado | RLS ativa; anon/authenticated têm INSERT direto no cadastro sem SELECT; métricas só permitem SELECT em id = 1; refresh_community_metrics não é executável pelos papéis públicos. Veja o aviso separado sobre rls_auto_enable. |
 | Revisão de enumeração de e-mail | Executado; achado no código | O fluxo anterior distinguia a resposta 409 esperada pela restrição UNIQUE e informava que o e-mail já existia; isso permitia inferência pelo endpoint. A branch substitui o fluxo por RPC com resposta igual para novo/duplicado; SQL ainda não aplicado ao Supabase. |
 | Busca estática por credenciais privilegiadas e sinks dinâmicos | Executado | Nenhuma service-role/secret key encontrada; a chave publishable é pública. Uso de innerHTML na página de contato recebe somente rótulos de uma lista fixa; cadastro usa textContent. |
-| Revisão do patch e integração Meca Sim | Executado | index.html leva a mecasim.html; API do GitHub confirmou repositório público. Página aponta às instruções e descreve execução local com Python 3.10+ e JDK 17+, sem alegar demo web. Ainda não há demo web publicada. |
+| Revisão do patch e integração Meca Sim | Executado | index.html e mecasim.html levam à prévia limitada; API do GitHub confirmou o repositório público e ausência de Pages/homepage. A demo é independente e não altera o repositório Meca Sim. |
 | Estado efetivo de RLS/grants remotos | Executado, somente leitura | RLS ativa nas duas tabelas; anon/authenticated têm INSERT direto em community_registrations, sem SELECT; métricas têm SELECT limitado a id = 1. A função refresh_community_metrics não pode ser executada pelos papéis públicos. O remoto ainda não tem a RPC proposta nesta branch. |
 | Supabase Security Advisors e trigger remoto | Executado, somente leitura; aviso para revisão | Os advisors reportaram EXECUTE público em SECURITY DEFINER para public.rls_auto_enable() (avisos anon e authenticated). A inspeção confirmou que a função é vinculada ao event trigger ensure_rls em ddl_command_end, filtra criação de tabelas no schema public e usa search_path=pg_catalog. Não revogar nem alterar automaticamente: avaliar a dependência do trigger e confirmar se o endpoint RPC é invocável antes de qualquer mudança remota. |
 | Build | Não aplicável | Site sem build step. |
@@ -32,9 +32,9 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 | Validação HTML completa e links externos | Não executado | Executar validator e abrir os links no preview. |
 | Parse das páginas, links locais e labels de formulário | Executado | Quatro páginas analisadas; links/âncoras locais resolvidos, IDs sem duplicidade e labels associados. Campo condicional Outro país recebeu rótulo visível quando ativado. |
 | Preview rápido via HTMLPreview (desktop) | Executado | Commit b50f2a2 carregou no Chromium em viewport 1363×936; `#cadastro-teste` confirmou envio simulado com dados fictícios; a página do Meca Sim abriu. Nenhum erro de console da página foi observado. |
-| Preview da página Meca Sim via HTMLPreview | Executado | Commit 99273f3 carregou no Chromium; a página diz que o repositório é público, informa que ainda não há demo web, apresenta requisitos locais e alerta sobre execução de Java. CTA abre o README correto; árvore de acessibilidade conferida. |
+| Preview da demo Meca Sim via HTMLPreview | Executado | Commit 6c04f4f carregou no Chromium; controles acessíveis, adição de ponto pelo campo e reprodução da rota conferidos. A prévia terminou e voltou ao estado inicial. Nenhum erro da página; um aviso de extensão do navegador foi observado. |
 | Ajustes responsivos e navegação móvel | Implementado; revisão estática executada | Adicionados menu móvel com estado acessível, grade de métricas em duas colunas em telas pequenas, espaçamentos/tipografia adaptados, foco visível e redução de movimento. |
-| Chromium em viewport mobile | Não executado | O navegador disponível nesta sessão não oferece controle de viewport; validar em celular ou viewport de 390 px antes da aprovação final. |
+| Chromium em viewport mobile | Não executado | Estilos responsivos e controles por toque estão preparados; a emulação de viewport mobile não foi disponível nesta sessão. Revisar em celular ou viewport de 390 px antes da aprovação final. |
 | Contraste e acessibilidade | Não executado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido no preview. |
 | Cadastro com usuário de teste | Não executado | Aplicar a mudança RPC em branch de desenvolvimento Supabase e usar e-mail controlado; comparar resposta para cadastro novo/duplicado e verificar métricas. |
 | Preview hospedado | Pendente | Conectar a branch do PR ao Cloudflare Pages. Não foi criada URL de preview. |
