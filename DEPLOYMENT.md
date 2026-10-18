@@ -27,8 +27,9 @@ Alternativa: GitHub Pages publicado a partir de branch dedicada ou workflow, ap�
 | Revisão do patch e links internos | Executado | PR altera nove arquivos/itens; páginas apontam para favicon MecaTiger existente; index.html direciona para mecasim.html e a página aponta para o repositório existente. |
 | Estado efetivo de RLS/grants remotos | Executado, somente leitura | No projeto remoto: RLS nas duas tabelas; anon/authenticated com INSERT no cadastro, sem SELECT; métricas com SELECT em id = 1; função trigger SECURITY DEFINER com EXECUTE restrito. Isso é distinto da proposta RPC nesta branch. |
 | Build | Não aplicável | Site sem build step. |
+| Sintaxe JavaScript e modo #cadastro-teste (simulação local) | Executado | Node --check passou nos scripts inline; handler simulado confirmou mensagem de teste sem chamadas fetch; campo Outro país alterna rótulo/campo e limpa valor ao voltar para Brasil. |
 | Validação HTML completa e links externos | Não executado | Executar validator e abrir os links no preview. |
-| Parse das páginas e labels de formulário | Executado | Quatro páginas analisadas; IDs sem duplicidade e labels associados. Campo condicional Outro país recebeu rótulo visível quando ativado. |
+| Parse das páginas, links locais e labels de formulário | Executado | Quatro páginas analisadas; links/âncoras locais resolvidos, IDs sem duplicidade e labels associados. Campo condicional Outro país recebeu rótulo visível quando ativado. |
 | Chromium desktop e mobile | Não executado | Ainda não existe URL de preview; testar layout, teclado, foco, console e requests de rede. |
 | Contraste e acessibilidade | Não executado | Testar foco visível, labels, nomes acessíveis, contraste e movimento reduzido no preview. |
 | Cadastro com usuário de teste | Não executado | Aplicar a mudança RPC em branch de desenvolvimento Supabase e usar e-mail controlado; comparar resposta para cadastro novo/duplicado e verificar métricas. |
