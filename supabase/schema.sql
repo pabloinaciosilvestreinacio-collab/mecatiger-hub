@@ -31,7 +31,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 begin
   insert into public.community_metrics (
     id, people_count, states_count, countries_count, students_count, mentors_count, updated_at
@@ -116,3 +116,13 @@ to anon, authenticated
 using (id = 1);
 
 revoke all on function public.refresh_community_metrics() from public, anon, authenticated;
+
+-- Esta função pode existir em projetos criados pelo painel do Supabase. Ela é
+-- usada apenas pelo event trigger interno e não deve ser chamada pela API.
+do $$
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    execute 'revoke execute on function public.rls_auto_enable() from public, anon, authenticated';
+  end if;
+end;
+$$;
