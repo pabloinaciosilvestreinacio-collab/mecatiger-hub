@@ -6,7 +6,7 @@
     <meta name="description" content="MECATIGER FTC #32578 — robótica, comunidade, engenharia e conhecimento conectados a partir de Maracanaú." />
     <meta name="theme-color" content="#282a2c" />
     <title>MECATIGER FTC #32578</title>
-    <link rel="icon" href="public/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="public/mecatiger-favicon.png" type="image/png" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,20 @@
           <a class="nav-link" href="#simulador">Simulador</a>
           <a class="nav-link" href="#contato">Contato</a>
         </nav>
+        <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Abrir menu">
+          <span aria-hidden="true">☰</span>
+        </button>
       </div>
+      <nav class="mobile-menu" id="mobile-menu" aria-label="Navegação móvel" hidden>
+        <div class="mobile-nav">
+          <a href="#projetos">Projetos</a>
+          <a href="#comunidade">Comunidade</a>
+          <a href="#equipe">A equipe</a>
+          <a href="#missao">Missão</a>
+          <a href="#simulador">Simulador</a>
+          <a href="#contato">Contato</a>
+        </div>
+      </nav>
     </header>
 
     <main id="top">
@@ -96,7 +109,7 @@
 
       <section class="section-band mission" id="missao"><div class="container"><span class="eyebrow">05 / De Maracanaú para o mundo</span><h2 class="section-title display">A TECNOLOGIA<br />É NOSSA<br /><span class="accent">PONTE.</span></h2><p class="section-copy">Estamos em Maracanaú, mas o conhecimento não precisa ficar limitado à nossa cidade. Queremos compartilhar o que aprendemos, trocar experiências e criar conexões que atravessem distâncias.</p><div class="mission-line"><span>MARACANAÚ</span><i></i><span>BRASIL</span><i></i><span>MUNDO</span></div></div></section>
 
-      <section class="simulator section-band" id="simulador"><div class="container"><span class="eyebrow">06 / Ferramenta em construção</span><h2 class="section-title display">TESTE IDEIAS<br /><span class="accent">ANTES DA ARENA.</span></h2><p class="section-copy">O MecaSim será o simulador de autônomos da comunidade MecaTiger: arena BIOBUZZ, pontos de partida, trajetórias, telemetria e diagnóstico em um só lugar.</p><div class="simulator-panel"><div class="simulator-mark display">MECA<span>SIM</span></div><div><span class="code-label">STATUS: DESENVOLVIMENTO ATIVO</span><span class="project-progress simulator-progress">MECASIM · EM ANDAMENTO</span><p>Estamos preparando uma área para simular o robô, revisar movimentos e compartilhar rotinas com outras equipes.</p><a class="button outline" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=mecatiger6@gmail.com&amp;su=Quero%20acompanhar%20o%20MecaSim">Quero acompanhar o MecaSim →</a></div></div></div></section>
+      <section class="simulator section-band" id="simulador"><div class="container"><span class="eyebrow">06 / Prévia interativa</span><h2 class="section-title display">TESTE IDEIAS<br /><span class="accent">ANTES DA ARENA.</span></h2><p class="section-copy">Explore a arena BIOBUZZ e desenhe trajetórias simples direto no navegador. A prévia é demonstrativa; a versão completa do Meca Sim continua local.</p><div class="simulator-panel"><div class="simulator-mark display">MECA<span>SIM</span></div><div><span class="code-label">STATUS: PRÉVIA WEB LIMITADA</span><span class="project-progress simulator-progress">MECASIM · DEMONSTRAÇÃO</span><p>Marque pontos no campo e reproduza uma trajetória visual. Java, telemetria, sensores e física completa não estão disponíveis nesta prévia.</p><a class="button" href="mecasim-demo.html">Experimentar prévia web →</a> <a class="button outline" href="mecasim.html">Sobre a versão completa</a></div></div></div></section>
 
       <section class="cta-band" id="contato"><div class="container"><span class="eyebrow cta-eyebrow">07 / Conexão direta</span><div class="cta-inner"><div><span>O HUB ESTÁ COMEÇANDO AQUI.</span><h2 class="display">Vamos construir juntos.</h2><p>Parcerias, mentoria, imprensa, projetos ou comunidade: escolha o caminho e fale com a equipe.</p></div><div class="contact-actions"><a class="button" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=mecatiger6@gmail.com&amp;su=Contato%20MecaTiger">Enviar e-mail →</a><a class="button dark-button" href="https://www.instagram.com/mecatiger_ftc/" target="_blank" rel="noreferrer">Instagram ↗</a></div></div></div></section>
 
@@ -135,7 +148,7 @@
       </section>
 
       <section class="site-panel" id="contato-panel" hidden aria-hidden="true"><div class="panel-inner"><div class="panel-header"><div><span class="eyebrow">Conexão direta</span><h2 class="display">FALE COM A <span class="accent">MECATIGER.</span></h2></div><button class="panel-close" type="button" data-close-panel>Fechar ×</button></div><div class="contact-form-layout"><form class="contact-form" id="inline-contact-form"><label for="inline-nome">Seu nome</label><input id="inline-nome" name="nome" required placeholder="Como podemos chamar você?" /><label for="inline-equipe">Equipe, escola ou organização</label><input id="inline-equipe" name="equipe" placeholder="Opcional" /><label for="inline-mensagem">Mensagem</label><textarea id="inline-mensagem" name="mensagem" rows="7" required placeholder="Explique sua dúvida, proposta ou área de interesse."></textarea><button class="button" type="submit">Abrir e-mail para enviar →</button><a class="fallback-mail" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=mecatiger6@gmail.com&amp;su=Contato%20MecaTiger">Abrir Gmail sem preencher formulário</a></form><aside class="contact-aside"><span class="split-label stem-label" id="inline-contact-label">DESTINO</span><h3 class="display" id="inline-contact-title">CONEXÃO<br /><span class="accent">ABERTA.</span></h3><p>O botão abrirá uma mensagem no Gmail endereçada a <strong>mecatiger6@gmail.com</strong>.</p><div class="contact-note">A página não sai do site até você escolher enviar a mensagem.</div></aside></div></div></section>
-      <section class="site-panel registration-panel" id="cadastro-panel" hidden aria-hidden="true"><div class="panel-inner registration-inner"><div class="panel-header"><div><span class="eyebrow">MecaTiger Community · entrada</span><h2 class="display">FAÇA PARTE DA <span class="accent">REDE.</span></h2></div><button class="panel-close" type="button" data-close-panel data-skip-registration>Agora não ×</button></div><div class="registration-layout"><aside class="registration-reason"><span class="community-icon">✦</span><h3 class="display">Por que pedimos esse cadastro?</h3><p>Para mostrar um impacto real, precisamos contar as pessoas que chegam até a comunidade — sem inventar números.</p><ul><li>entender se você chega como estudante, competidor, mentor, professor, equipe ou entusiasta de robótica;</li><li>descobrir quais estados e países estão conectados;</li><li>encontrar onde a rede precisa de mais ajuda e conhecimento.</li></ul><p class="privacy-note">Seu e-mail não aparece no site. Ele fica protegido no cadastro da comunidade e só será usado para identificação da rede e contato relacionado ao projeto.</p></aside><form class="registration-form" id="community-registration-form"><label for="cadastro-email">E-mail</label><input id="cadastro-email" name="email" type="email" autocomplete="email" required placeholder="voce@exemplo.com" /><p class="registration-check-hint">Ao enviar, verificamos se este e-mail já está na rede para evitar cadastro e contagem duplicados.</p><label for="cadastro-perfil">Como você participa?</label><select id="cadastro-perfil" name="profile_role" required><option value="" selected disabled>Escolha um perfil</option><option value="competidor">Competidor(a) / integrante de equipe</option><option value="estudante">Estudante / iniciante</option><option value="mentor">Mentor(a)</option><option value="professor">Professor(a) / coordenador(a)</option><option value="equipe">Equipe / organização</option><option value="entusiasta">Entusiasta de robótica</option></select><label for="cadastro-equipe">Equipe, escola ou organização</label><input id="cadastro-equipe" name="team_or_school" required placeholder="Ex.: MecaTiger FTC #32578" /><label for="cadastro-estado">Estado ou região</label><select id="cadastro-estado" name="state" required><option value="" selected disabled>Escolha seu estado</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option><option value="Exterior">Exterior / outro</option></select><label for="cadastro-pais">País</label><select id="cadastro-pais" name="country" required><option value="Brasil" selected>Brasil</option><option>Argentina</option><option>Chile</option><option>Colômbia</option><option>México</option><option>Portugal</option><option>Estados Unidos</option><option value="__outro__">Outro país</option></select><input id="cadastro-outro-pais" class="other-country" name="other_country" hidden placeholder="Digite seu país" /><div class="legal-details"><details data-legal-section="terms"><summary>Termos de Uso</summary><p>Este hub é um espaço informativo e colaborativo da MecaTiger. Ao participar, você se compromete a informar dados verdadeiros, respeitar outras pessoas e usar os links e recursos de terceiros conforme as regras de cada plataforma. Os conteúdos externos são mantidos por seus próprios responsáveis e podem mudar sem aviso. Podemos atualizar este cadastro e estes termos para manter a comunidade segura e útil.</p></details><details data-legal-section="privacy"><summary>Política de Privacidade</summary><p>Usamos seu e-mail, perfil, equipe ou escola, estado e país para registrar a entrada na rede, gerar métricas agregadas e entender onde criar conexões. Seu e-mail e seus dados individuais não aparecem publicamente. O site exibe apenas contagens gerais; não armazenamos localização precisa neste formulário. O cadastro fica em uma base protegida e pode ser corrigido ou excluído mediante solicitação para <a href="mailto:mecatiger6@gmail.com?subject=Solicitar%20exclus%C3%A3o%20de%20cadastro">mecatiger6@gmail.com</a>.</p></details></div><label class="consent-line"><input id="cadastro-consentimento" name="consent" type="checkbox" required /> <span>Li e concordo com os <strong>Termos de Uso</strong> e a <strong>Política de Privacidade</strong>.</span></label><button class="button" type="submit">Entrar na rede →</button><p class="registration-status" id="registration-status" role="status" aria-live="polite"></p><button class="registration-skip" type="button" data-skip-registration>Continuar sem cadastro</button></form></div></div></section>
+      <section class="site-panel registration-panel" id="cadastro-panel" hidden aria-hidden="true"><div class="panel-inner registration-inner"><div class="panel-header"><div><span class="eyebrow">MecaTiger Community · entrada</span><h2 class="display">FAÇA PARTE DA <span class="accent">REDE.</span></h2></div><button class="panel-close" type="button" data-close-panel data-skip-registration>Agora não ×</button></div><div class="registration-layout"><aside class="registration-reason"><span class="community-icon">✦</span><h3 class="display">Por que pedimos esse cadastro?</h3><p>Para mostrar um impacto real, precisamos contar as pessoas que chegam até a comunidade — sem inventar números.</p><ul><li>entender se você chega como estudante, competidor, mentor, professor, equipe ou entusiasta de robótica;</li><li>descobrir quais estados e países estão conectados;</li><li>encontrar onde a rede precisa de mais ajuda e conhecimento.</li></ul><p class="privacy-note">Seu e-mail não aparece no site. Ele fica protegido no cadastro da comunidade e só será usado para identificação da rede e contato relacionado ao projeto.</p></aside><form class="registration-form" id="community-registration-form"><label for="cadastro-email">E-mail</label><input id="cadastro-email" name="email" type="email" autocomplete="email" required placeholder="voce@exemplo.com" /><p class="registration-check-hint">Ao enviar, verificamos se este e-mail já está na rede para evitar cadastro e contagem duplicados.</p><label for="cadastro-perfil">Como você participa?</label><select id="cadastro-perfil" name="profile_role" required><option value="" selected disabled>Escolha um perfil</option><option value="competidor">Competidor(a) / integrante de equipe</option><option value="estudante">Estudante / iniciante</option><option value="mentor">Mentor(a)</option><option value="professor">Professor(a) / coordenador(a)</option><option value="equipe">Equipe / organização</option><option value="entusiasta">Entusiasta de robótica</option></select><label for="cadastro-equipe">Equipe, escola ou organização</label><input id="cadastro-equipe" name="team_or_school" required placeholder="Ex.: MecaTiger FTC #32578" /><label for="cadastro-estado">Estado ou região</label><select id="cadastro-estado" name="state" required><option value="" selected disabled>Escolha seu estado</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option><option value="Exterior">Exterior / outro</option></select><label for="cadastro-pais">País</label><select id="cadastro-pais" name="country" required><option value="Brasil" selected>Brasil</option><option>Argentina</option><option>Chile</option><option>Colômbia</option><option>México</option><option>Portugal</option><option>Estados Unidos</option><option value="__outro__">Outro país</option></select><label for="cadastro-outro-pais" id="cadastro-outro-pais-label" hidden>Digite seu país</label><input id="cadastro-outro-pais" class="other-country" name="other_country" hidden placeholder="Digite seu país" /><div class="legal-details"><details data-legal-section="terms"><summary>Termos de Uso</summary><p>Este hub é um espaço informativo e colaborativo da MecaTiger. Ao participar, você se compromete a informar dados verdadeiros, respeitar outras pessoas e usar os links e recursos de terceiros conforme as regras de cada plataforma. Os conteúdos externos são mantidos por seus próprios responsáveis e podem mudar sem aviso. Podemos atualizar este cadastro e estes termos para manter a comunidade segura e útil.</p></details><details data-legal-section="privacy"><summary>Política de Privacidade</summary><p>Usamos seu e-mail, perfil, equipe ou escola, estado e país para registrar a entrada na rede, gerar métricas agregadas e entender onde criar conexões. Seu e-mail e seus dados individuais não aparecem publicamente. O site exibe apenas contagens gerais; não armazenamos localização precisa neste formulário. O cadastro fica em uma base protegida e pode ser corrigido ou excluído mediante solicitação para <a href="mailto:mecatiger6@gmail.com?subject=Solicitar%20exclus%C3%A3o%20de%20cadastro">mecatiger6@gmail.com</a>.</p></details></div><label class="consent-line"><input id="cadastro-consentimento" name="consent" type="checkbox" required /> <span>Li e concordo com os <strong>Termos de Uso</strong> e a <strong>Política de Privacidade</strong>.</span></label><button class="button" type="submit">Entrar na rede →</button><p class="registration-status" id="registration-status" role="status" aria-live="polite"></p><button class="registration-skip" type="button" data-skip-registration>Continuar sem cadastro</button></form></div></div></section>
     </main>
 
     <footer><div class="container"><div class="footer-top"><div><a class="brand" href="#top"><img src="public/Screenshot_20261004_131612_Instagram.jpg" alt="" /><span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span></a><p class="footer-copy">Equipe FTC #32578<br />Maracanaú — Ceará — Brasil<br /><a href="mailto:mecatiger6@gmail.com">mecatiger6@gmail.com</a></p></div><nav class="footer-nav" aria-label="Rodapé"><a href="#projetos">Projetos</a><a href="#comunidade">Comunidade</a><a href="#historia">A equipe</a><a href="#simulador">MecaSim</a><a href="#contato">Contato</a></nav></div><div class="footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><div class="footer-links"><a href="https://www.instagram.com/mecatiger_ftc/">Instagram</a><a href="mailto:mecatiger6@gmail.com">E-mail</a><a href="#cadastro-panel" data-legal-panel="privacy">Privacidade</a><a href="#cadastro-panel" data-legal-panel="terms">Termos</a></div></div></div></footer>
@@ -193,12 +206,88 @@
       const registrationStatus = document.getElementById('registration-status');
       const countrySelect = document.getElementById('cadastro-pais');
       const otherCountry = document.getElementById('cadastro-outro-pais');
-      countrySelect.addEventListener('change', () => { const isOther = countrySelect.value === '__outro__'; otherCountry.hidden = !isOther; otherCountry.required = isOther; if (!isOther) otherCountry.value = ''; });
+      const otherCountryLabel = document.getElementById('cadastro-outro-pais-label');
+      countrySelect.addEventListener('change', () => { const isOther = countrySelect.value === '__outro__'; otherCountry.hidden = !isOther; otherCountryLabel.hidden = !isOther; otherCountry.required = isOther; if (!isOther) otherCountry.value = ''; });
+      const previewRegistrationMode = new URLSearchParams(location.search).get('cadastro') === 'teste' || location.hash === '#cadastro-teste';
       function markRegistrationSeen() { try { sessionStorage.setItem('mecatiger-registration-seen', '1'); } catch (_) {} }
       document.querySelectorAll('[data-skip-registration]').forEach((button) => button.addEventListener('click', () => { markRegistrationSeen(); closePanels(); }));
-      registrationForm.addEventListener('submit', async (event) => { event.preventDefault(); const submit = registrationForm.querySelector('button[type="submit"]'); const data = new FormData(registrationForm); const country = data.get('country') === '__outro__' ? String(data.get('other_country') || '').trim() : String(data.get('country') || '').trim(); const email = String(data.get('email') || '').trim().toLowerCase(); if (!country) { registrationStatus.textContent = 'Informe seu país para entrar na contagem.'; return; } submit.disabled = true; if (previewRegistrationMode) { registrationStatus.textContent = 'Modo de teste: este cadastro não foi salvo.'; markRegistrationSeen(); setTimeout(closePanels, 900); submit.disabled = false; return; } registrationStatus.textContent = 'Verificando seu e-mail e registrando sua entrada…'; const payload = { email, profile_role: data.get('profile_role'), team_or_school: String(data.get('team_or_school') || '').trim(), state: data.get('state'), country, consent: data.get('consent') === 'on' }; try { const response = await fetch(`${SUPABASE_URL}/rest/v1/community_registrations`, { method: 'POST', headers: { ...supabaseHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(payload) }); if (!response.ok && response.status !== 409) throw new Error(`registration ${response.status}`); localStorage.setItem('mecatiger-registration-complete', '1'); markRegistrationSeen(); registrationStatus.textContent = response.status === 409 ? 'Este e-mail já possui cadastro. A contagem de pessoas e estados não foi duplicada.' : 'Cadastro concluído. Estado e país adicionados às métricas da comunidade.'; await loadCommunityMetrics(); setTimeout(closePanels, 1400); } catch (error) { registrationStatus.textContent = 'Não foi possível verificar o cadastro agora. Tente novamente em alguns segundos.'; console.warn('Cadastro da comunidade indisponível:', error); } finally { submit.disabled = false; } });      loadCommunityMetrics();
-      const previewRegistrationMode = new URLSearchParams(location.search).get('cadastro') === 'teste' || location.hash === '#cadastro-teste';
+      registrationForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submit = registrationForm.querySelector('button[type="submit"]');
+        const data = new FormData(registrationForm);
+        const country = data.get('country') === '__outro__'
+          ? String(data.get('other_country') || '').trim()
+          : String(data.get('country') || '').trim();
+        const email = String(data.get('email') || '').trim().toLowerCase();
+
+        if (!country) {
+          registrationStatus.textContent = 'Informe seu país para entrar na contagem.';
+          return;
+        }
+
+        submit.disabled = true;
+        if (previewRegistrationMode) {
+          registrationStatus.textContent = 'Modo de teste: este cadastro não foi salvo.';
+          markRegistrationSeen();
+          setTimeout(closePanels, 900);
+          submit.disabled = false;
+          return;
+        }
+
+        registrationStatus.textContent = 'Enviando cadastro…';
+        const payload = {
+          p_email: email,
+          p_profile_role: data.get('profile_role'),
+          p_team_or_school: String(data.get('team_or_school') || '').trim(),
+          p_state: data.get('state'),
+          p_country: country,
+          p_consent: data.get('consent') === 'on'
+        };
+
+        try {
+          const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/register_community_member`, {
+            method: 'POST',
+            headers: { ...supabaseHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`registration ${response.status}`);
+
+          localStorage.setItem('mecatiger-registration-complete', '1');
+          markRegistrationSeen();
+          registrationStatus.textContent = 'Cadastro processado. Se este e-mail já estava cadastrado, ele não foi contado novamente.';
+          await loadCommunityMetrics();
+          setTimeout(closePanels, 1400);
+        } catch (error) {
+          registrationStatus.textContent = 'Não foi possível concluir o cadastro agora. Tente novamente em alguns segundos.';
+          console.warn('Cadastro da comunidade indisponível:', error);
+        } finally {
+          submit.disabled = false;
+        }
+      });
+      loadCommunityMetrics();
       try { if (previewRegistrationMode || (!localStorage.getItem('mecatiger-registration-complete') && !sessionStorage.getItem('mecatiger-registration-seen'))) setTimeout(() => openPanel(panels.registration), 900); } catch (_) { setTimeout(() => openPanel(panels.registration), 900); }
+    </script>
+    <script>
+      const mobileNavToggle = document.querySelector('.menu-toggle');
+      const mobileNav = document.getElementById('mobile-menu');
+      function setMobileNavOpen(open) {
+        mobileNav.hidden = !open;
+        mobileNavToggle.setAttribute('aria-expanded', String(open));
+        mobileNavToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+        mobileNavToggle.querySelector('span').textContent = open ? '×' : '☰';
+      }
+      mobileNavToggle.addEventListener('click', () => {
+        setMobileNavOpen(mobileNavToggle.getAttribute('aria-expanded') !== 'true');
+      });
+      mobileNav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) setMobileNavOpen(false);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && mobileNavToggle.getAttribute('aria-expanded') === 'true') {
+          setMobileNavOpen(false);
+          mobileNavToggle.focus();
+        }
+      });
     </script>
   </body>
 </html>
