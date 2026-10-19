@@ -4,9 +4,9 @@ Este repositório contém o Hub da equipe como site estático em HTML, CSS e Jav
 
 ## Páginas e hospedagem
 
-A branch codex/hub-preview-mecasim-2026-10-17 contém uma proposta reversível para revisão. A hospedagem recomendada para preview é Cloudflare Pages conectada a esta branch, com diretório de saída na raiz e comando de build vazio. Mantenha o preview em URL pages.dev; não associe domínio personalizado nesta etapa.
+O site foi preparado para publicação estática pelo GitHub Pages a partir da raiz da branch `main`. O arquivo `.nojekyll` impede processamento Jekyll desnecessário. O domínio padrão esperado, depois de habilitar Pages, é `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/`.
 
-GitHub Pages é uma alternativa estática, mas exige habilitação nas configurações do repositório. Nenhuma hospedagem, domínio ou DNS é configurado por este repositório. Deploy de produção requer aprovação explícita separada.
+Domínio próprio e DNS continuam fora do repositório e devem ser configurados somente após o domínio ser provisionado.
 
 Configuração de preview e rollback: DEPLOYMENT.md.
 
@@ -16,9 +16,9 @@ A página apresenta cadastro opcional com e-mail, perfil (incluindo entusiasta d
 
 As métricas exibidas são agregadas no Supabase: pessoas cadastradas, estados brasileiros distintos, países, estudantes e professores/mentores. O navegador pode inserir um cadastro consentido e ler somente a linha agregada de métricas; a lista de e-mails não é exposta pela API pública. O schema persistente está em supabase/schema.sql.
 
-Para revisar o formulário em toda entrada durante a prévia, use index.html#cadastro-teste. Esse modo força o painel de cadastro e simula o envio sem gravar no banco. Sem o modo de teste, a página envia o cadastro consentido à função RPC do Supabase. O índice único evita contagem duplicada, e a resposta não informa se um e-mail já existe. A alteração proposta em supabase/schema.sql precisa estar aplicada em um ambiente Supabase de desenvolvimento antes de testar o cadastro real.
+Para revisar o formulário sem gravar dados, use `index.html#cadastro-teste`. Esse modo força o painel de cadastro e simula o envio. Sem o modo de teste, a página envia o cadastro consentido à função RPC do Supabase. O índice único evita contagem duplicada, e a resposta não informa se um e-mail já existe.
 
-A chave publishable/anon usada no navegador é pública por natureza e depende das políticas RLS. A função RPC de cadastro reduz a exposição da tabela ao retirar INSERT direto do papel público. Nunca coloque service_role, secret keys ou credenciais privilegiadas no HTML. A revisão de supabase/schema.sql não comprova que o SQL foi aplicado nem que a configuração remota atual seja igual ao arquivo. Antes de produção, confirme a RLS efetiva e teste com contas descartáveis.
+A chave publishable usada no navegador é pública por natureza e depende das políticas RLS. A função RPC de cadastro reduz a exposição da tabela ao retirar INSERT direto do papel público. Nunca coloque `service_role`, secret keys ou credenciais privilegiadas no HTML. Antes de produção, confirme a RLS efetiva e teste com dados descartáveis.
 
 ## Projetos e Meca Sim
 
