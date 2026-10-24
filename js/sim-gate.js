@@ -1,8 +1,9 @@
 import { supabase } from "./rede-client.js";
+import { isVerifiedMember } from "./rede-identity.mjs";
 // UX gate only. Static GitHub Pages content is publicly retrievable by URL.
 try {
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  if (error || !isVerifiedMember(data.user)) {
     location.replace("entrar.html?next=mecasim-demo.html");
   } else {
     document.body.style.visibility = "visible";
