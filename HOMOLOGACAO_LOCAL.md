@@ -6,7 +6,7 @@ Estado: ambiente descartável preparado na branch de testes. Nada neste fluxo vi
 
 - Supabase CLI fixado em `2.122.0` no workflow.
 - Node.js 24 e runner padrão `ubuntu-latest`.
-- Banco, Auth, Mailpit e Edge Runtime são containers locais e descartáveis.
+- Banco, Auth, Mailpit, REST e Edge Runtime são containers locais e descartáveis; serviços fora do escopo são excluídos no CI.
 - O teste recusa qualquer `SUPABASE_URL` ou `MAILPIT_URL` cujo host não seja `127.0.0.1` ou `localhost`.
 - Nenhum `supabase login`, `supabase link`, `supabase db push` ou `supabase functions deploy` é executado.
 - Chaves locais efêmeras são gravadas apenas em arquivo temporário do runner, não são exibidas nem versionadas.
@@ -25,7 +25,6 @@ Comandos:
 
 ```bash
 npx --yes supabase@2.122.0 start
-npx --yes supabase@2.122.0 functions serve
 ```
 
 Em outro terminal, obtenha as variáveis locais sem publicá-las, mapeie `API_URL`, `ANON_KEY`, `SERVICE_ROLE_KEY`, `JWT_SECRET` e `INBUCKET_URL` para os nomes esperados por `tests/local-supabase-e2e.mjs`, e execute:
@@ -63,6 +62,7 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - Parse do `supabase/config.toml`: aprovado.
 - Download do Chromium para Playwright: bloqueado pela restrição de rede deste ambiente; nenhum resultado de navegador foi declarado.
 - Pilha Supabase completa: não executada aqui porque Docker não está instalado; deve ser comprovada pelo workflow descartável.
+- Primeira execução do workflow: as migrações, Mailpit e os três usuários OTP funcionaram, mas o teste encontrou uma inicialização duplicada do Edge Runtime; o workflow foi corrigido e precisa ser reexecutado.
 
 ## Limitações e riscos pendentes
 
