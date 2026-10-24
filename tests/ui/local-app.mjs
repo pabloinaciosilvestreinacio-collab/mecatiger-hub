@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 
-const browserClient = readFileSync("test-results/supabase-browser.mjs", "utf8");
+const browserClient = readFileSync(".mecatiger-browser-build/supabase-browser.mjs", "utf8");
 const allowedHosts = new Set(["127.0.0.1", "localhost"]);
 
 export function localEnvironment(required = false) {
