@@ -7,6 +7,23 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   const postTitle = `Fluxo completo ${Date.now()}`;
   const routeName = `Rota UI ${Date.now()}`;
 
+  // Keep the first profile read pending to reproduce the previously unguarded race.
+  // Requests still target the disposable local Supabase; no mocked authorization.
+  let notifyProfileRead, releaseProfileRead;
+  const intercepted = new Promise(resolve => { notifyProfileRead = resolve; });
+  const held = new Promise(resolve => { releaseProfileRead = resolve; });
+  let heldOnce = false;
+  const holdFirstProfileRead = async route => {
+    if (!heldOnce && route.request().method() === "GET" &&
+        route.request().url().includes("select=display_name")) {
+      heldOnce = true;
+      notifyProfileRead();
+      await held;
+    }
+    await route.continue();
+  };
+  await page.route("**/rest/v1/rede_profiles?*", holdFirstProfileRead);
+
   await page.goto("/entrar.html?next=rede.html");
   await page.locator("#auth-email").fill(email);
   await page.getByRole("button", { name: "Solicitar link de acesso" }).click();
@@ -15,10 +32,23 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   const confirmationLink = await waitForConfirmationLink(email);
   await page.goto(confirmationLink);
   await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
+  // The session may be valid while profile/moderator queries remain in flight.
+  // No authenticated action is available until both checks have resolved.
+  await Promise.race([
+    intercepted,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Profile request did not start")), 20_000))
+  ]);
+  await expect(page.locator("#rede-identity")).toContainText("Verificando sessão e permissões");
+  await expect(page.locator("#profile-form button[type=submit]")).toBeDisabled();
+  await expect(page.locator("#post-form")).toBeHidden();
+  for (const button of await page.locator("[data-request-kind]").all()) {
+    await expect(button).toBeDisabled();
+  }
+  releaseProfileRead();
+  await page.unroute("**/rest/v1/rede_profiles?*", holdFirstProfileRead);
   await expect(page.locator("#rede-identity")).toContainText("Sessão autenticada");
-  // Identity banner appears before the async profile/RLS queries settle.
-  // Wait for the initial profile check before submitting a new profile.
   await expect(page.locator("#post-status")).toContainText("Salve seu perfil público antes de publicar.");
+  await expect(page.locator("#profile-form button[type=submit]")).toBeEnabled();
 
   await page.locator("#display-name").fill("Participante UI");
   await page.locator("#profile-form").getByRole("button", { name: "Salvar perfil" }).click();
