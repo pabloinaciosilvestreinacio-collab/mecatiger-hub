@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { installLocalApp } from "./local-app.mjs";
 
 const pages = [
   ["/rede.html", "Rede Meca Tiger"],
@@ -8,11 +9,7 @@ const pages = [
 ];
 
 test.beforeEach(async ({ context }) => {
-  await context.route("**/*", route => {
-    const url = new URL(route.request().url());
-    if (["127.0.0.1", "localhost"].includes(url.hostname)) return route.continue();
-    return route.abort("blockedbyclient");
-  });
+  await installLocalApp(context);
 });
 
 for (const [path, title] of pages) {
