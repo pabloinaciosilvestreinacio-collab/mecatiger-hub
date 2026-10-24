@@ -64,4 +64,33 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("publicly retrievable",gate)
         self.assertIn('src="js/sim-gate.js"',(ROOT/"mecasim-demo.html").read_text(encoding="utf-8"))
 
+
+    def test_social_actions_do_not_fake_success(self):
+        source=(ROOT/"js/rede.js").read_text(encoding="utf-8")
+        for table in ("rede_profiles","rede_posts","rede_comments","rede_requests",
+                      "rede_reports","rede_moderators"):
+            with self.subTest(table=table):
+                self.assertIn(f'from("{table}")',source)
+        self.assertIn("profileReady",source)
+        self.assertIn("isModerator",source)
+        self.assertIn('status","approved"',source)
+        self.assertIn("window.confirm(",source)
+
+    def test_public_pages_disclose_private_simulator_limitation(self):
+        document=(ROOT/"REDE_MVP.md").read_text(encoding="utf-8")
+        self.assertIn("NÃO bloqueia leitura",document)
+        self.assertIn("NÃO foi executada",document)
+        site=(ROOT/"index.html").read_text(encoding="utf-8")
+        self.assertIn("rede.html",site)
+        self.assertIn("não cria uma conta autenticada",site)
+
+    def test_no_superuser_access_from_browser(self):
+        client=(ROOT/"js/rede-client.js").read_text(encoding="utf-8")
+        self.assertNotIn("sb_secret_",client)
+        for source in (ROOT/"js/rede-auth.js",ROOT/"js/rede.js",ROOT/"js/sim-gate.js"):
+            code=source.read_text(encoding="utf-8")
+            with self.subTest(file=source.name):
+                self.assertNotIn("auth.admin",code)
+                self.assertNotIn(".innerHTML",code)
+
 if __name__=="__main__": unittest.main()
