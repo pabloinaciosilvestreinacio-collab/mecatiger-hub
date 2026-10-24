@@ -11,13 +11,14 @@ O site atualmente publicado usa HTML, CSS e JavaScript estáticos no GitHub Page
 - js/rede-client.js: Supabase JS versionado, chave somente publishable, cliente PKCE.
 - js/rede.js: operações reais com Supabase, sem conteúdo fictício; controle de acesso no banco.
 - supabase/migrations/20261024160000_rede_mecatiger_mvp.sql: schema ADITIVO, sem alterar community_registrations ou community_metrics.
+- supabase/migrations/20261024163000_require_nonanonymous_identity.sql: reforço de políticas RLS, sem executar em produção.
 - js/sim-gate.js: barreira visual/de navegação; NÃO bloqueia leitura do HTML público no GitHub Pages.
 
 ## Configuração necessária para autenticação por e-mail
 
 1. O projeto Supabase precisa de Auth por e-mail habilitado e quotas/SMTP adequadas.
 2. Em Authentication > URL Configuration, configurar Site URL como https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/ e autorizar como redirect https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html.
-3. Para o fluxo PKCE por link, ajustar o template Magic Link para incluir o destino permitido e o hash: {{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email. Testar com link verdadeiro. O template padrão pode não funcionar com este fluxo.
+3. Para o fluxo PKCE por link, ajustar o template Magic Link para incluir o destino permitido e o hash: {{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email. Testar com link verdadeiro. O template padrão pode não funcionar com este fluxo.
 4. Ativar medidas anti-spam e analisar CAPTCHA e SMTP. Supabase Auth possui limites de solicitação de e-mail, mas isso não substitui controles de abuso de aplicação.
 5. O login atual oferece link de e-mail. A interface de digitação de OTP ficará para outra etapa. Nunca pedir que usuários compartilhem códigos.
 6. Após um login de teste e verificação do ID real do usuário, um administrador deve cadastrar o moderador no banco protegido, usando INSERT em public.rede_moderators via console administrativo. Não atribuir papeis por user_metadata nem no JavaScript.
@@ -39,6 +40,34 @@ Verificações de autorização obrigatórias após instalar o schema no ambient
 | Atribuir-se papel de moderador | Não | Não | Não | Somente operador do banco |
 
 Testes SQL feitos com o proprietário postgres NÃO representam testes de RLS. Usar JWTs reais com papéis anon/authenticated.
+
+## Ciclo de segurança: alternativa 3 — defesa dupla contra Auth anônimo
+
+**Estado: implementado e testado somente na branch. A opção de Anonymous Sign-Ins em produção NÃO foi alterada e seu estado atual não foi confirmado.**
+
+- Migração aditiva `supabase/migrations/20261024163000_require_nonanonymous_identity.sql`: RLS `AS RESTRICTIVE` obriga `auth.jwt()->>'is_anonymous' = false` para INSERT, UPDATE e DELETE nos recursos da Rede. Claims ausentes também não passam; donos e moderadores continuam sujeitos às políticas de autoria/autorização.
+- Consultas públicas a publicações e comentários aprovados continuam permitidas; sessões anônimas não conseguem consultar conteúdo pendente privado, pedidos ou denúncias.
+- `js/rede-identity.mjs`: interface trata como participante somente usuário com identidade, e-mail confirmado e `is_anonymous === false`. Frontend não é uma barreira de segurança independente do banco.
+- `tests/rls_smoke.sql` agora testa a sessão Auth anônima usando papel `authenticated` e marca JWT `is_anonymous=true`, inclusive tentativa de inserir, alterar, apagar e visualizar conteúdo privado. Testa também a falta do claim, com negação por padrão.
+- `tests/rede-identity.test.mjs`: testes Node de e-mail confirmado, e-mail não confirmado, anônimo e claim ausente.
+
+### Configuração do Supabase Auth — passo obrigatório ainda pendente
+
+1. Acesse [Supabase > Authentication > Providers](https://supabase.com/dashboard/project/rnnzumzqilkuecvgsjnv/auth/providers).
+2. Localize **Anonymous Sign-Ins** (ou provedor Anonymous) e configure como **desativado**. Não confunda com a chave pública `anon`/`sb_publishable_*`, necessária para o feed e métricas.
+3. Confira no painel que o provedor Anonymous permanece desativado. O conector disponível nesta sessão não expõe leitura nem atualização dessa preferência; **não afirmar que foi desativada até inspeção real**.
+4. Em projeto de teste, verificar que `signInAnonymously()` é rejeitado e que um usuário novo autenticado por link de e-mail consegue interagir após confirmação.
+5. Manter as políticas restritivas mesmo com Anonymous Sign-Ins desativado: protege contra tokens/sessões antigos, mudanças posteriores de configuração e erros operacionais.
+
+### Magic Link e retorno à página
+
+O link de e-mail deve preservar somente as rotas autorizadas (`rede.html`, `mecasim-demo.html`, `mecasim.html`). A tela `entrar.html` agora envia `emailRedirectTo` com o parâmetro seguro `?next=...`. Por isso, ao configurar o template PKCE do Magic Link, a sintaxe deve **acrescentar** parâmetros usando `&`:
+
+`{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email`
+
+Não duplicar `?` na URL. Configure redirects permitidos e teste em caixa de entrada real antes de publicar. O template e o SMTP de produção não foram alterados.
+
+**Escopo de teste:** a suíte PostgreSQL usa simulação de claims fornecidos à conexão; não emite nem verifica a assinatura criptográfica de um JWT real. A autenticidade do JWT no Supabase é responsabilidade do Auth/PostgREST. Teste end-to-end com um usuário temporário ainda é exigido.
 
 ## Segurança e privacidade
 
