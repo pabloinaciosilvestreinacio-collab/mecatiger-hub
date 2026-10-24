@@ -56,5 +56,5 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await expect(page.locator("#meca-gallery")).toBeVisible();
   // A separate local CMS security suite also uploads a legitimate fixture.
   // Verify THIS browser upload is rendered, not the global gallery count.
-  await expect(page.locator("#meca-photo-gallery figcaption")).toContainText(["Foto homologada pela equipe"]);
+  await expect(page.locator("#meca-photo-gallery figcaption").filter({hasText:"Foto homologada pela equipe"})).toHaveCount(1);
 });
