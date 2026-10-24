@@ -11,6 +11,7 @@ const rows=[
   {id:2,owner_id:"user-B",name:"Route B",points:[{x:2,y:2}],created_at:"2026-10-24T12:10:00Z"}
 ];
 
+let lastInserted;
 function makeClient() {
   return function _createClient(_url,_key,options) {
     const token=options.global.headers.Authorization.slice(7);
@@ -24,21 +25,22 @@ function makeClient() {
                                          : {data:{user:null},error:{message:"not authenticated"}}},
       from(table) {
         assert.equal(table,"mecasim_trajectories");
-        const q={action:"list",conditions:[],data:null};
+        const q={action:"list",conditions:[],data:null,columns:null};
+        const project = row => row && q.columns ? Object.fromEntries(q.columns.map(key => [key,row[key]])) : row;
         const builder={
-          select(){ return builder; },
+          select(columns){ q.columns=columns.split(",").map(x=>x.trim()); return builder; },
           eq(column,value){q.conditions.push([column,value]);return builder;},
           order(){return builder;},
-          limit(){return Promise.resolve({data:rows.filter(x=>x.owner_id===identity.id),error:null});},
-          insert(record) {q.action="insert";q.data=record;return builder;},
-          single() { if(q.action==="insert")return Promise.resolve({data:{id:3,...q.data},error:null}); return Promise.resolve({data:null,error:null});},
+          limit(){return Promise.resolve({data:rows.filter(x=>x.owner_id===identity.id).map(project),error:null});},
+          insert(record) {q.action="insert";q.data=record;lastInserted=record;return builder;},
+          single() { if(q.action==="insert")return Promise.resolve({data:project({id:3,...q.data}),error:null}); return Promise.resolve({data:null,error:null});},
           delete(){q.action="delete";return builder;},
           maybeSingle(){
             const owner=q.conditions.find(x=>x[0]==="owner_id")?.[1];
             const id=q.conditions.find(x=>x[0]==="id")?.[1];
             const record=rows.find(x=>x.owner_id===owner && x.owner_id===identity.id && x.id===id);
-            if(q.action==="delete")return Promise.resolve({data:record?{id:record.id}:null,error:null});
-            return Promise.resolve({data:record||null,error:null});
+            if(q.action==="delete")return Promise.resolve({data:project(record)||null,error:null});
+            return Promise.resolve({data:project(record)||null,error:null});
           }
         };
         return builder;
@@ -123,7 +125,8 @@ test("valid save uses authenticated owner id regardless of supplied owner_id",as
   const r=await call("valid-A",{action:"save",name:"New route",owner_id:"user-B",points:[{x:1.83,y:0.65}]});
   assert.equal(r.status,201);
   const payload=await r.json();
-  assert.equal(payload.trajectory.owner_id,"user-A");
+  assert.equal(payload.trajectory.owner_id,undefined);
+  assert.equal(lastInserted.owner_id,"user-A");
 });
 test("unsupported methods and unknown operations fail closed",async()=>{
   assert.equal((await call("valid-A",{action:"unknown"})).status,400);
