@@ -55,7 +55,9 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          npx --yes supabase@2.122.0 start
+          npx --yes supabase@2.122.0 start \
+            --exclude realtime,storage-api,imgproxy,postgres-meta,studio,logflare,vector,supavisor \
+            > "$RUNNER_TEMP/supabase-start.log" 2>&1
           npx --yes supabase@2.122.0 status -o env > "$RUNNER_TEMP/supabase-local.env"
           set -a
           source "$RUNNER_TEMP/supabase-local.env"
@@ -64,21 +66,18 @@ jobs:
           export SUPABASE_ANON_KEY="$ANON_KEY"
           export SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
           export SUPABASE_JWT_SECRET="$JWT_SECRET"
-          export MAILPIT_URL="${INBUCKET_URL:-http://127.0.0.1:54324}"
+          export MAILPIT_URL="${MAILPIT_URL:-${INBUCKET_URL:-http://127.0.0.1:54324}}"
           case "$SUPABASE_URL" in
             http://127.0.0.1:*|http://localhost:*) ;;
             *) echo "Refusing non-local Supabase URL" >&2; exit 1 ;;
           esac
-          npx --yes supabase@2.122.0 functions serve > "$RUNNER_TEMP/functions.log" 2>&1 &
-          function_pid=$!
-          trap 'kill "$function_pid" 2>/dev/null || true' EXIT
           for attempt in {1..60}; do
             code="$(curl --silent --output /dev/null --write-out '%{http_code}' \
               -X POST -H 'Origin: http://127.0.0.1:8000' -H 'Content-Type: application/json' \
               -d '{"action":"list"}' "$SUPABASE_URL/functions/v1/mecasim-trajectories" || true)"
             if [ "$code" = "401" ]; then break; fi
             if [ "$attempt" = "60" ]; then
-              sed -n '1,200p' "$RUNNER_TEMP/functions.log" >&2
+              echo "Local Edge Function did not become ready" >&2
               exit 1
             fi
             sleep 1
