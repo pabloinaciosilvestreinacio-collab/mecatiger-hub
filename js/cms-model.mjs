@@ -9,7 +9,7 @@ export const CMS_BUCKET = "meca-site-gallery";
 export const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 export const MAX_INPUT_BYTES = 10 * 1024 * 1024;
 // Stored objects are generated paths, never arbitrary HTTP URLs or user-supplied HTML.
-export const CMS_ASSET_PATH = /^[0-9a-f-]{36}\\/[0-9a-f-]{36}\\.webp$/;
+export const CMS_ASSET_PATH = new RegExp("^[0-9a-f-]{36}/[0-9a-f-]{36}[.]webp$");
 
 export function validCopy(slot, body) {
   return Object.hasOwn(CMS_SLOTS, slot) && typeof body === "string" &&
