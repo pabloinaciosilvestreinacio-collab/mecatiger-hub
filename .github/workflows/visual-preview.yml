@@ -34,13 +34,7 @@ jobs:
 
       - name: Capture real rendered pages (no Supabase calls or sign-ins)
         run: |
-          mkdir -p visual-preview
-          npx playwright screenshot --browser chromium --full-page --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:8080/index.html visual-preview/01-home-desktop.png
-          npx playwright screenshot --browser chromium --full-page --viewport-size="390,844" --wait-for-timeout=1500 http://127.0.0.1:8080/index.html visual-preview/02-home-mobile.png
-          npx playwright screenshot --browser chromium --full-page --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:8080/rede.html visual-preview/03-rede-comunidade.png
-          npx playwright screenshot --browser chromium --full-page --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:8080/mecasim.html visual-preview/04-meca-sim.png
-          npx playwright screenshot --browser chromium --full-page --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:8080/entrar.html visual-preview/05-entrada.png
-          npx playwright screenshot --browser chromium --full-page --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:8080/admin.html visual-preview/06-admin-bloqueado.png
+          node scripts/capture-visual-preview.mjs
 
       - name: Upload visual preview (not a deployment)
         if: always()
