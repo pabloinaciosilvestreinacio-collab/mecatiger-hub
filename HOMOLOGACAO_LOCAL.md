@@ -63,6 +63,7 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - Download do Chromium para Playwright: bloqueado pela restrição de rede deste ambiente; nenhum resultado de navegador foi declarado.
 - Pilha Supabase completa: não executada aqui porque Docker não está instalado; deve ser comprovada pelo workflow descartável.
 - Primeira execução do workflow: as migrações, Mailpit e os três usuários OTP funcionaram, mas o teste encontrou uma inicialização duplicada do Edge Runtime; o workflow foi corrigido e precisa ser reexecutado.
+- Segunda execução: toda a homologação de backend passou; o navegador encontrou dois links sem distinção não baseada apenas em cor e overflow horizontal da Rede em 360 px. A correção CSS mínima foi autorizada e aplicada, pendente de nova execução.
 
 ## Limitações e riscos pendentes
 
