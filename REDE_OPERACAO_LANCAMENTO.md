@@ -1,6 +1,6 @@
 # Rede Meca Tiger — separação de cadastro e critérios de lançamento
 
-**Estado: checklist pré-lançamento em branch, NÃO operação em produção.** Cadeia: PR #8 → #9 → #11 → #12 → #13 → este PR.
+**Estado: checklist pré-lançamento em branch, NÃO operação em produção.** Cadeia atual: PR #8 → #9 → #11 → #12 → #13 → #14 → #15 → PR de preflight. O roteiro de ativação é `LANCAMENTO_MECATIGER_20261025.md`.
 
 ## Decisões confirmadas por inspeção do repositório
 
@@ -25,7 +25,7 @@
 
 | Item | Condição verificável para lançamento | Situação |
 |---|---|---|
-| Conteúdo inicial | Cinco pautas revisadas, submetidas e aprovadas, IDs evidenciados | Pendente; ver `REDE_CONTEUDOS_INICIAIS.md` |
+| Conteúdo inicial | O feed pode começar vazio, desde que declare corretamente quando não existem publicações aprovadas | **Não bloqueante**; pautas opcionais em `REDE_CONTEUDOS_INICIAIS.md` |
 | Manual de participação | Percurso explicativo e separação dos cadastros acessíveis | Implementado nesta branch; aguardando testes |
 | LGPD/menores | Política aprovada, responsáveis, finalidade, retenção e procedimento de exclusão | Pendente; ver `REDE_PRIVACIDADE_REVISAO.md` |
 | SMTP e Auth hospedado | Domínio/redirect autorizado, Magic Link testado com conta de teste legitimamente autorizada, provedor anônimo revisado | Pendente de autorização e infraestrutura |
@@ -50,4 +50,4 @@ Usar unicamente o runner GitHub Actions padrão com Supabase CLI/Docker descart�
 
 ## Encerramento do ciclo
 
-Registrar o head de branch, URL do PR rascunho, runs e causas de falha/correção. Dar ao responsável três opções futuras: (1) submissão supervisionada de conteúdo real, (2) política operacional/LGPD e menores, (3) homologação de SMTP/produção apenas após autorização explícita. Até lá, declarar exatamente os bloqueios restantes.
+Registrar o head de branch, URL do PR rascunho, runs e causas de falha/correção. Nenhuma migração ou publicação ocorre automaticamente. Dar ao responsável três opções futuras: (1) submissão supervisionada de conteúdo real, (2) política operacional/LGPD e menores, (3) homologação de SMTP/produção apenas após autorização explícita. Até lá, declarar exatamente os bloqueios restantes.

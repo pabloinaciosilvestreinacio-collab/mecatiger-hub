@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Painel da equipe — Meca Tiger</title>
+<link rel="icon" href="public/mecatiger-favicon.png" type="image/png">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="rede.css"><link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="site-header"><div class="container header-inner">
+  <a class="brand" href="index.html"><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></a>
+  <a class="button outline" href="index.html">← Ver site</a>
+</div></header>
+<main class="rede-page container admin-main">
+  <span class="eyebrow">Meca Tiger · edição sem código</span>
+  <h1 class="display">PAINEL DA <span class="accent">EQUIPE.</span></h1>
+  <p>Edite textos e publique fotos com autorização de administrador. As mudanças salvas aparecerão no site. Nunca compartilhe seu link de acesso.</p>
+  <p id="admin-status" role="status" aria-live="polite" class="rede-status">Verificando seu acesso...</p>
+  <div id="admin-locked" class="rede-box" hidden>
+    <p>Somente integrantes autorizados podem editar. Se você já tem uma conta autorizada, entre com seu e-mail verificado.</p>
+    <a class="button" href="entrar.html?next=admin.html">Entrar pelo e-mail</a>
+    <button id="admin-exit-locked" class="button outline" type="button">Trocar de conta</button>
+  </div>
+  <div id="admin-content" hidden>
+    <div class="rede-controls admin-links">
+      <a class="button outline" href="index.html">Abrir Home</a>
+      <a class="button outline" href="rede.html">Abrir Rede</a>
+      <button id="admin-exit" class="button outline" type="button">Sair do painel</button>
+    </div>
+    <section class="rede-box" aria-labelledby="edit-copy-heading">
+      <h2 id="edit-copy-heading">Editar textos</h2>
+      <p class="rede-muted">Selecione uma área, altere o texto e salve. Não é necessário editar HTML. O texto padrão permanece enquanto nenhuma alteração foi salva.</p>
+      <form id="cms-copy-form" class="rede-form">
+        <label for="cms-slot">Área do site</label>
+        <select id="cms-slot" required>
+          <option value="home-intro">Home — apresentação da equipe</option>
+          <option value="projects-intro">Home — introdução dos projetos</option>
+          <option value="community-intro">Home — apresentação da comunidade</option>
+          <option value="rede-intro">Rede — texto de abertura</option>
+        </select>
+        <label for="cms-body">Texto (8 a 700 caracteres)</label>
+        <textarea id="cms-body" minlength="8" maxlength="700" rows="5" required></textarea>
+        <button type="submit" class="button">Salvar texto</button>
+      </form>
+      <p id="cms-copy-status" role="status" aria-live="polite" class="rede-status"></p>
+    </section>
+    <section class="rede-box" aria-labelledby="gallery-heading">
+      <h2 id="gallery-heading">Adicionar fotos à galeria</h2>
+      <p class="rede-muted">Escolha uma imagem PNG, JPEG ou WebP. Ela será convertida em WebP e reduzida para até 1600 px antes do envio. Fotos publicadas ficam visíveis para visitantes: use somente imagens autorizadas.</p>
+      <form id="cms-photo-form" class="rede-form">
+        <label for="cms-photo">Foto</label>
+        <input id="cms-photo" type="file" accept="image/png,image/jpeg,image/webp" required>
+        <label for="cms-caption">Legenda pública (3 a 160 caracteres)</label>
+        <input id="cms-caption" maxlength="160" minlength="3" required>
+        <button type="submit" class="button">Adicionar foto à galeria</button>
+      </form>
+      <p id="cms-photo-status" role="status" aria-live="polite" class="rede-status"></p>
+      <div id="cms-gallery-list" class="admin-gallery" aria-label="Fotos publicadas"></div>
+    </section>
+    <section class="rede-box">
+      <h2>Segurança e limites</h2>
+      <p>Somente contas explicitamente autorizadas no banco podem alterar conteúdo. Administradores não recebem acesso ao código, ao banco completo ou a segredos. Fotos e textos são publicados imediatamente; revise antes de salvar.</p>
+      <p class="rede-muted">Neste primeiro painel, não há exclusão de fotos nem editor de estrutura das páginas. Para mudar seções, criar páginas ou reverter imagens enviadas, será necessária uma revisão adicional.</p>
+    </section>
+  </div>
+</main>
+<script type="module" src="js/admin.js"></script>
+</body></html>

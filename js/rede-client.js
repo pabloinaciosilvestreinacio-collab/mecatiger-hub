@@ -15,6 +15,6 @@ export const supabase = createClient(config.url, config.key, {
 
 // This is a navigation allowlist, not a server access-control boundary.
 export function safeReturn(value) {
-  const allowed = new Set(["rede.html", "mecasim-demo.html", "mecasim.html"]);
+  const allowed = new Set(["rede.html", "mecasim-demo.html", "mecasim.html", "admin.html"]);
   return allowed.has(value) ? value : "rede.html";
 }

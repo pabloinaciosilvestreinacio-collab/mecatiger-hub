@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-10-24",
+  "purpose": "REFERENCE ONLY: no account, DNS, SMTP or hosted Auth configuration was changed",
+  "providers": [
+    {
+      "id": "resend",
+      "free_monthly": 3000,
+      "free_daily": 100,
+      "smtp": true,
+      "verified_domain_required": true,
+      "docs": "https://resend.com/pricing",
+      "note": "Free $0/month 3 verified domains (subject to account approval and sender DNS control); recommend conditional on domain ownership"
+    },
+    {
+      "id": "brevo",
+      "free_daily": 300,
+      "smtp": true,
+      "verified_domain_required": true,
+      "docs": "https://help.brevo.com/hc/en-us/articles/208580669-FAQs-What-are-the-limits-of-the-Free-plan",
+      "note": "Free $0/month; transactional email supported, daily cap; domain authentication necessary for reliability"
+    },
+    {
+      "id": "mailersend",
+      "free_monthly": 500,
+      "free_daily": 100,
+      "smtp": true,
+      "verified_domain_required": true,
+      "docs": "https://www.mailersend.com/pricing",
+      "note": "Free tier conditional on approval; billing details may be requested during activation; do not submit card or subscribe without permission"
+    }
+  ],
+  "decision": "NO PROVIDER SELECTED OR CONNECTED. Evaluate the team's ability to manage an authenticated sending domain and current $0 quota before choosing.",
+  "open_questions": [
+    "Does the team already control a DNS domain at zero new cost?",
+    "Which institutional email receives first-editor verification?",
+    "Who is the authorized adult/team owner for Auth/SMTP and privacy?"
+  ],
+  "operational_gates": [
+    "Verify free plan is $0 at activation; no paid services, credit card or auto-upgrades",
+    "Verify owned domain DNS SPF/DKIM/DMARC; github.io and gmail.com are not owned sending domains",
+    "Use SMTP credentials only within protected Supabase Auth UI, never GitHub or site JS",
+    "Review hosted Site URL and exact redirect allowlist without wide wildcards",
+    "Enable anti-abuse rate limits and CAPTCHA after UI integration test",
+    "Test email delivery with consented test users only after specific authorization",
+    "Authorize editor role from verified UID using server-only administrative workflow after migrations"
+  ]
+}
