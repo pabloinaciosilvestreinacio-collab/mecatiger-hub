@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:unit": "node --test tests/rede-identity.test.mjs tests/rede-runtime-config.test.mjs tests/mecasim-trajectories.test.mjs",
+    "test:unit": "node --test tests/rede-identity.test.mjs tests/rede-runtime-config.test.mjs tests/mecasim-trajectories.test.mjs tests/cms-model.test.mjs",
     "test:local-supabase": "node tests/local-supabase-e2e.mjs",
     "test:ui": "node scripts/build-test-browser-client.mjs && playwright test"
   },
