@@ -1,7 +1,14 @@
 // Public-only browser client. Never place service-role or private keys here.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.2?bundle";
+import { resolveSupabaseConfig } from "./rede-runtime-config.mjs";
 
-export const supabase = createClient("https://rnnzumzqilkuecvgsjnv.supabase.co", "sb_publishable_7y8VFdcDmyT9-YSu5y0PBw_biRkynOP", {
+const defaults = {
+  url: "https://rnnzumzqilkuecvgsjnv.supabase.co",
+  key: "sb_publishable_7y8VFdcDmyT9-YSu5y0PBw_biRkynOP"
+};
+const config = resolveSupabaseConfig(location.hostname, globalThis.__MECA_TIGER_LOCAL_CONFIG__, defaults);
+
+export const supabase = createClient(config.url, config.key, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true,
     detectSessionInUrl: true, storageKey: "mecatiger-rede-session-v1" }
 });
