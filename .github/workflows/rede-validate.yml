@@ -19,5 +19,8 @@ jobs:
           node --check js/rede-auth.js
           node --check js/rede.js
           node --check js/sim-gate.js
+          node --check js/rede-identity.mjs
+      - name: Test verified-email membership guard
+        run: node --test tests/rede-identity.test.mjs
       - name: Static community and security checks
         run: python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v
