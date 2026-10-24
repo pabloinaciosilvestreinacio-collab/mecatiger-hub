@@ -21,6 +21,10 @@ export function loadLocalSupabase() {
       "O Supabase CLI local não está ativo. Execute supabase start e confira supabase status --help."
     );
   }
+  return parseLocalStatus(raw);
+}
+
+export function parseLocalStatus(raw) {
   const values = {};
   for (const line of raw.split(/\r?\n/u)) {
     const match = line.trim().match(/^([A-Z][A-Z0-9_]*)=(.*)$/u);
