@@ -17,6 +17,7 @@ const localMailpit = "http://127.0.0.1:54324";
 const origin = "http://127.0.0.1:8080";
 const results = [];
 const usersToDelete = [];
+let testModeratorId = null;
 const rand = randomBytes(6).toString("hex");
 function ok(test) { results.push(test); console.log("PASS: " + test); }
 function deny(response, context) {
@@ -53,7 +54,7 @@ async function makeUser(label) {
   const password=randomBytes(22).toString("base64url")+"A1!";
   const r=await call("/auth/v1/admin/users","POST",
     {email,password,email_confirm:true},adminKey,adminKey);
-  assert.equal(r.status,200,"Could not create local test identity "+label);
+  assert.ok(r.ok,"Could not create local test identity "+label);
   assert.ok(r.data?.id,"Missing local user id");
   usersToDelete.push(r.data.id);
   const session=await call("/auth/v1/token?grant_type=password","POST",
@@ -68,12 +69,14 @@ async function makeUser(label) {
 async function cleanup() {
   // Scope is ONLY the three randomized users on 127.0.0.1.
   // Moderator audit log has FK to auth.users without ON DELETE CASCADE.
-  try {
-    const r=await call("/rest/v1/rede_moderation_log?moderator_id=not.is.null",
-      "DELETE",null,adminKey,adminKey);
-    if (!r.ok) console.error("WARN: local audit log cleanup incomplete");
-  } catch {
-    console.error("WARN: local audit log cleanup unavailable");
+  if (testModeratorId) {
+    try {
+      const r=await call("/rest/v1/rede_moderation_log?moderator_id=eq."+testModeratorId,
+        "DELETE",null,adminKey,adminKey);
+      if (!r.ok) console.error("WARN: local audit log cleanup incomplete");
+    } catch {
+      console.error("WARN: local audit log cleanup unavailable");
+    }
   }
   for (const id of usersToDelete) {
     try {
@@ -143,6 +146,7 @@ async function run() {
   await checkReady();
   // No remote project, OAuth, paid SMTP or cloud resources are contacted.
   const A=await makeUser("a"),B=await makeUser("b"),M=await makeUser("mod");
+  testModeratorId=M.id;
   ok("Três identidades reais confirmadas pelo Auth local");
   await magicLink(A.email);
   const anon=await call("/auth/v1/signup","POST",{data:{}});
