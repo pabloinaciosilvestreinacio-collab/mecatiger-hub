@@ -90,4 +90,94 @@ set local role anon;
 select public.rede_assert((select count(*) from public.rede_posts)=2,'approved post became public');
 commit;
 
+
+-- User A must not bypass comment moderation or choose another author.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+do $
+declare success boolean:=false;
+begin
+  begin
+    insert into public.rede_comments(post_id,author_id,content,status)
+      values(1,'00000000-0000-0000-0000-000000000001','Comentário de teste suficiente','approved');
+    success:=true;
+  exception when insufficient_privilege then null;
+  end;
+  if success then raise exception 'Author bypassed comment moderation'; end if;
+end $;
+insert into public.rede_comments(post_id,author_id,content)
+  values(1,'00000000-0000-0000-0000-000000000001','Comentário legítimo em aprovação');
+commit;
+
+begin;
+set local role anon;
+select public.rede_assert((select count(*) from public.rede_comments)=0,'guest cannot read pending comment');
+commit;
+
+-- User B cannot impersonate A or make themselves moderator.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+do $
+declare success boolean:=false;
+begin
+  begin
+    insert into public.rede_posts(author_id,kind,category,title,content)
+      values('00000000-0000-0000-0000-000000000001','conhecimento','programacao',
+        'Post falsificado','Tentativa de falsificar a autoria de outro usuário');
+    success:=true;
+  exception when insufficient_privilege then null;
+  end;
+  if success then raise exception 'User B impersonated user A'; end if;
+end $;
+do $
+declare success boolean:=false;
+begin
+  begin
+    insert into public.rede_moderators(user_id) values('00000000-0000-0000-0000-000000000002');
+    success:=true;
+  exception when insufficient_privilege then null;
+  end;
+  if success then raise exception 'User B self-appointed as moderator'; end if;
+end $;
+select public.rede_assert((select count(*) from public.rede_comments)=0,'B cannot see pending comments from A');
+commit;
+
+-- Moderator approves comment; the public can now read it.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+update public.rede_comments set status='approved' where id=1;
+commit;
+begin;
+set local role anon;
+select public.rede_assert((select count(*) from public.rede_comments)=1,'approved comment is public');
+commit;
+
+-- Check post quota and prevent backdated inserts bypassing it.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+insert into public.rede_posts(author_id,kind,category,title,content,created_at) values
+('00000000-0000-0000-0000-000000000001','conhecimento','programacao','Novo post 01','Texto legítimo de postagem 01','2001-01-01'),
+('00000000-0000-0000-0000-000000000001','conhecimento','programacao','Novo post 02','Texto legítimo de postagem 02','2001-01-01'),
+('00000000-0000-0000-0000-000000000001','conhecimento','programacao','Novo post 03','Texto legítimo de postagem 03','2001-01-01');
+select public.rede_assert(
+  (select count(*) from public.rede_posts where author_id='00000000-0000-0000-0000-000000000001'
+    and created_at<'2020-01-01')=0,'user cannot backdate posts');
+do $
+declare success boolean:=false;
+begin
+  begin
+    insert into public.rede_posts(author_id,kind,category,title,content) values
+      ('00000000-0000-0000-0000-000000000001','conhecimento','programacao',
+       'Sexto post proibido','Texto para testar limite de envios.');
+    success:=true;
+  exception when sqlstate 'P0001' then null;
+  end;
+  if success then raise exception 'server quota bypassed'; end if;
+end $;
+commit;
+
 select 'RLS TEST SUITE PASSED' as result;
