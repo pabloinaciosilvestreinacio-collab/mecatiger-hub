@@ -95,7 +95,7 @@ commit;
 begin;
 set local role authenticated;
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
-do $
+do $$
 declare success boolean:=false;
 begin
   begin
@@ -105,7 +105,7 @@ begin
   exception when insufficient_privilege then null;
   end;
   if success then raise exception 'Author bypassed comment moderation'; end if;
-end $;
+end $$;
 insert into public.rede_comments(post_id,author_id,content)
   values(1,'00000000-0000-0000-0000-000000000001','Comentário legítimo em aprovação');
 commit;
@@ -119,7 +119,7 @@ commit;
 begin;
 set local role authenticated;
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
-do $
+do $$
 declare success boolean:=false;
 begin
   begin
@@ -130,8 +130,8 @@ begin
   exception when insufficient_privilege then null;
   end;
   if success then raise exception 'User B impersonated user A'; end if;
-end $;
-do $
+end $$;
+do $$
 declare success boolean:=false;
 begin
   begin
@@ -140,7 +140,7 @@ begin
   exception when insufficient_privilege then null;
   end;
   if success then raise exception 'User B self-appointed as moderator'; end if;
-end $;
+end $$;
 select public.rede_assert((select count(*) from public.rede_comments)=0,'B cannot see pending comments from A');
 commit;
 
@@ -166,7 +166,7 @@ insert into public.rede_posts(author_id,kind,category,title,content,created_at) 
 select public.rede_assert(
   (select count(*) from public.rede_posts where author_id='00000000-0000-0000-0000-000000000001'
     and created_at<'2020-01-01')=0,'user cannot backdate posts');
-do $
+do $$
 declare success boolean:=false;
 begin
   begin
@@ -177,7 +177,7 @@ begin
   exception when sqlstate 'P0001' then null;
   end;
   if success then raise exception 'server quota bypassed'; end if;
-end $;
+end $$;
 commit;
 
 select 'RLS TEST SUITE PASSED' as result;
