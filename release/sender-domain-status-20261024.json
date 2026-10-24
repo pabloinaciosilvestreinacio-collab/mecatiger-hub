@@ -1,0 +1,43 @@
+{
+  "captured_at": "2026-10-24",
+  "subject": "Rede Meca Tiger: zero-cost sender domain / DNS readiness",
+  "evidence": {
+    "github_repo": "pabloinaciosilvestreinacio-collab/mecatiger-hub",
+    "github_pages_default_origin": "https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/",
+    "repo_root_cname_file": "not_present_in_pr18_checkout",
+    "github_pages_settings_domain": "not_verified",
+    "verified_owned_sender_domain": null,
+    "institutional_dns_permission": "not_supplied",
+    "provider_account_approved": false,
+    "provider": "not_selected",
+    "authorized_team_contact_email": "not_supplied",
+    "dns_records_validated": false,
+    "live_smtp_test": false,
+    "hosted_supabase_auth_configured": false
+  },
+  "options": [
+    {
+      "id": "existing_owned_domain",
+      "status": "needs_ownership_and_dns_authorization",
+      "new_cost": "none_if_existing"
+    },
+    {
+      "id": "institutional_subdomain",
+      "status": "needs_written_permission_of_institutional_dns_owner",
+      "new_cost": "none_if_delegated"
+    },
+    {
+      "id": "default_pages_only",
+      "status": "viable_for_static_site_but_insufficient_for_public_smtp_without_sender_domain",
+      "new_cost": "none"
+    }
+  ],
+  "recommended": "Seek authorization for an existing institutional sender subdomain; otherwise continue with static Pages release planning separately and keep public Auth gated.",
+  "warnings": [
+    "DNS record visibility does not prove ownership",
+    "Do not add CNAME to repository or update Pages settings without approval",
+    "Do not publish real names, email addresses, DNS verification tokens or SMTP credentials in GitHub",
+    "Never buy a domain, submit payment info, or activate paid tier"
+  ],
+  "production_ready": false
+}

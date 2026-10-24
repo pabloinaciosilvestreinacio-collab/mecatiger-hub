@@ -36,6 +36,12 @@ A tabela antiga `community_registrations` e as métricas **não** devem ser sobr
 
 ## 3. SMTP/Auth — bloqueio para acesso público real
 
+**Domínio do remetente:** consulte [`DOMINIO_SMTP_SEM_CUSTO_20261024.md`](DOMINIO_SMTP_SEM_CUSTO_20261024.md) e rode `node scripts/sender-domain-preflight.mjs` (offline). O domínio do site no GitHub Pages pode permanecer gratuito; o SMTP público requer um domínio de remetente próprio/institucional com permissão DNS comprovada, cuja existência ainda não foi demonstrada. Não comprar domínio ou alterar DNS sem autorização.
+
+
+
+A avaliação de provedores gratuitos, necessidade de domínio autenticado, templates propostos, redirects e primeiro editor está documentada em [`AUTH_SMTP_GRATUITO_20261024.md`](AUTH_SMTP_GRATUITO_20261024.md). A verificação offline é `node scripts/auth-smtp-preflight.mjs`. **Nenhum SMTP ou conta hospedada foi configurado neste ciclo.**
+
 O SMTP padrão do Supabase é apenas para desenvolvimento; envia para endereços previamente autorizados na equipe, não para uma comunidade aberta. A documentação oficial informa esse limite: https://supabase.com/docs/guides/auth/auth-smtp .
 
 **Sem SMTP próprio validado, o login público e o painel NÃO estarão operacionais para todas as pessoas.** Não publicar comunicação prometendo cadastro funcional enquanto isso não estiver resolvido.
@@ -98,3 +104,8 @@ Referências: https://supabase.com/docs/guides/auth/auth-email-templates e https
 **Veredito deste roteiro:** estrutura em preparação, execução local/testes automatizados admissíveis, **NO-GO em produção até autorizações e verificações operacionais**.
 
 **Comando de bloqueio para evitar erro de interpretação:** `node scripts/release-preflight.mjs --require-production` retorna código **2** deliberadamente: essa ferramenta jamais autoriza implantação sozinha.
+
+
+## Auditoria complementar de migrações (24/10/2026)
+
+A auditoria exclusiva da reconciliação do banco está documentada em [`RECONCILIACAO_MIGRACOES_20261024.md`](RECONCILIACAO_MIGRACOES_20261024.md), com fotografia somente de metadados do histórico hospedado e verificador `node scripts/audit-migration-reconciliation.mjs`. As versões 20261013/20261019 aplicadas remotamente ainda não possuem SQL histórico original comprovado na branch. **Não executar `db push`, `migration repair` ou outra escrita como solução automática**; recuperar/validar o baseline histórico antes de autorizar qualquer implantação.
