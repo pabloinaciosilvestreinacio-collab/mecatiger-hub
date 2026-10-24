@@ -99,4 +99,17 @@ class RedeContracts(unittest.TestCase):
         self.assertGreaterEqual(source.count("const form=event.currentTarget"),2)
         self.assertIn("form.reset()",source)
 
+    def test_identity_operations_are_gated_until_profile_and_role_load(self):
+        source=(ROOT/"js/rede.js").read_text(encoding="utf-8")
+        self.assertIn("function syncIdentityControls()",source)
+        self.assertIn("identityLoading",source)
+        self.assertIn("identityResolved",source)
+        self.assertIn("epoch !== identityEpoch",source)
+        self.assertIn("button.disabled = !usable",source)
+        self.assertIn('$("post-form").hidden = !usable || !profileReady',source)
+        self.assertIn('$("profile-form").querySelector(\'button[type="submit"]\').disabled = !usable',source)
+        self.assertIn("identityResolved = !profile.error && !mod.error",source)
+        self.assertIn('$("own-items").replaceChildren()',source)
+        self.assertIn('$("mod-items").replaceChildren()',source)
+
 if __name__=="__main__": unittest.main()
