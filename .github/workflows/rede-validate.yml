@@ -33,3 +33,5 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v
       - name: Offline launch gate audit (no deployment)
         run: node scripts/release-preflight.mjs
+      - name: Offline legacy migration reconciliation (no database writes)
+        run: node scripts/audit-migration-reconciliation.mjs
