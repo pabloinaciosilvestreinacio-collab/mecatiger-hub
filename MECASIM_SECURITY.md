@@ -37,6 +37,7 @@ Os dados privados são apenas um **nome de até 70 caracteres e 1–16 pontos {x
 ### Limitações relevantes
 
 - O código HTML/JS e os recursos da arena no GitHub Pages continuam recuperáveis publicamente, mesmo após login visual. A alternativa 2 protege somente operações e informações no backend.
+- **Isolamento de origem:** o Supabase Auth da Rede atualmente persiste sessão no armazenamento do navegador. GitHub Pages usa como origem `https://pabloinaciosilvestreinacio-collab.github.io`, compartilhada por eventuais outros sites do mesmo proprietário sob diferentes caminhos. Qualquer JavaScript não confiável executado nessa mesma origem pode acessar armazenamento da sessão. Antes de receber dados privados reais, preferir um domínio dedicado ao Hub, políticas CSP e auditoria de todos os conteúdos servidos na origem; um path como `/mecatiger-hub/` sozinho não isola localStorage.
 - A função não foi testada com um JWT emitido pelo Supabase real: testes Node usam mocks e testes RLS usam claims simulados por PostgreSQL. É obrigatório testar com duas contas reais em ambiente isolado.
 - Não existe antiabuso por IP ou CAPTCHA específico da Edge Function, além dos limites por conta e dos controles de infraestrutura. O limite de 10/h conta rotas **ainda armazenadas** e criadas na última hora; se forem excluídas, o contador cai. Monitorar abuso após o lançamento.
 - `SUPABASE_PUBLISHABLE_KEYS` e `SUPABASE_ANON_KEY` são configurações públicas de acesso ao serviço, **não** são segredos de administrador; esta função não recebe `service_role` nem `sb_secret`.
