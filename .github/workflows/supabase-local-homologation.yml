@@ -60,7 +60,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           npx --yes supabase@2.122.0 start \
-            --exclude realtime,storage-api,imgproxy,postgres-meta,studio,logflare,vector,supavisor \
+            --exclude realtime,imgproxy,postgres-meta,studio,logflare,vector,supavisor \
             > "$RUNNER_TEMP/supabase-start.log" 2>&1
           npx --yes supabase@2.122.0 status -o env > "$RUNNER_TEMP/supabase-local.env"
           set -a
@@ -87,6 +87,7 @@ jobs:
             sleep 1
           done
           npm run test:local-supabase
+          node tests/local-cms-e2e.mjs
           npm run test:ui
       - name: Stop and erase disposable local stack
         if: always()
