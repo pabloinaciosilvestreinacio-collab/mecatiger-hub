@@ -40,6 +40,9 @@ try {
         window.scrollTo(0, 0);
       });
       await page.waitForTimeout(800);
+      // Freeze scroll-entrance animations in their revealed state for a whole-page snapshot.
+      await page.addStyleTag({ content: '.reveal { opacity: 1 !important; transform: none !important; }' });
+
     }
     await page.screenshot({ path: `${OUT}/${shot.file}`, fullPage: true, animations: 'disabled' });
     console.log(`Captured ${shot.file}`);
