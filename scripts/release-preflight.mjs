@@ -72,7 +72,7 @@ export function inspectRepository(root=process.cwd()) {
     existsSync(at("admin.html")) && existsSync(at("js/admin.js")),
     "Rotas, editor e CMS existem nos artefatos estáticos");
   const edge=read("supabase/functions/mecasim-trajectories/index.ts");
-  check("edge-present",Boolean(edge) && edge.includes("mecasim-trajectories"),
+  check("edge-present",edge.includes("createTrajectoryHandler") && edge.includes("Deno.serve(handle)") && existsSync(at("supabase/functions/mecasim-trajectories/handler.mjs")),
     "Edge Function está versionada; não significa que foi implantada");
   const template=read("supabase/templates/local-access.html");
   check("test-email-template",template.includes("MECA-TIGER-OTP") &&
