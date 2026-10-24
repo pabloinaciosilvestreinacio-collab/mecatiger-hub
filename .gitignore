@@ -64,3 +64,8 @@ dist-ssr
 *service-account*.json
 *credentials*.json
 *secrets*.json
+
+# Generated only from local Supabase CLI status. Not source controlled.
+js/rede-local-config.mjs
+supabase/.temp/
+supabase/.branches/
