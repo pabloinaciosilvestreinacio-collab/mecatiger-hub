@@ -190,6 +190,12 @@ end $$;
 commit;
 
 
+-- Reset post-quota fixtures so that anonymous-policy tests cannot be masked
+-- by the independent per-hour write limit enforced in BEFORE INSERT triggers.
+delete from public.rede_posts where title like 'Novo post %';
+insert into public.rede_posts(author_id,kind,category,title,content,status)
+values('00000000-0000-0000-0000-000000000001','duvida','ajuda',
+  'Outra dúvida pendente','Teste de visibilidade do próprio conteúdo pendente.','pending');
 -- A Supabase Anonymous Sign-In JWT uses the authenticated Postgres role,
 -- despite not having an email-verified permanent identity.
 -- Force the same author UUID to prove the restrictive policy denies writes,
