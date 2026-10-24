@@ -30,3 +30,37 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Privileged configuration and local environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+.npmrc
+.pypirc
+.netrc
+.pgpass
+.htpasswd
+.dev.vars*
+.supabase/
+.vercel/
+.netlify/
+.ssh/
+.aws/
+.gcloud/
+
+# Private certificates, credential exports and database snapshots
+*.pem
+*.p12
+*.pfx
+*.key
+*.jks
+*.keystore
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*service-account*.json
+*credentials*.json
+*secrets*.json
