@@ -1,11 +1,13 @@
 import { supabase, safeReturn } from "./rede-client.js";
+import { isVerifiedMember } from "./rede-identity.mjs";
 
 const status = document.getElementById("auth-status");
 const sendForm = document.getElementById("send-code");
 const emailInput = document.getElementById("auth-email");
 const next = safeReturn(new URLSearchParams(location.search).get("next"));
 const savedNextKey = "mecatiger-auth-return";
-const redirectUrl = new URL("entrar.html", location.href).href;
+// Preserve only allowlisted routes; the link template must append token params with &.
+const redirectUrl = new URL(`entrar.html?next=${encodeURIComponent(next)}`, location.href).href;
 
 function tell(message, error = false) {
   status.textContent = message;
@@ -14,7 +16,10 @@ function tell(message, error = false) {
 
 async function finishLogin() {
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return false;
+  if (error || !isVerifiedMember(data.user)) {
+    tell("É necessário confirmar um e-mail válido para acessar a Rede.", true);
+    return false;
+  }
   tell("Sessão confirmada. Entrando na Rede...");
   const destination = safeReturn(sessionStorage.getItem(savedNextKey) || next);
   sessionStorage.removeItem(savedNextKey);
@@ -38,7 +43,7 @@ sessionStorage.setItem(savedNextKey, next);
     return;
   }
   const { data } = await supabase.auth.getUser();
-  if (data.user) await finishLogin();
+  if (isVerifiedMember(data.user)) await finishLogin();
   else tell("Informe seu e-mail para solicitar o link de acesso.");
 })().catch(() => tell("Não foi possível verificar sua sessão. Tente novamente.", true));
 
