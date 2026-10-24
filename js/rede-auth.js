@@ -2,13 +2,10 @@ import { supabase, safeReturn } from "./rede-client.js";
 
 const status = document.getElementById("auth-status");
 const sendForm = document.getElementById("send-code");
-const verifyForm = document.getElementById("verify-code");
 const emailInput = document.getElementById("auth-email");
-const codeInput = document.getElementById("auth-code");
 const next = safeReturn(new URLSearchParams(location.search).get("next"));
 const savedNextKey = "mecatiger-auth-return";
 const redirectUrl = new URL("entrar.html", location.href).href;
-let lastEmail = "";
 
 function tell(message, error = false) {
   status.textContent = message;
@@ -42,6 +39,7 @@ sessionStorage.setItem(savedNextKey, next);
   }
   const { data } = await supabase.auth.getUser();
   if (data.user) await finishLogin();
+  else tell("Informe seu e-mail para solicitar o link de acesso.");
 })().catch(() => tell("Não foi possível verificar sua sessão. Tente novamente.", true));
 
 sendForm.addEventListener("submit", async event => {
@@ -57,10 +55,7 @@ sendForm.addEventListener("submit", async event => {
       options: { emailRedirectTo: redirectUrl, shouldCreateUser: true }
     });
     if (error) throw error;
-    lastEmail = email;
-    verifyForm.hidden = false;
-    tell("Confira seu e-mail. Use o código recebido ou abra o link de acesso. Se não receber, aguarde antes de tentar novamente.");
-    codeInput.focus();
+    tell("Confira seu e-mail e abra o link de acesso. Ele é pessoal e expira; não o encaminhe a outras pessoas.");
   } catch (error) {
     tell("Não foi possível solicitar o acesso. Confira o e-mail e tente novamente mais tarde.", true);
   } finally {
@@ -68,20 +63,3 @@ sendForm.addEventListener("submit", async event => {
   }
 });
 
-verifyForm.addEventListener("submit", async event => {
-  event.preventDefault();
-  const token = codeInput.value.replace(/\s/g, "");
-  if (!lastEmail || !/^\d{6,8}$/.test(token)) { tell("Digite o código recebido por e-mail.", true); return; }
-  const button = verifyForm.querySelector("button");
-  button.disabled = true;
-  tell("Verificando código...");
-  try {
-    const { error } = await supabase.auth.verifyOtp({ email: lastEmail, token, type: "email" });
-    if (error) throw error;
-    await finishLogin();
-  } catch (error) {
-    tell("Código inválido ou expirado. Verifique o e-mail ou solicite outro.", true);
-  } finally {
-    button.disabled = false;
-  }
-});
