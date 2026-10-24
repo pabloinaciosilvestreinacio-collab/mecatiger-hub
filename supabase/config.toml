@@ -1,0 +1,5 @@
+# Meca Sim private API: JWT validation at the Supabase Edge gateway.
+# Backend also invokes auth.getUser() and database RLS restricts ownership.
+# No functions have been deployed or activated in production by this file.
+[functions.mecasim-trajectories]
+verify_jwt = true

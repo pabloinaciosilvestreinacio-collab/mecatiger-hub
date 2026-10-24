@@ -20,7 +20,10 @@ jobs:
           node --check js/rede.js
           node --check js/sim-gate.js
           node --check js/rede-identity.mjs
+          node --check js/mecasim-private.js
+          node --check supabase/functions/mecasim-trajectories/handler.mjs
+          node --check supabase/functions/mecasim-trajectories/trajectory-validation.mjs
       - name: Test verified-email membership guard
-        run: node --test tests/rede-identity.test.mjs
+        run: node --test tests/rede-identity.test.mjs tests/mecasim-trajectories.test.mjs
       - name: Static community and security checks
         run: python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v
