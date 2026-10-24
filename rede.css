@@ -1,10 +1,11 @@
 /* Isolated styles for the new community pages; preserve the site's palette. */
 .rede-page { padding: clamp(105px,11vw,155px) 0 84px; min-height: 80vh; }
 .rede-narrow { max-width: 720px; }
-.rede-page h1 { font-size: clamp(48px,8vw,96px); line-height:.95; margin: 14px 0 22px; }
-.rede-page h2 { font-size: clamp(28px,4vw,48px); line-height:1.05; margin-bottom: 14px; }
+.rede-page h1 { font-size: clamp(48px,8vw,96px); line-height:.95; margin: 14px 0 22px; overflow-wrap:anywhere; }
+.rede-page h2 { font-size: clamp(28px,4vw,48px); line-height:1.05; margin-bottom: 14px; overflow-wrap:anywhere; }
 .rede-page p { line-height: 1.65; }
 .rede-page a:not(.button) { color: #ffa647; }
+.rede-page p a:not(.button) { text-decoration:underline; text-decoration-thickness:.08em; text-underline-offset:.16em; }
 .rede-box { border:1px solid rgba(242,138,26,.36); border-radius:16px; background:rgba(10,11,12,.6); padding: clamp(16px,3.5vw,30px); margin:24px 0; }
 .rede-form { display:grid; gap:12px; margin-top:16px; }
 .rede-form label { font-weight:700; }
@@ -19,6 +20,7 @@
 .rede-privacy { color:#b8bdc2; font-size:.92rem; }
 .rede-toolbar { display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin:18px 0 32px; }
 .rede-layout { display:grid; grid-template-columns: minmax(0,2fr) minmax(240px,1fr); gap:26px; }
+.rede-layout > * { min-width:0; }
 .rede-stack { display:grid; gap:18px; align-content:start; }
 .rede-post { border:1px solid rgba(255,255,255,.19); border-radius:12px; padding:22px; background:#202224; overflow-wrap:anywhere; }
 .rede-post h3 { margin:10px 0; font-size:clamp(20px,3vw,27px); }
@@ -43,4 +45,4 @@
 .rede-grid-actions a { display:block; padding:20px; border:1px solid #626262; border-radius:10px; text-decoration:none; }
 .rede-grid-actions strong { display:block; color:#fff; font-size:1.15rem; }
 @media(max-width:860px) { .rede-layout {grid-template-columns:1fr;} .rede-grid-actions {grid-template-columns:1fr;} }
-@media(max-width:500px) {.rede-page{padding-top:100px;} .rede-form .button { width:100%; } }
+@media(max-width:500px) {.rede-page{padding-top:100px;} .rede-page h1{font-size:clamp(40px,12.5vw,48px);} .rede-form .button { width:100%; } }
