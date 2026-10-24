@@ -30,11 +30,22 @@ for (const [path, title] of pages) {
   test(`${title}: não cria rolagem horizontal em celular`, async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto(path, { waitUntil: "domcontentloaded" });
-    const dimensions = await page.evaluate(() => ({
-      viewport: document.documentElement.clientWidth,
-      content: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport + 1);
+    const dimensions = await page.evaluate(() => {
+      const viewport = document.documentElement.clientWidth;
+      const offenders = [...document.querySelectorAll("body *")]
+        .map(element => ({
+          element: element.tagName.toLowerCase(),
+          id: element.id,
+          className: typeof element.className === "string" ? element.className : "",
+          right: Math.round(element.getBoundingClientRect().right),
+          scrollWidth: element.scrollWidth
+        }))
+        .filter(item => item.right > viewport + 1 || item.scrollWidth > viewport + 1)
+        .slice(0, 12);
+      return { viewport, content: document.documentElement.scrollWidth, offenders };
+    });
+    expect(dimensions.content, JSON.stringify(dimensions.offenders, null, 2))
+      .toBeLessThanOrEqual(dimensions.viewport + 1);
   });
 }
 
