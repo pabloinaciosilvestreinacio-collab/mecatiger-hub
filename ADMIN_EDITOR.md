@@ -1,6 +1,6 @@
 # Painel administrativo Meca Tiger — MVP seguro de edição sem código
 
-**Status:** implementado na branch de desenvolvimento, sem publicação ou instalação no Supabase hospedado. Não é uma senha pronta nem uma conta administrativa real. A homologação usa apenas usuários descartáveis no Supabase CLI local.
+**Status:** implementado na branch de desenvolvimento, sem publicação ou instalação no Supabase hospedado. A sequência segura para futura ativação está no roteiro `LANCAMENTO_MECATIGER_20261025.md`. Não é uma senha pronta nem uma conta administrativa real. A homologação usa apenas usuários descartáveis no Supabase CLI local.
 
 ## Como a equipe usará o painel
 
