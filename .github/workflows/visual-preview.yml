@@ -5,6 +5,7 @@ on:
     branches:
       - feature/rede-mecatiger-mvp-20261024
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
