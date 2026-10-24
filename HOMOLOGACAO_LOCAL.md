@@ -99,3 +99,11 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - O fluxo automatizado agora espera `#post-status` informar que o perfil inicial foi consultado antes de executar `Salvar perfil`. Isso elimina o falso avanço do teste baseado somente no banner de sessão.
 - **Risco residual real:** a UI permite que uma pessoa muito rápida interaja antes da resolução inicial do perfil. Um ciclo futuro pode proteger a interface durante o carregamento; nenhuma mudança visual/funcional foi introduzida neste ciclo sem escolha do responsável.
 - A execução final continua pendente de um run GitHub Actions com `conclusion=success` no SHA final; não inferir sucesso destes marcos intermediários.
+
+### Quarta tentativa — erro no ciclo de vida de eventos assíncronos
+
+- Run [`40118464483`](https://github.com/pabloinaciosilvestreinacio-collab/mecatiger-hub/actions/runs/40118464483): **6/7 testes Playwright passaram**; após perfil salvo, o status da publicação permaneceu inalterado.
+- **Causa localizada no código:** `js/rede.js` acessava `event.currentTarget.reset()` **depois** de `await supabase.from(...).insert(...)` nos formulários de postagem e de pedido. O `currentTarget` pode ser `null` após a etapa síncrona do dispatch, impedindo `reset()` e a mensagem de sucesso.
+- **Correção funcional indispensável:** guardar `const form=event.currentTarget` durante o evento, antes de aguardar a chamada de rede, e usar `form.reset()` nos dois formulários. Não modifica layout nem o esquema do banco.
+- **Regressão estática:** `python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v` agora inclui verificação explícita contra `event.currentTarget.reset()`.
+- **Confirmação exigida:** novo `npm run test:ui` deve passar com a stack Supabase local descartável. Se não passar, investigar o log subsequente sem atribuir sucesso por inferência.
