@@ -1,7 +1,8 @@
 // Local-only static preview server. It never exposes .git, SQL, scripts or secrets.
 // Run from the repository root: node scripts/local-web.mjs
 import {createServer} from "node:http";
-import {readFile, stat} from "node:fs/promises";
+import {readFile, stat, realpath} from "node:fs/promises";
+import {fileURLToPath} from "node:url";
 import {resolve,extname,sep} from "node:path";
 
 const root=resolve(import.meta.dirname,"..");
@@ -45,9 +46,11 @@ export function createLocalWebServer() {
       res.writeHead(403);res.end();return;
     }
     try {
-      const s=await stat(path);
+      const canonical=await realpath(path);
+      if(!canonical.startsWith(root+sep)) {res.writeHead(403);res.end();return;}
+      const s=await stat(canonical);
       if(!s.isFile() || s.size>15*1024*1024){res.writeHead(404);res.end();return;}
-      const data=await readFile(path);
+      const data=await readFile(canonical);
       res.writeHead(200,{
         "Content-Type":types[extname(path).toLowerCase()]||"application/octet-stream",
         "Content-Length":data.length,
@@ -59,7 +62,7 @@ export function createLocalWebServer() {
     } catch {res.writeHead(404,{"Cache-Control":"no-store"});res.end("Not found");}
   });
 }
-if(import.meta.url==="file://"+process.argv[1]?.replaceAll("\\","/")){
+if(process.argv[1] && fileURLToPath(import.meta.url)===resolve(process.argv[1])){
   createLocalWebServer().listen(8080,"127.0.0.1",()=>{
     console.log("Preview local: http://127.0.0.1:8080");
     console.log("Sem exposição de .git, SQL, arquivos de configuração ou credenciais administrativas.");
