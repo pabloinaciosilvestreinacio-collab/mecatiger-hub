@@ -10,6 +10,10 @@ O Supabase **padrão** entrega e-mails Auth apenas a endereços pré-autorizados
 
 ## 2. Comparação de SMTP gratuito em fontes oficiais
 
+O diagnóstico mais recente de domínio e DNS está em [`DOMINIO_SMTP_SEM_CUSTO_20261024.md`](DOMINIO_SMTP_SEM_CUSTO_20261024.md). Até comprovação de controle institucional ou próprio, **não há domínio de envio autorizado**, e não há instrução para cadastrar remetente real. O endereço gratuito GitHub Pages pode permanecer, independentemente do domínio escolhido para enviar e-mail.
+
+
+
 | Provedor | Cota gratuita publicada | SMTP | Condições e riscos |
 |---|---|---|---|
 | **Resend (preferência condicionada)** | **3.000/mês; até 100/dia**, US$ 0 no Free; até 3 domínios | Sim | Domínio de envio verificado e gerenciamento de DNS; confirmar elegibilidade e custos finais na própria conta antes de ativar. https://resend.com/pricing |
