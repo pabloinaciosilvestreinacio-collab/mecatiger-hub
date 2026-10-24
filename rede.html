@@ -15,15 +15,25 @@
 <main class="rede-page container">
   <span class="eyebrow">Rede Meca Tiger · Comunidade STEM</span>
   <h1 class="display">CONEXÕES QUE <span class="accent">TRANSFORMAM.</span></h1>
-  <p>Compartilhe conhecimento, tire dúvidas e conecte projetos e equipes. Todas as publicações passam por moderação antes de aparecer no feed.</p>
+  <p data-cms-text="rede-intro">Compartilhe conhecimento, tire dúvidas e conecte projetos e equipes. Todas as publicações passam por moderação antes de aparecer no feed.</p>
   <div class="rede-toolbar"><p id="rede-identity" role="status" aria-live="polite">Verificando acesso...</p><div class="rede-controls"><a class="button" id="rede-signin" href="entrar.html?next=rede.html">Entrar ou cadastrar</a><button id="rede-signout" type="button" hidden>Sair da conta</button></div></div>
   <div class="rede-grid-actions" aria-label="Caminhos da comunidade">
     <a href="#ajuda"><strong>Pedir ajuda ↗</strong><span class="rede-muted">Envie sua dúvida técnica para análise da Meca Tiger.</span></a>
     <a href="#conexao"><strong>Solicitar conexão STEM ↗</strong><span class="rede-muted">Busque equipes, professores, mentores e projetos.</span></a>
     <a href="#compartilhar"><strong>Compartilhar conhecimento ↗</strong><span class="rede-muted">Envie experiências para publicação após aprovação.</span></a>
   </div>
+  <section class="rede-box" id="como-funciona" aria-labelledby="como-funciona-title">
+    <h2 id="como-funciona-title">COMO PARTICIPAR DA <span class="accent">REDE.</span></h2>
+    <ol class="rede-steps">
+      <li><strong>Explore sem entrar.</strong><p>Leia as publicações aprovadas. Publicações e comentários ainda pendentes não são públicos.</p></li>
+      <li><strong>Entre com e-mail confirmado.</strong><p>O acesso por link cria uma sessão no Supabase Auth. O cadastro opcional do Hub, usado nas métricas, não substitui esse login.</p></li>
+      <li><strong>Envie conteúdo ou um pedido.</strong><p>Você pode compartilhar aprendizados para revisão ou solicitar ajuda e conexão STEM. Solicitações são privadas entre o autor e a moderação.</p></li>
+      <li><strong>Aguarde a análise.</strong><p>A equipe Meca Tiger revisa publicações antes de exibi-las e analisa os pedidos. As conexões são encaminhadas pela equipe; não há correspondência automática nem prazo garantido.</p></li>
+    </ol>
+    <p class="rede-muted">A Rede Meca Tiger reúne a comunidade dentro deste Hub. Links para FIRST, Reddit e outras comunidades continuam disponíveis apenas como referências externas.</p>
+  </section>
   <div class="rede-categories" aria-label="Áreas da rede"><span>Programação</span><span>Mecânica e CAD</span><span>Eletrônica</span><span>FTC e competições</span><span>Projetos STEM</span><span>Dúvidas e ajuda</span><span>Conhecimento compartilhado</span></div>
-  <p class="rede-banner">Todos podem ler publicações aprovadas. Para interagir ou enviar material, é necessário estar autenticado. Não compartilhe telefones, endereços, informações escolares privadas ou dados de menores.</p>
+  <p class="rede-banner">Todos podem ler publicações aprovadas. Para interagir ou enviar material, é necessário estar autenticado com e-mail confirmado. O cadastro opcional de participação do Hub serve às métricas e <strong>não cria uma conta</strong> na Rede. Evite divulgar telefones, endereços, dados escolares privados ou dados de menores.</p>
   <div class="rede-layout">
     <div>
       <section id="feed" aria-labelledby="feed-heading">
@@ -44,10 +54,11 @@
       <section id="conexao" class="rede-box"><h3 class="rede-section-title">Solicitar conexão STEM</h3><p>Sua solicitação é privada. Não inclua dados sensíveis.</p><button class="button outline" type="button" data-request-kind="conexao">Solicitar conexão</button></section>
       <section id="pedido" class="rede-box" hidden><h3 id="request-heading">Nova solicitação</h3><form id="request-form" class="rede-form"><label for="request-category">Área de interesse</label><select id="request-category" class="rede-category-input"></select><label for="request-title">Assunto</label><input id="request-title" maxlength="120" minlength="6" required><label for="request-details">Descrição</label><textarea id="request-details" maxlength="2500" minlength="15" required></textarea><button class="button" type="submit">Enviar solicitação privada</button></form><p id="request-status" class="rede-status" role="status"></p></section>
       <section class="rede-box"><h3>Comunidades externas</h3><p><a href="https://ftc-community.firstinspires.org/" target="_blank" rel="noopener noreferrer">Fórum FTC ↗</a></p><p><a href="https://www.reddit.com/r/FTC/" target="_blank" rel="noopener noreferrer">Reddit r/FTC ↗</a></p><p><a href="https://www.firstinspires.org/community/teams/coaches-and-mentors" target="_blank" rel="noopener noreferrer">Mentores FIRST ↗</a></p></section>
-      <section class="rede-box"><h3>Regras e privacidade</h3><p>Respeite as pessoas, publique apenas material permitido, não exponha terceiros. Conteúdos e denúncias são analisados pela equipe.</p><p>Para denunciar problemas, solicitar dados ou pedir exclusão: <a href="mailto:mecatiger6@gmail.com?subject=Seguran%C3%A7a%20Rede">mecatiger6@gmail.com</a>.</p><p>O conteúdo público não deve incluir dados pessoais de menores.</p></section>
+      <section class="rede-box"><h3>Regras e privacidade</h3><p>Respeite as pessoas, dê crédito às fontes, evite spam e nunca publique informações pessoais de terceiros, especialmente menores. A equipe revisa conteúdos e denúncias.</p><p>O login da Rede utiliza e-mail no Supabase Auth; os perfis públicos usam apelidos. Pedidos privados e denúncias são acessíveis aos envolvidos e à moderação, conforme as políticas de acesso.</p><p>Para denunciar, solicitar acesso aos seus dados ou pedir exclusão, escreva para <a href="mailto:mecatiger6@gmail.com?subject=Privacidade%20Rede%20Meca%20Tiger">mecatiger6@gmail.com</a>. Informe apenas o necessário no contato.</p><p class="rede-muted">A política definitiva de retenção e o procedimento específico para menores estão em revisão antes do lançamento. Não envie dados sensíveis pelo feed.</p></section>
     </aside>
   </div>
 </main>
 <footer><div class="container footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><a href="index.html">Voltar ao Hub</a></div></footer>
 <script type="module" src="js/rede.js"></script>
+<script type="module" src="js/cms-public.js"></script>
 </body></html>

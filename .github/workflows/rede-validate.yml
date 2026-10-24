@@ -20,7 +20,22 @@ jobs:
           node --check js/rede.js
           node --check js/sim-gate.js
           node --check js/rede-identity.mjs
+          node --check js/rede-runtime-config.mjs
+          node --check js/mecasim-private.js
+          node --check js/cms-model.mjs
+          node --check js/cms-public.js
+          node --check js/admin.js
+          node --check supabase/functions/mecasim-trajectories/handler.mjs
+          node --check supabase/functions/mecasim-trajectories/trajectory-validation.mjs
       - name: Test verified-email membership guard
-        run: node --test tests/rede-identity.test.mjs
+        run: npm run test:unit
       - name: Static community and security checks
         run: python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v
+      - name: Offline launch gate audit (no deployment)
+        run: node scripts/release-preflight.mjs
+      - name: Offline legacy migration reconciliation (no database writes)
+        run: node scripts/audit-migration-reconciliation.mjs
+      - name: Offline SMTP/Auth/first editor preflight (no accounts or email sent)
+        run: node scripts/auth-smtp-preflight.mjs
+      - name: Read-only sender domain/DNS readiness (no network in CI)
+        run: node scripts/sender-domain-preflight.mjs

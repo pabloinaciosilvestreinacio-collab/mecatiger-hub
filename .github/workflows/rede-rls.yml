@@ -36,6 +36,10 @@ jobs:
           PGPASSWORD: testing-only-no-real-data
         run: |
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/supabase_mock.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-before.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261024160000_rede_mecatiger_mvp.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261024163000_require_nonanonymous_identity.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_smoke.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261024170000_mecasim_private_trajectories.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/mecasim_rls.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-after.sql
