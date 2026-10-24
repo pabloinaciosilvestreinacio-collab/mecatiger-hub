@@ -112,4 +112,34 @@ class RedeContracts(unittest.TestCase):
         self.assertIn('$("own-items").replaceChildren()',source)
         self.assertIn('$("mod-items").replaceChildren()',source)
 
+    def test_rede_participation_is_explicit_and_not_falsely_populated(self):
+        page=(ROOT/"rede.html").read_text(encoding="utf-8")
+        main=(ROOT/"index.html").read_text(encoding="utf-8")
+        editorial=(ROOT/"REDE_CONTEUDOS_INICIAIS.md").read_text(encoding="utf-8")
+        operations=(ROOT/"REDE_OPERACAO_LANCAMENTO.md").read_text(encoding="utf-8")
+        privacy=(ROOT/"REDE_PRIVACIDADE_REVISAO.md").read_text(encoding="utf-8")
+        self.assertIn('id="como-funciona"',page)
+        self.assertIn('aria-labelledby="como-funciona-title"',page)
+        self.assertIn("<ol",page)
+        for step in ("Explore sem entrar", "Entre com e-mail confirmado",
+                     "Envie conteúdo ou um pedido", "Aguarde a análise"):
+            self.assertIn(step,page)
+        for anchor in ('rede.html#ajuda','rede.html#conexao','rede.html#compartilhar'):
+            self.assertIn(anchor,main)
+        self.assertIn("não cria uma conta autenticada",main)
+        self.assertIn("não cria uma conta",page)
+        self.assertIn("não há evidência",editorial)
+        self.assertIn("Pendente",editorial)
+        self.assertIn("NÃO publicações cadastradas",editorial)
+        self.assertIn("não executar",operations.lower())
+        self.assertIn("RASCUNHO",privacy)
+        self.assertIn("menores",privacy.lower())
+
+    def test_rede_has_privacy_contact_without_false_deletion_guarantee(self):
+        page=(ROOT/"rede.html").read_text(encoding="utf-8")
+        self.assertIn("mecatiger6@gmail.com",page)
+        self.assertIn("retencao",page.lower().replace("ç","c").replace("ã","a"))
+        self.assertIn("em revisão",page)
+        self.assertNotIn("exclusão imediata",page.lower())
+
 if __name__=="__main__": unittest.main()
