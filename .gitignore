@@ -8,6 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+__pycache__/
+test-results/
+.mecatiger-browser-build/
+playwright-report/
 dist
 dist-ssr
 .output
@@ -44,6 +48,7 @@ dist-ssr
 .htpasswd
 .dev.vars*
 .supabase/
+supabase/.temp/
 .vercel/
 .netlify/
 .ssh/

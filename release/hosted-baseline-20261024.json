@@ -1,0 +1,58 @@
+{
+  "snapshot_date": "2026-10-24",
+  "project_ref": "rnnzumzqilkuecvgsjnv",
+  "capture": "Supabase connector, read-only list_migrations/list_tables/execute_sql; no rows or personal data captured",
+  "hosted_migrations": [
+    {
+      "version": "20261013171020",
+      "name": "create_community_registration_metrics"
+    },
+    {
+      "version": "20261013173230",
+      "name": "count_competitors_as_students"
+    },
+    {
+      "version": "20261013174946",
+      "name": "add_brazilian_state_metrics"
+    },
+    {
+      "version": "20261019231824",
+      "name": "secure_public_registration_rpc_v2"
+    }
+  ],
+  "hosted_public_tables": [
+    {
+      "name": "community_metrics",
+      "rls_enabled": true,
+      "policy_count": 1,
+      "custom_trigger_count": 0
+    },
+    {
+      "name": "community_registrations",
+      "rls_enabled": true,
+      "policy_count": 0,
+      "custom_trigger_count": 1
+    }
+  ],
+  "legacy_rpc": {
+    "schema": "public",
+    "name": "register_community_member",
+    "security_definer": true,
+    "exec_by": [
+      "anon",
+      "authenticated"
+    ],
+    "requires_consent": true,
+    "restricted_search_path": true,
+    "inserts_only_into": "public.community_registrations",
+    "on_conflict": "do nothing"
+  },
+  "hosted_edge_function_count": 0,
+  "expected_new_migration_versions": [
+    "20261024160000",
+    "20261024163000",
+    "20261024170000",
+    "20261024190000"
+  ],
+  "operational_decision": "NO-GO: hosted history differs from Git checkout. No login/link/db push/migration repair/deploy. Review migration history manually and re-read hosted state before authorization."
+}
