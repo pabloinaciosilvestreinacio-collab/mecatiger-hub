@@ -32,6 +32,7 @@ commit;
 -- Owner A sees approved + their own pending; cannot promote their own pending post.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.rede_assert((select count(*) from public.rede_posts)=2,'owner sees own pending');
 select public.rede_assert((select count(*) from public.rede_moderators)=0,'owner is not moderator');
@@ -51,6 +52,7 @@ commit;
 -- Another authenticated user cannot see the pending post or private request.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select public.rede_assert((select count(*) from public.rede_posts)=1,'other member cannot see pending post');
 select public.rede_assert((select count(*) from public.rede_moderators)=0,'user B not moderator');
@@ -63,6 +65,7 @@ select public.rede_assert((select title from public.rede_posts where id=2)='Dúv
 -- User A submits private request with real auth semantics.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 insert into public.rede_requests(author_id,kind,category,title,details) values
  ('00000000-0000-0000-0000-000000000001','ajuda','programacao',
@@ -72,6 +75,7 @@ commit;
 
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select public.rede_assert((select count(*) from public.rede_requests)=0,'other member cannot view request A');
 commit;
@@ -79,6 +83,7 @@ commit;
 -- Moderator can see all pending posts, manage moderation and inspect audit trail.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 select public.rede_assert((select count(*) from public.rede_posts)=2,'moderator sees all posts');
 select public.rede_assert((select count(*) from public.rede_requests)=1,'moderator sees private queue');
@@ -94,6 +99,7 @@ commit;
 -- User A must not bypass comment moderation or choose another author.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 do $$
 declare success boolean:=false;
@@ -118,6 +124,7 @@ commit;
 -- User B cannot impersonate A or make themselves moderator.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 do $$
 declare success boolean:=false;
@@ -147,6 +154,7 @@ commit;
 -- Moderator approves comment; the public can now read it.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 update public.rede_comments set status='approved' where content='Comentário legítimo em aprovação';
 commit;
@@ -158,6 +166,7 @@ commit;
 -- Check post quota and prevent backdated inserts bypassing it.
 begin;
 set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 insert into public.rede_posts(author_id,kind,category,title,content,created_at) values
 ('00000000-0000-0000-0000-000000000001','conhecimento','programacao','Novo post 01','Texto legítimo de postagem 01','2001-01-01'),
@@ -178,6 +187,117 @@ begin
   end;
   if success then raise exception 'server quota bypassed'; end if;
 end $$;
+commit;
+
+
+-- A Supabase Anonymous Sign-In JWT uses the authenticated Postgres role,
+-- despite not having an email-verified permanent identity.
+-- Force the same author UUID to prove the restrictive policy denies writes,
+-- not merely because the simulated user lacks ownership.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+set local request.jwt.claim.is_anonymous='true';
+select public.rede_assert((select count(*) from public.rede_posts where status='approved')=2,
+ 'anonymous Auth identity can read approved posts');
+select public.rede_assert((select count(*) from public.rede_posts where status='pending')=0,
+ 'anonymous Auth identity cannot read own pending posts');
+select public.rede_assert((select count(*) from public.rede_comments)=1,
+ 'anonymous Auth identity can read approved comments');
+select public.rede_assert((select count(*) from public.rede_requests)=0,
+ 'anonymous Auth identity cannot read private requests');
+select public.rede_assert((select count(*) from public.rede_reports)=0,
+ 'anonymous Auth identity cannot read reports');
+do $
+declare
+ allowed boolean;
+begin
+ allowed := false;
+ begin
+   insert into public.rede_profiles(id,display_name) values
+     ('00000000-0000-0000-0000-000000000004','Anonymous Profile');
+   allowed := true;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth created profile'; end if;
+ allowed := false;
+ begin
+   update public.rede_profiles set display_name='Anonymous Takeover'
+   where id='00000000-0000-0000-0000-000000000001';
+   allowed := found;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth edited profile'; end if;
+ allowed := false;
+ begin
+   insert into public.rede_posts(author_id,kind,category,title,content)
+   values('00000000-0000-0000-0000-000000000001','conhecimento','programacao',
+     'Anonymous publish','Posting from an anonymous JWT must fail.');
+   allowed := true;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth published'; end if;
+ allowed := false;
+ begin
+   update public.rede_posts set title='Anonymous Update' where id=1;
+   allowed := found;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth edited post'; end if;
+ allowed := false;
+ begin
+   delete from public.rede_posts where id=1;
+   allowed := found;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth deleted post'; end if;
+ allowed := false;
+ begin
+   insert into public.rede_comments(post_id,author_id,content)
+     values(1,'00000000-0000-0000-0000-000000000001','Anonymous comment');
+   allowed := true;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth commented'; end if;
+ allowed := false;
+ begin
+   insert into public.rede_requests(author_id,kind,category,title,details)
+     values('00000000-0000-0000-0000-000000000001','ajuda','programacao',
+       'Anonymous help','Private help from an anonymous JWT must fail.');
+   allowed := true;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth submitted request'; end if;
+ allowed := false;
+ begin
+   insert into public.rede_reports(reporter_id,post_id,reason)
+     values('00000000-0000-0000-0000-000000000001',1,'Anonymous report must fail');
+   allowed := true;
+ exception when insufficient_privilege then null;
+ end;
+ if allowed then raise exception 'anonymous Auth reported'; end if;
+end $;
+commit;
+
+-- Fail closed when the JWT claim is missing, instead of silently trusting
+-- a token that cannot prove it comes from a permanent Auth account.
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.rede_assert((select count(*) from public.rede_posts)=2,
+ 'missing claim still allows approved posts');
+do $
+declare allowed boolean:=false;
+begin
+  begin
+    insert into public.rede_posts(author_id,kind,category,title,content)
+      values('00000000-0000-0000-0000-000000000001','duvida','ajuda',
+      'Missing JWT claim','Missing is_anonymous claim must fail closed');
+    allowed:=true;
+  exception when insufficient_privilege then null;
+  end;
+  if allowed then raise exception 'missing is_anonymous claim bypassed policy'; end if;
+end $;
 commit;
 
 select 'RLS TEST SUITE PASSED' as result;
