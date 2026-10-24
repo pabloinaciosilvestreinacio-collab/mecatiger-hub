@@ -44,8 +44,9 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   for (const button of await page.locator("[data-request-kind]").all()) {
     await expect(button).toBeDisabled();
   }
+  // Keep this handler installed until test teardown: removing it while a held route
+  // is resuming can cause Playwright to handle the same request twice.
   releaseProfileRead();
-  await page.unroute("**/rest/v1/rede_profiles?*", holdFirstProfileRead);
   await expect(page.locator("#rede-identity")).toContainText("Sessão autenticada");
   await expect(page.locator("#post-status")).toContainText("Salve seu perfil público antes de publicar.");
   await expect(page.locator("#profile-form button[type=submit]")).toBeEnabled();
