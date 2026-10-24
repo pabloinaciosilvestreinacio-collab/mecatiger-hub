@@ -4,8 +4,7 @@ import { installLocalApp } from "./local-app.mjs";
 
 const pages = [
   ["/rede.html", "Rede Meca Tiger"],
-  ["/entrar.html?next=rede.html", "Acesso à Rede Meca Tiger"],
-  ["/mecasim-demo.html", "Meca Sim"]
+  ["/entrar.html?next=rede.html", "Acesso à Rede Meca Tiger"]
 ];
 
 test.beforeEach(async ({ context }) => {
@@ -52,4 +51,11 @@ test("página de entrada expõe mensagens de autenticação a leitores de tela",
   await expect(status).toHaveAttribute("role", "status");
   await expect(status).toHaveAttribute("aria-live", "polite");
   await expect(page.locator("#auth-email")).toHaveAttribute("type", "email");
+});
+
+test("Meca Sim exige login antes de mostrar a prévia autenticada", async ({ page }) => {
+  await page.goto("/mecasim-demo.html");
+  await page.waitForURL(/\/entrar\.html\?next=mecasim-demo\.html$/, { timeout: 20_000 });
+  await expect(page).toHaveTitle(/Acesso à Rede Meca Tiger/i);
+  await expect(page.locator("#auth-status")).toBeVisible();
 });
