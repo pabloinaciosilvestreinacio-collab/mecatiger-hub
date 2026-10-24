@@ -36,6 +36,12 @@ A tabela antiga `community_registrations` e as métricas **não** devem ser sobr
 
 ## 3. SMTP/Auth — bloqueio para acesso público real
 
+**Domínio do remetente:** consulte [`DOMINIO_SMTP_SEM_CUSTO_20261024.md`](DOMINIO_SMTP_SEM_CUSTO_20261024.md) e rode `node scripts/sender-domain-preflight.mjs` (offline). O domínio do site no GitHub Pages pode permanecer gratuito; o SMTP público requer um domínio de remetente próprio/institucional com permissão DNS comprovada, cuja existência ainda não foi demonstrada. Não comprar domínio ou alterar DNS sem autorização.
+
+
+
+A avaliação de provedores gratuitos, necessidade de domínio autenticado, templates propostos, redirects e primeiro editor está documentada em [`AUTH_SMTP_GRATUITO_20261024.md`](AUTH_SMTP_GRATUITO_20261024.md). A verificação offline é `node scripts/auth-smtp-preflight.mjs`. **Nenhum SMTP ou conta hospedada foi configurado neste ciclo.**
+
 O SMTP padrão do Supabase é apenas para desenvolvimento; envia para endereços previamente autorizados na equipe, não para uma comunidade aberta. A documentação oficial informa esse limite: https://supabase.com/docs/guides/auth/auth-smtp .
 
 **Sem SMTP próprio validado, o login público e o painel NÃO estarão operacionais para todas as pessoas.** Não publicar comunicação prometendo cadastro funcional enquanto isso não estiver resolvido.
