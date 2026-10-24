@@ -64,17 +64,20 @@ async function profileNames(ids) {
   return new Map((data||[]).map(p=>[p.id,p.display_name]));
 }
 async function loadFeed() {
+  const epoch = identityEpoch;
   message("feed-status","Carregando publicações aprovadas...");
   const {data,error}=await supabase.from("rede_posts")
     .select("id,author_id,kind,category,title,content,created_at")
     .eq("status","approved").order("created_at",{ascending:false}).order("id",{ascending:false})
     .range(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
+  if (epoch !== identityEpoch) return;
   if (error) {
     message("feed-status","Não foi possível carregar o feed.",true); $("feed-items").replaceChildren(); return;
   }
   const hasMore=(data||[]).length>PAGE_SIZE;
   const posts=(data||[]).slice(0,PAGE_SIZE);
   const names=await profileNames(posts.map(p=>p.author_id));
+  if (epoch !== identityEpoch) return;
   $("feed-items").replaceChildren();
   for (const post of posts) $("feed-items").append(renderPost(post,names.get(post.author_id)||"Participante"));
   message("feed-status",posts.length ? "Publicações revisadas pela equipe." : "Ainda não há publicações aprovadas nesta página.");
@@ -163,11 +166,13 @@ async function reportContent(target) {
   alert(error?readableError(error):"Denúncia enviada para análise.");
 }
 async function loadOwn() {
-  if (!currentUser) return;
+  if (!currentUser || !identityResolved) return;
+  const epoch = identityEpoch, ownerId = currentUser.id;
   const [posts,requests]=await Promise.all([
     supabase.from("rede_posts").select("id,title,content,category,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20),
     supabase.from("rede_requests").select("id,kind,title,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20)
   ]);
+  if (epoch !== identityEpoch || currentUser?.id !== ownerId) return;
   const items=$("own-items");items.replaceChildren();
   if (posts.error||requests.error) {items.append(el("p","Não foi possível carregar os envios."));return;}
   const entries=[...(posts.data||[]).map(x=>({...x,table:"rede_posts",label:"Publicação"})),
@@ -206,7 +211,8 @@ async function loadOwn() {
   }
 }
 async function loadModeration() {
-  if (!isModerator) return;
+  if (!isModerator || !identityResolved) return;
+  const epoch = identityEpoch;
   const root=$("mod-items");root.replaceChildren(el("p","Carregando fila..."));
   const tables=[
     {name:"rede_posts",label:"Publicação",states:["approved","rejected"]},
@@ -215,6 +221,7 @@ async function loadModeration() {
     {name:"rede_reports",label:"Denúncia",states:["reviewed","dismissed"]}
   ];
   const results=await Promise.all(tables.map(t=>supabase.from(t.name).select("*").eq("status","pending").order("created_at").limit(25)));
+  if (epoch !== identityEpoch || !isModerator) return;
   root.replaceChildren();
   tables.forEach((t,index)=>{
     const result=results[index];
@@ -244,6 +251,8 @@ async function refreshIdentity() {
   profileReady = false;
   isModerator = false;
   syncIdentityControls();
+  $("own-items").replaceChildren();
+  $("mod-items").replaceChildren();
   $("rede-identity").textContent = "Verificando sessão e permissões...";
   message("profile-status", "Verificando perfil...");
   message("post-status", "Aguarde a verificação da sua conta.");
@@ -316,7 +325,7 @@ $("profile-form").addEventListener("submit",async event=>{
   if (epoch !== identityEpoch || currentUser?.id !== userId) return;
   syncIdentityControls();
   message("profile-status",error?readableError(error):"Perfil salvo.",!!error);
-  if (!error) {profileReady=true;syncIdentityControls();await loadOwn();}
+  if (!error) {profileReady=true;syncIdentityControls();message("post-status","As publicações precisam ser aprovadas.");await loadOwn();}
 });
 $("post-form").addEventListener("submit",async event=>{
   event.preventDefault();
