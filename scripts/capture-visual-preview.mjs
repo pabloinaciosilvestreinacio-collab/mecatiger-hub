@@ -27,7 +27,19 @@ try {
     if (shot.path === 'index.html') {
       const skip = page.locator('.panel-close[data-skip-registration]');
       if (await skip.isVisible()) await skip.click();
-      await page.evaluate(() => window.scrollTo(0, 0));
+      // Trigger IntersectionObserver scroll-reveal effects before full-page capture.
+      await page.evaluate(async () => {
+        const step = Math.max(300, Math.round(window.innerHeight * 0.7));
+        const maxY = document.documentElement.scrollHeight;
+        for (let y = 0; y <= maxY; y += step) {
+          window.scrollTo(0, y);
+          await new Promise((resolve) => setTimeout(resolve, 110));
+        }
+        window.scrollTo(0, maxY);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        window.scrollTo(0, 0);
+      });
+      await page.waitForTimeout(800);
     }
     await page.screenshot({ path: `${OUT}/${shot.file}`, fullPage: true, animations: 'disabled' });
     console.log(`Captured ${shot.file}`);
