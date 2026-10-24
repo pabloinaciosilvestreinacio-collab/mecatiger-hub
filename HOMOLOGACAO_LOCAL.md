@@ -1,6 +1,6 @@
 # Homologação local — Rede Meca Tiger e Meca Sim
 
-Estado: ambiente descartável preparado na branch de testes. Nada neste fluxo vincula, migra ou implanta o projeto Supabase hospedado.
+Estado: ambiente descartável implementado e aprovado no GitHub Actions. Nada neste fluxo vincula, migra ou implanta o projeto Supabase hospedado.
 
 ## Escopo e fronteiras de segurança
 
@@ -61,13 +61,14 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - 9 testes estáticos/contratuais Python: aprovados.
 - Parse do `supabase/config.toml`: aprovado.
 - Download do Chromium para Playwright: bloqueado pela restrição de rede deste ambiente; nenhum resultado de navegador foi declarado.
-- Pilha Supabase completa: não executada aqui porque Docker não está instalado; deve ser comprovada pelo workflow descartável.
+- Pilha Supabase completa: não executada no Work porque Docker não está instalado; comprovada no runner descartável do GitHub Actions.
 - Primeira execução do workflow: as migrações, Mailpit e os três usuários OTP funcionaram, mas o teste encontrou uma inicialização duplicada do Edge Runtime; o workflow foi corrigido e precisa ser reexecutado.
 - Segunda execução: toda a homologação de backend passou; o navegador encontrou dois links sem distinção não baseada apenas em cor e overflow horizontal da Rede em 360 px. A correção CSS mínima foi autorizada e aplicada, pendente de nova execução.
+- Terceira execução (`40116188243`): homologação Supabase aprovada, 7/7 testes Playwright aprovados e stack local removido ao final. No mesmo commit, scanner de segredos, validação estática e testes PostgreSQL/RLS também foram aprovados.
 
 ## Limitações e riscos pendentes
 
-- O workflow precisa ser executado no GitHub Actions para produzir evidência real da pilha Supabase e do navegador.
+- A evidência é de homologação descartável no CI; não representa validação real em produção.
 - A interface continua usando a configuração hospedada quando publicada; o teste de navegador bloqueia tráfego não local e valida apenas estrutura, acessibilidade e responsividade. Auth/RLS/Edge são validados separadamente contra a pilha local.
 - JWT de acesso já emitido pode continuar válido até expirar mesmo após logout; o teste confirma a revogação do refresh token e rejeita explicitamente um JWT expirado.
 - A proteção de trajetórias cobre os dados armazenados. Os arquivos estáticos do simulador no GitHub Pages continuam publicamente recuperáveis, conforme já documentado em `MECASIM_SECURITY.md`.
