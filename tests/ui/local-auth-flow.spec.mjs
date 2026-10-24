@@ -16,6 +16,9 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await page.goto(confirmationLink);
   await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
   await expect(page.locator("#rede-identity")).toContainText("Sessão autenticada");
+  // Identity banner appears before the async profile/RLS queries settle.
+  // Wait for the initial profile check before submitting a new profile.
+  await expect(page.locator("#post-status")).toContainText("Salve seu perfil público antes de publicar.");
 
   await page.locator("#display-name").fill("Participante UI");
   await page.locator("#profile-form").getByRole("button", { name: "Salvar perfil" }).click();
