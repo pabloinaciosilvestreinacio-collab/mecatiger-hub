@@ -25,7 +25,7 @@ try {
     await page.goto(`${BASE_URL}/${shot.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(1400);
     if (shot.path === 'index.html') {
-      const skip = page.locator('[data-skip-registration]');
+      const skip = page.locator('.panel-close[data-skip-registration]');
       if (await skip.isVisible()) await skip.click();
       await page.evaluate(() => window.scrollTo(0, 0));
     }
