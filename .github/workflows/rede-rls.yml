@@ -1,0 +1,41 @@
+name: Rede PostgreSQL RLS security tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rls-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: mecatiger_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testing-only-no-real-data
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d mecatiger_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+      - name: Apply simulated Supabase roles and migration
+        env:
+          PGPASSWORD: testing-only-no-real-data
+        run: |
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/supabase_mock.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261024160000_rede_mecatiger_mvp.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261024163000_require_nonanonymous_identity.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_smoke.sql

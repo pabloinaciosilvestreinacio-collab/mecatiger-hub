@@ -1,0 +1,296 @@
+import { supabase } from "./rede-client.js";
+import { isVerifiedMember } from "./rede-identity.mjs";
+
+const $ = id => document.getElementById(id);
+const CATEGORIES = {
+  programacao:"Programação", mecanica:"Mecânica e CAD", eletronica:"Eletrônica",
+  ftc:"FTC e competições", projetos:"Projetos STEM",
+  ajuda:"Dúvidas e ajuda", conhecimento:"Conhecimento compartilhado"
+};
+const PAGE_SIZE = 8;
+let currentUser = null, profileReady = false, isModerator = false;
+let page = 0, requestKind = "ajuda";
+const el = (tag, text, cls) => {
+  const node = document.createElement(tag);
+  if (text !== undefined && text !== null) node.textContent = String(text);
+  if (cls) node.className = cls;
+  return node;
+};
+const message = (id, value, error=false) => {
+  const node = $(id); if (!node) return;
+  node.textContent = value; node.dataset.error = String(error);
+};
+const date = value => new Date(value).toLocaleDateString("pt-BR", {day:"2-digit", month:"short", year:"numeric"});
+const readableError = error => error?.code === "P0001"
+  ? "Limite de envios atingido. Tente mais tarde."
+  : "Não foi possível concluir. Verifique sua conexão ou tente novamente.";
+
+function fillCategories() {
+  for (const select of document.querySelectorAll(".rede-category-input")) {
+    for (const [value,label] of Object.entries(CATEGORIES)) {
+      const item = el("option",label); item.value=value; select.append(item);
+    }
+  }
+}
+function control(label, click) {
+  const button=el("button",label); button.type="button";
+  button.addEventListener("click",click); return button;
+}
+function loginLink() {
+  const link=el("a","Entrar para interagir →");
+  link.href="entrar.html?next=rede.html"; return link;
+}
+async function profileNames(ids) {
+  const unique=[...new Set(ids.filter(Boolean))];
+  if (!unique.length) return new Map();
+  const {data}=await supabase.from("rede_profiles").select("id,display_name").in("id",unique);
+  return new Map((data||[]).map(p=>[p.id,p.display_name]));
+}
+async function loadFeed() {
+  message("feed-status","Carregando publicações aprovadas...");
+  const {data,error}=await supabase.from("rede_posts")
+    .select("id,author_id,kind,category,title,content,created_at")
+    .eq("status","approved").order("created_at",{ascending:false}).order("id",{ascending:false})
+    .range(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
+  if (error) {
+    message("feed-status","Não foi possível carregar o feed.",true); $("feed-items").replaceChildren(); return;
+  }
+  const hasMore=(data||[]).length>PAGE_SIZE;
+  const posts=(data||[]).slice(0,PAGE_SIZE);
+  const names=await profileNames(posts.map(p=>p.author_id));
+  $("feed-items").replaceChildren();
+  for (const post of posts) $("feed-items").append(renderPost(post,names.get(post.author_id)||"Participante"));
+  message("feed-status",posts.length ? "Publicações revisadas pela equipe." : "Ainda não há publicações aprovadas nesta página.");
+  $("feed-prev").disabled=page===0;
+  $("feed-next").disabled=!hasMore;
+  $("feed-page").textContent="Página "+(page+1);
+}
+function renderPost(post, author) {
+  const card=el("article",null,"rede-post");
+  const meta=el("div",null,"rede-meta");
+  meta.append(el("span",CATEGORIES[post.category]||"STEM"),
+    el("span",date(post.created_at)),el("span","Por "+author));
+  card.append(meta,el("h3",post.title),el("p",post.content));
+  const buttons=el("div",null,"rede-controls");
+  const comments=el("div");
+  buttons.append(control("Comentários",()=>toggleComments(post.id,comments)));
+  if (currentUser) buttons.append(control("Denunciar",()=>reportContent({post_id:post.id})));
+  if (isModerator) buttons.append(control("Ocultar publicação",async()=>{
+    if(!window.confirm("Ocultar esta publicação aprovada?"))return;
+    const {error}=await supabase.from("rede_posts").update({status:"rejected"}).eq("id",post.id);
+    if(error) alert(readableError(error)); else {await loadFeed();await loadModeration();}
+  }));
+  else buttons.append(loginLink());
+  card.append(buttons,comments);
+  return card;
+}
+async function toggleComments(postId,container) {
+  if (container.childNodes.length) {container.replaceChildren();return;}
+  const heading=el("h4","Comentários");
+  const label=el("p","Carregando...");
+  container.append(heading,label);
+  const {data,error}=await supabase.from("rede_comments")
+    .select("id,author_id,content,status,created_at").eq("post_id",postId)
+    .order("created_at",{ascending:true}).limit(100);
+  if (error) {label.textContent="Comentários indisponíveis.";return;}
+  const names=await profileNames((data||[]).map(x=>x.author_id));
+  label.remove();
+  if (!(data||[]).length) container.append(el("p","Nenhum comentário aprovado ainda."));
+  for (const item of data||[]) {
+    const c=el("div",null,"rede-comment");
+    c.append(el("div",(names.get(item.author_id)||"Participante")+" · "+date(item.created_at)
+      +(item.status!=="approved"?" · Aguardando aprovação":""),"rede-meta"),el("p",item.content));
+    if(currentUser && profileReady) {
+      const actions=el("div",null,"rede-controls");
+      actions.append(control("Denunciar comentário",()=>reportContent({comment_id:item.id})));
+      if(item.author_id===currentUser.id) actions.append(control("Excluir comentário",async()=>{
+        if(!window.confirm("Excluir seu comentário?"))return;
+        const {error}=await supabase.from("rede_comments").delete().eq("id",item.id);
+        if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
+      }));
+      if(isModerator && item.status==="approved") actions.append(control("Ocultar comentário",async()=>{
+        if(!window.confirm("Ocultar comentário aprovado?"))return;
+        const {error}=await supabase.from("rede_comments").update({status:"rejected"}).eq("id",item.id);
+        if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
+      }));
+      c.append(actions);
+    }
+    container.append(c);
+  }
+  if (!currentUser || !profileReady) {container.append(loginLink());return;}
+  const form=el("form",null,"rede-form");
+  const input=el("textarea"); input.required=true;input.minLength=3;input.maxLength=1500;
+  input.placeholder="Compartilhe uma resposta respeitosa (3 a 1500 caracteres)";
+  const send=el("button","Enviar comentário para aprovação","button");send.type="submit";
+  const info=el("p",null,"rede-status");info.setAttribute("role","status");
+  form.append(input,send,info);
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();send.disabled=true;
+    const {error}=await supabase.from("rede_comments").insert({
+      author_id:currentUser.id,post_id:postId,content:input.value.trim()
+    });
+    send.disabled=false;
+    if (error) info.textContent=readableError(error);
+    else {input.value="";info.textContent="Comentário recebido. Aguardando aprovação.";}
+  });
+  container.append(form);
+}
+async function reportContent(target) {
+  if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
+  const reason=window.prompt("Por que esta publicação deve ser revisada? Não inclua dados pessoais (10 a 500 caracteres).");
+  if (reason===null) return;
+  if (reason.trim().length<10||reason.trim().length>500) {alert("Escreva entre 10 e 500 caracteres.");return;}
+  const {error}=await supabase.from("rede_reports").insert({
+    reporter_id:currentUser.id,...target,reason:reason.trim()
+  });
+  alert(error?readableError(error):"Denúncia enviada para análise.");
+}
+async function loadOwn() {
+  if (!currentUser) return;
+  const [posts,requests]=await Promise.all([
+    supabase.from("rede_posts").select("id,title,content,category,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20),
+    supabase.from("rede_requests").select("id,kind,title,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20)
+  ]);
+  const items=$("own-items");items.replaceChildren();
+  if (posts.error||requests.error) {items.append(el("p","Não foi possível carregar os envios."));return;}
+  const entries=[...(posts.data||[]).map(x=>({...x,table:"rede_posts",label:"Publicação"})),
+    ...(requests.data||[]).map(x=>({...x,table:"rede_requests",label:"Solicitação"}))];
+  entries.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if (!entries.length) items.append(el("p","Você ainda não enviou conteúdo."));
+  for (const item of entries) {
+    const box=el("div",null,"rede-comment");
+    box.append(el("strong",item.title),el("p",item.label+" · "+item.status+" · "+date(item.created_at)));
+    if (item.table==="rede_posts" && item.status==="pending") box.append(control("Editar publicação pendente",()=>{
+      const form=el("form",null,"rede-form");
+      const labelTitle=el("label","Título");const title=el("input");title.value=item.title;
+      title.minLength=6;title.maxLength=120;title.required=true;
+      const labelBody=el("label","Conteúdo");const body=el("textarea");body.value=item.content;
+      body.minLength=15;body.maxLength=5000;body.required=true;
+      const save=el("button","Salvar alterações","button");save.type="submit";
+      const info=el("p",null,"rede-status");info.setAttribute("role","status");
+      form.append(labelTitle,title,labelBody,body,save,info);
+      form.addEventListener("submit",async event=>{
+        event.preventDefault();save.disabled=true;
+        const {error}=await supabase.from("rede_posts")
+          .update({title:title.value.trim(),content:body.value.trim()})
+          .eq("id",item.id).eq("author_id",currentUser.id);
+        save.disabled=false;
+        if(error) info.textContent=readableError(error);
+        else {info.textContent="Edição salva. Publicação continua pendente.";await loadOwn();}
+      });
+      box.append(form);
+    }));
+    if (item.table==="rede_posts") box.append(control("Excluir publicação",async()=>{
+      if (!window.confirm("Excluir definitivamente esta publicação?"))return;
+      const {error}=await supabase.from("rede_posts").delete().eq("id",item.id);
+      if (error) alert(readableError(error)); else {await loadOwn();await loadFeed();}
+    }));
+    items.append(box);
+  }
+}
+async function loadModeration() {
+  if (!isModerator) return;
+  const root=$("mod-items");root.replaceChildren(el("p","Carregando fila..."));
+  const tables=[
+    {name:"rede_posts",label:"Publicação",states:["approved","rejected"]},
+    {name:"rede_comments",label:"Comentário",states:["approved","rejected"]},
+    {name:"rede_requests",label:"Solicitação",states:["em_analise","concluido","rejeitado"]},
+    {name:"rede_reports",label:"Denúncia",states:["reviewed","dismissed"]}
+  ];
+  const results=await Promise.all(tables.map(t=>supabase.from(t.name).select("*").eq("status","pending").order("created_at").limit(25)));
+  root.replaceChildren();
+  tables.forEach((t,index)=>{
+    const result=results[index];
+    root.append(el("h3",t.label+"s"));
+    if (result.error) {root.append(el("p","Erro ao consultar fila de "+t.label.toLowerCase()+"s."));return;}
+    if (!result.data.length) {root.append(el("p","Sem pendências.","rede-muted"));return;}
+    for (const item of result.data) {
+      const card=el("div",null,"rede-mod-item");
+      card.append(el("strong",(item.title||item.content||item.reason||"Solicitação")+" · #"+item.id));
+      if (item.details) card.append(el("p",item.details));
+      if (item.post_id) card.append(el("p","Referente à publicação #"+item.post_id));
+      const buttons=el("div",null,"rede-controls");
+      for (const state of t.states) buttons.append(control(state,async()=>{
+        if (!window.confirm("Confirmar estado "+state+" para "+t.label.toLowerCase()+" #"+item.id+"?"))return;
+        const {error}=await supabase.from(t.name).update({status:state}).eq("id",item.id);
+        if (error) alert(readableError(error)); else {await loadModeration();await loadFeed();}
+      }));
+      card.append(buttons);root.append(card);
+    }
+  });
+}
+async function refreshIdentity() {
+  const {data,error}=await supabase.auth.getUser();
+  currentUser=(!error && isVerifiedMember(data.user)) ? data.user : null;
+  const authed=!!currentUser;
+  $("rede-signin").hidden=authed;$("rede-signout").hidden=!authed;
+  $("perfil").hidden=!authed;$("meus-conteudos").hidden=!authed;
+  $("rede-identity").textContent=authed?"Sessão autenticada. Suas ações serão vinculadas à sua conta.":"Modo visitante — leitura pública.";
+  profileReady=false;isModerator=false;
+  if (authed) {
+    const [profile,mod]=await Promise.all([
+      supabase.from("rede_profiles").select("display_name").eq("id",currentUser.id).maybeSingle(),
+      supabase.from("rede_moderators").select("user_id").eq("user_id",currentUser.id).maybeSingle()
+    ]);
+    if (profile.data) {profileReady=true;$("display-name").value=profile.data.display_name;}
+    message("profile-status",profileReady?"Perfil público ativo.":"Escolha um apelido público para participar.");
+    isModerator=!!mod.data;
+    $("moderacao").hidden=!isModerator;
+    if (isModerator) await loadModeration();
+    await loadOwn();
+  }
+  $("post-form").hidden=!authed||!profileReady;
+  message("post-status",!authed?"Entre na conta para publicar.":!profileReady?"Salve seu perfil público antes de publicar.":"As publicações precisam ser aprovadas.");
+  await loadFeed();
+}
+$("profile-form").addEventListener("submit",async event=>{
+  event.preventDefault();
+  if (!currentUser) return;
+  const display_name=$("display-name").value.trim();
+  if (display_name.length<2||display_name.length>60) return;
+  const {error}=await supabase.from("rede_profiles").upsert({id:currentUser.id,display_name},{onConflict:"id"});
+  message("profile-status",error?readableError(error):"Perfil salvo.",!!error);
+  if (!error) {profileReady=true;$("post-form").hidden=false;await loadOwn();}
+});
+$("post-form").addEventListener("submit",async event=>{
+  event.preventDefault();
+  if (!currentUser||!profileReady) return;
+  const button=event.currentTarget.querySelector("button[type=submit]");button.disabled=true;
+  const payload={author_id:currentUser.id,kind:$("post-kind").value,category:$("post-category").value,
+    title:$("post-title").value.trim(),content:$("post-content").value.trim()};
+  const {error}=await supabase.from("rede_posts").insert(payload);
+  button.disabled=false;
+  if (error)message("post-status",readableError(error),true);
+  else {event.currentTarget.reset();message("post-status","Publicação recebida! Aguarde a moderação.");await loadOwn();}
+});
+for (const button of document.querySelectorAll("[data-request-kind]")) button.addEventListener("click",()=>{
+  if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
+  requestKind=button.dataset.requestKind;
+  $("pedido").hidden=false;
+  $("request-heading").textContent=requestKind==="ajuda"?"Pedir ajuda":"Solicitar conexão STEM";
+  $("pedido").scrollIntoView({behavior:"smooth",block:"center"});
+});
+$("request-form").addEventListener("submit",async event=>{
+  event.preventDefault();if (!currentUser||!profileReady)return;
+  const button=event.currentTarget.querySelector("button[type=submit]");button.disabled=true;
+  const {error}=await supabase.from("rede_requests").insert({
+    author_id:currentUser.id,kind:requestKind,category:$("request-category").value,
+    title:$("request-title").value.trim(),details:$("request-details").value.trim()
+  });
+  button.disabled=false;
+  message("request-status",error?readableError(error):"Solicitação privada registrada para análise.",!!error);
+  if (!error) {event.currentTarget.reset();await loadOwn();}
+});
+$("rede-signout").addEventListener("click",async()=>{
+  $("rede-signout").disabled=true;
+  const {error}=await supabase.auth.signOut();
+  $("rede-signout").disabled=false;
+  if (error) {alert("Não foi possível encerrar a sessão.");return;}
+  currentUser=null;profileReady=false;isModerator=false;
+  await refreshIdentity();
+});
+$("feed-prev").addEventListener("click",()=>{if(page>0){page--;loadFeed();}});
+$("feed-next").addEventListener("click",()=>{page++;loadFeed();});
+$("mod-reload").addEventListener("click",loadModeration);
+fillCategories();
+refreshIdentity().catch(()=>message("feed-status","Não foi possível iniciar a comunidade.",true));

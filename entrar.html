@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Acesso à Rede Meca Tiger</title>
+<link rel="icon" href="public/mecatiger-favicon.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="rede.css">
+</head>
+<body>
+<header class="site-header"><div class="container header-inner">
+<a class="brand" href="index.html"><img src="public/Screenshot_20261004_131612_Instagram.jpg" alt=""><span><span class="brand-name display">MECATIGER</span><span class="brand-sub">FTC #32578</span></span></a>
+<a class="button outline" href="rede.html">← Rede Meca Tiger</a></div></header>
+<main class="rede-page"><section class="container rede-narrow" aria-labelledby="entry-heading">
+<span class="eyebrow">Participação na comunidade STEM</span>
+<h1 class="display" id="entry-heading">ACESSAR A <span class="accent">REDE.</span></h1>
+<p>Para participar, solicite um link de acesso enviado pelo Supabase Auth ao seu e-mail. Não utilizamos senhas tradicionais.</p>
+<div class="rede-box">
+<form id="send-code" class="rede-form">
+<label for="auth-email">Endereço de e-mail</label>
+<input id="auth-email" name="email" type="email" autocomplete="email" maxlength="320" required placeholder="seu-email@exemplo.com">
+<button class="button" type="submit">Solicitar link de acesso</button>
+</form>
+<p id="auth-status" role="status" aria-live="polite" class="rede-status">Verificando sessão...</p>
+</div>
+<p class="rede-privacy">Não compartilhe documentos, senhas, códigos recebidos ou informações pessoais no feed. Caso precise de suporte, <a href="mailto:mecatiger6@gmail.com">contate a equipe</a>.</p>
+</section></main>
+<footer><div class="container footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><a href="index.html">Voltar ao site</a></div></footer>
+<script type="module" src="js/rede-auth.js"></script>
+</body></html>
