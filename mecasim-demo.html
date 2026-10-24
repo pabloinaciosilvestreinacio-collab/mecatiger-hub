@@ -36,7 +36,7 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <header><div class="container head"><a class="brand" href="index.html#top">MECATIGER<small>FTC #32578 · MECA SIM</small></a><a class="button secondary" href="mecasim.html">← Sobre o Meca Sim</a></div></header>
 <main class="container">
 <span class="eyebrow">Integração web · demonstração limitada</span>
@@ -96,5 +96,7 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
  render();
 })();
 </script>
+<noscript><p>Ative o JavaScript para autenticar e acessar a prévia do simulador.</p></noscript>
+<script type="module" src="js/sim-gate.js"></script>
 </body>
 </html>
