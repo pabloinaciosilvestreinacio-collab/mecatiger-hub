@@ -73,7 +73,12 @@ function renderPost(post, author) {
   const buttons=el("div",null,"rede-controls");
   const comments=el("div");
   buttons.append(control("Comentários",()=>toggleComments(post.id,comments)));
-  if (currentUser) buttons.append(control("Denunciar",()=>reportPost(post.id)));
+  if (currentUser) buttons.append(control("Denunciar",()=>reportContent({post_id:post.id})));
+  if (isModerator) buttons.append(control("Ocultar publicação",async()=>{
+    if(!window.confirm("Ocultar esta publicação aprovada?"))return;
+    const {error}=await supabase.from("rede_posts").update({status:"rejected"}).eq("id",post.id);
+    if(error) alert(readableError(error)); else {await loadFeed();await loadModeration();}
+  }));
   else buttons.append(loginLink());
   card.append(buttons,comments);
   return card;
@@ -94,6 +99,21 @@ async function toggleComments(postId,container) {
     const c=el("div",null,"rede-comment");
     c.append(el("div",(names.get(item.author_id)||"Participante")+" · "+date(item.created_at)
       +(item.status!=="approved"?" · Aguardando aprovação":""),"rede-meta"),el("p",item.content));
+    if(currentUser && profileReady) {
+      const actions=el("div",null,"rede-controls");
+      actions.append(control("Denunciar comentário",()=>reportContent({comment_id:item.id})));
+      if(item.author_id===currentUser.id) actions.append(control("Excluir comentário",async()=>{
+        if(!window.confirm("Excluir seu comentário?"))return;
+        const {error}=await supabase.from("rede_comments").delete().eq("id",item.id);
+        if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
+      }));
+      if(isModerator && item.status==="approved") actions.append(control("Ocultar comentário",async()=>{
+        if(!window.confirm("Ocultar comentário aprovado?"))return;
+        const {error}=await supabase.from("rede_comments").update({status:"rejected"}).eq("id",item.id);
+        if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
+      }));
+      c.append(actions);
+    }
     container.append(c);
   }
   if (!currentUser || !profileReady) {container.append(loginLink());return;}
@@ -114,20 +134,20 @@ async function toggleComments(postId,container) {
   });
   container.append(form);
 }
-async function reportPost(postId) {
+async function reportContent(target) {
   if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
   const reason=window.prompt("Por que esta publicação deve ser revisada? Não inclua dados pessoais (10 a 500 caracteres).");
   if (reason===null) return;
   if (reason.trim().length<10||reason.trim().length>500) {alert("Escreva entre 10 e 500 caracteres.");return;}
   const {error}=await supabase.from("rede_reports").insert({
-    reporter_id:currentUser.id,post_id:postId,reason:reason.trim()
+    reporter_id:currentUser.id,...target,reason:reason.trim()
   });
   alert(error?readableError(error):"Denúncia enviada para análise.");
 }
 async function loadOwn() {
   if (!currentUser) return;
   const [posts,requests]=await Promise.all([
-    supabase.from("rede_posts").select("id,title,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20),
+    supabase.from("rede_posts").select("id,title,content,category,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20),
     supabase.from("rede_requests").select("id,kind,title,status,created_at").eq("author_id",currentUser.id).order("created_at",{ascending:false}).limit(20)
   ]);
   const items=$("own-items");items.replaceChildren();
@@ -139,6 +159,26 @@ async function loadOwn() {
   for (const item of entries) {
     const box=el("div",null,"rede-comment");
     box.append(el("strong",item.title),el("p",item.label+" · "+item.status+" · "+date(item.created_at)));
+    if (item.table==="rede_posts" && item.status==="pending") box.append(control("Editar publicação pendente",()=>{
+      const form=el("form",null,"rede-form");
+      const labelTitle=el("label","Título");const title=el("input");title.value=item.title;
+      title.minLength=6;title.maxLength=120;title.required=true;
+      const labelBody=el("label","Conteúdo");const body=el("textarea");body.value=item.content;
+      body.minLength=15;body.maxLength=5000;body.required=true;
+      const save=el("button","Salvar alterações","button");save.type="submit";
+      const info=el("p",null,"rede-status");info.setAttribute("role","status");
+      form.append(labelTitle,title,labelBody,body,save,info);
+      form.addEventListener("submit",async event=>{
+        event.preventDefault();save.disabled=true;
+        const {error}=await supabase.from("rede_posts")
+          .update({title:title.value.trim(),content:body.value.trim()})
+          .eq("id",item.id).eq("author_id",currentUser.id);
+        save.disabled=false;
+        if(error) info.textContent=readableError(error);
+        else {info.textContent="Edição salva. Publicação continua pendente.";await loadOwn();}
+      });
+      box.append(form);
+    }));
     if (item.table==="rede_posts") box.append(control("Excluir publicação",async()=>{
       if (!window.confirm("Excluir definitivamente esta publicação?"))return;
       const {error}=await supabase.from("rede_posts").delete().eq("id",item.id);
