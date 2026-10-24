@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 __pycache__/
 test-results/
+.mecatiger-browser-build/
 playwright-report/
 dist
 dist-ssr
