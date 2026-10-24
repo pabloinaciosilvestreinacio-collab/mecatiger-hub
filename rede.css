@@ -1,0 +1,46 @@
+/* Isolated styles for the new community pages; preserve the site's palette. */
+.rede-page { padding: clamp(105px,11vw,155px) 0 84px; min-height: 80vh; }
+.rede-narrow { max-width: 720px; }
+.rede-page h1 { font-size: clamp(48px,8vw,96px); line-height:.95; margin: 14px 0 22px; }
+.rede-page h2 { font-size: clamp(28px,4vw,48px); line-height:1.05; margin-bottom: 14px; }
+.rede-page p { line-height: 1.65; }
+.rede-page a:not(.button) { color: #ffa647; }
+.rede-box { border:1px solid rgba(242,138,26,.36); border-radius:16px; background:rgba(10,11,12,.6); padding: clamp(16px,3.5vw,30px); margin:24px 0; }
+.rede-form { display:grid; gap:12px; margin-top:16px; }
+.rede-form label { font-weight:700; }
+.rede-form input,.rede-form select,.rede-form textarea { box-sizing:border-box; width:100%; padding:13px 14px; background:#171819; border:1px solid #666; border-radius:8px; color:#fff; font:inherit; }
+.rede-form input:focus-visible,.rede-form select:focus-visible,.rede-form textarea:focus-visible,
+.rede-page button:focus-visible,.rede-page a:focus-visible { outline:3px solid #f28a1a; outline-offset:3px; }
+.rede-form textarea { min-height:130px; resize:vertical; }
+.rede-form .button { cursor:pointer; justify-self:start; border-radius:6px; }
+.rede-form .button:disabled { opacity:.55; cursor:wait; }
+.rede-status { min-height:1.5em; color:#cbd0d4; margin-top:14px; }
+.rede-status[data-error=true] { color:#ffae95; }
+.rede-privacy { color:#b8bdc2; font-size:.92rem; }
+.rede-toolbar { display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin:18px 0 32px; }
+.rede-layout { display:grid; grid-template-columns: minmax(0,2fr) minmax(240px,1fr); gap:26px; }
+.rede-stack { display:grid; gap:18px; align-content:start; }
+.rede-post { border:1px solid rgba(255,255,255,.19); border-radius:12px; padding:22px; background:#202224; overflow-wrap:anywhere; }
+.rede-post h3 { margin:10px 0; font-size:clamp(20px,3vw,27px); }
+.rede-post p { white-space:pre-wrap; margin:8px 0 14px; }
+.rede-meta { display:flex; gap:12px; flex-wrap:wrap; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; color:#bdc4c8; }
+.rede-controls { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.rede-controls button { border:1px solid #767676; background:transparent; color:white; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.rede-controls button:hover { border-color:#f28a1a; color:#ffa647; }
+.rede-pager { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; }
+.rede-box h3,.rede-section-title { margin:0 0 12px; }
+.rede-muted { color:#b4bac1; }
+.rede-page [hidden] { display:none !important; }
+.rede-categories { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0; }
+.rede-categories span { padding:6px 10px; border:1px solid #53575c; border-radius:100px; font-size:.75rem; }
+.rede-banner { padding:18px; background:rgba(242,138,26,.09); border-left:3px solid #f28a1a; }
+.rede-divider { border:none; border-top:1px solid #505050; margin:20px 0; }
+.rede-comment { padding:12px 0; border-top:1px solid #424242; }
+.rede-comment p { margin:4px 0; }
+.rede-mod-item { border-top:1px solid #555; padding:14px 0; }
+.rede-mod-item p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.rede-grid-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:20px 0 32px; }
+.rede-grid-actions a { display:block; padding:20px; border:1px solid #626262; border-radius:10px; text-decoration:none; }
+.rede-grid-actions strong { display:block; color:#fff; font-size:1.15rem; }
+@media(max-width:860px) { .rede-layout {grid-template-columns:1fr;} .rede-grid-actions {grid-template-columns:1fr;} }
+@media(max-width:500px) {.rede-page{padding-top:100px;} .rede-form .button { width:100%; } }
