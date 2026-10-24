@@ -36,9 +36,13 @@ additional_redirect_urls = [
   "http://127.0.0.1:8000/entrar.html",
   "http://127.0.0.1:8000/entrar.html?next=rede.html",
   "http://127.0.0.1:8000/entrar.html?next=mecasim-demo.html",
+  "http://127.0.0.1:8000/entrar.html?next=mecasim.html",
+  "http://127.0.0.1:8000/entrar.html?next=admin.html",
   "http://localhost:8000/entrar.html",
   "http://localhost:8000/entrar.html?next=rede.html",
-  "http://localhost:8000/entrar.html?next=mecasim-demo.html"
+  "http://localhost:8000/entrar.html?next=mecasim-demo.html",
+  "http://localhost:8000/entrar.html?next=mecasim.html",
+  "http://localhost:8000/entrar.html?next=admin.html"
 ]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true

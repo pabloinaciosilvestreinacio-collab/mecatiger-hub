@@ -59,3 +59,16 @@ test("Meca Sim exige login antes de mostrar a prévia autenticada", async ({ pag
   await expect(page).toHaveTitle(/Acesso à Rede Meca Tiger/i);
   await expect(page.locator("#auth-status")).toBeVisible();
 });
+
+// Published-read-only scenario: explanatory content must not pretend to be user posts.
+test("Rede explica o processo completo e a separação dos cadastros", async ({ page }) => {
+  await page.goto("/rede.html", {waitUntil:"domcontentloaded"});
+  const section=page.locator("#como-funciona");
+  await expect(section).toBeVisible();
+  await expect(section.locator("ol > li")).toHaveCount(4);
+  await expect(section).toContainText("Entre com e-mail confirmado");
+  await expect(section).toContainText("não substitui esse login");
+  await expect(section).toContainText("A equipe Meca Tiger revisa publicações");
+  await expect(page.locator(".rede-banner")).toContainText("não cria uma conta");
+  await expect(page.locator("#feed-status")).not.toContainText("5 publicações");
+});
