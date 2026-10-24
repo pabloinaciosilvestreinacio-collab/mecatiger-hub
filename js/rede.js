@@ -254,14 +254,15 @@ $("profile-form").addEventListener("submit",async event=>{
 });
 $("post-form").addEventListener("submit",async event=>{
   event.preventDefault();
+  const form=event.currentTarget; // Preserve the target before awaiting network I/O.
   if (!currentUser||!profileReady) return;
-  const button=event.currentTarget.querySelector("button[type=submit]");button.disabled=true;
+  const button=form.querySelector("button[type=submit]");button.disabled=true;
   const payload={author_id:currentUser.id,kind:$("post-kind").value,category:$("post-category").value,
     title:$("post-title").value.trim(),content:$("post-content").value.trim()};
   const {error}=await supabase.from("rede_posts").insert(payload);
   button.disabled=false;
   if (error)message("post-status",readableError(error),true);
-  else {event.currentTarget.reset();message("post-status","Publicação recebida! Aguarde a moderação.");await loadOwn();}
+  else {form.reset();message("post-status","Publicação recebida! Aguarde a moderação.");await loadOwn();}
 });
 for (const button of document.querySelectorAll("[data-request-kind]")) button.addEventListener("click",()=>{
   if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
@@ -271,15 +272,17 @@ for (const button of document.querySelectorAll("[data-request-kind]")) button.ad
   $("pedido").scrollIntoView({behavior:"smooth",block:"center"});
 });
 $("request-form").addEventListener("submit",async event=>{
-  event.preventDefault();if (!currentUser||!profileReady)return;
-  const button=event.currentTarget.querySelector("button[type=submit]");button.disabled=true;
+  event.preventDefault();
+  const form=event.currentTarget; // currentTarget is null after async event dispatch.
+  if (!currentUser||!profileReady)return;
+  const button=form.querySelector("button[type=submit]");button.disabled=true;
   const {error}=await supabase.from("rede_requests").insert({
     author_id:currentUser.id,kind:requestKind,category:$("request-category").value,
     title:$("request-title").value.trim(),details:$("request-details").value.trim()
   });
   button.disabled=false;
   message("request-status",error?readableError(error):"Solicitação privada registrada para análise.",!!error);
-  if (!error) {event.currentTarget.reset();await loadOwn();}
+  if (!error) {form.reset();await loadOwn();}
 });
 $("rede-signout").addEventListener("click",async()=>{
   $("rede-signout").disabled=true;

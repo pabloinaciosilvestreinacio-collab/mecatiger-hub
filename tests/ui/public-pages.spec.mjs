@@ -1,18 +1,14 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { installLocalApp } from "./local-app.mjs";
 
 const pages = [
   ["/rede.html", "Rede Meca Tiger"],
-  ["/entrar.html?next=rede.html", "Acesso à Rede Meca Tiger"],
-  ["/mecasim-demo.html", "Meca Sim"]
+  ["/entrar.html?next=rede.html", "Acesso à Rede Meca Tiger"]
 ];
 
 test.beforeEach(async ({ context }) => {
-  await context.route("**/*", route => {
-    const url = new URL(route.request().url());
-    if (["127.0.0.1", "localhost"].includes(url.hostname)) return route.continue();
-    return route.abort("blockedbyclient");
-  });
+  await installLocalApp(context);
 });
 
 for (const [path, title] of pages) {
@@ -55,4 +51,11 @@ test("página de entrada expõe mensagens de autenticação a leitores de tela",
   await expect(status).toHaveAttribute("role", "status");
   await expect(status).toHaveAttribute("aria-live", "polite");
   await expect(page.locator("#auth-email")).toHaveAttribute("type", "email");
+});
+
+test("Meca Sim exige login antes de mostrar a prévia autenticada", async ({ page }) => {
+  await page.goto("/mecasim-demo.html");
+  await page.waitForURL(/\/entrar\.html\?next=mecasim-demo\.html$/, { timeout: 20_000 });
+  await expect(page).toHaveTitle(/Acesso à Rede Meca Tiger/i);
+  await expect(page.locator("#auth-status")).toBeVisible();
 });

@@ -93,4 +93,10 @@ class RedeContracts(unittest.TestCase):
                 self.assertNotIn("auth.admin",code)
                 self.assertNotIn(".innerHTML",code)
 
+    def test_async_forms_do_not_use_event_currenttarget_after_await(self):
+        source=(ROOT/"js/rede.js").read_text(encoding="utf-8")
+        self.assertNotIn("event.currentTarget.reset()",source)
+        self.assertGreaterEqual(source.count("const form=event.currentTarget"),2)
+        self.assertIn("form.reset()",source)
+
 if __name__=="__main__": unittest.main()
