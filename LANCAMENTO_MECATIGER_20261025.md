@@ -98,3 +98,8 @@ Referências: https://supabase.com/docs/guides/auth/auth-email-templates e https
 **Veredito deste roteiro:** estrutura em preparação, execução local/testes automatizados admissíveis, **NO-GO em produção até autorizações e verificações operacionais**.
 
 **Comando de bloqueio para evitar erro de interpretação:** `node scripts/release-preflight.mjs --require-production` retorna código **2** deliberadamente: essa ferramenta jamais autoriza implantação sozinha.
+
+
+## Auditoria complementar de migrações (24/10/2026)
+
+A auditoria exclusiva da reconciliação do banco está documentada em [`RECONCILIACAO_MIGRACOES_20261024.md`](RECONCILIACAO_MIGRACOES_20261024.md), com fotografia somente de metadados do histórico hospedado e verificador `node scripts/audit-migration-reconciliation.mjs`. As versões 20261013/20261019 aplicadas remotamente ainda não possuem SQL histórico original comprovado na branch. **Não executar `db push`, `migration repair` ou outra escrita como solução automática**; recuperar/validar o baseline histórico antes de autorizar qualquer implantação.
