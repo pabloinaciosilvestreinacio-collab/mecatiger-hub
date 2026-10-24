@@ -1,4 +1,5 @@
 import { supabase } from "./rede-client.js";
+import { isVerifiedMember } from "./rede-identity.mjs";
 
 const $ = id => document.getElementById(id);
 const CATEGORIES = {
@@ -220,7 +221,7 @@ async function loadModeration() {
 }
 async function refreshIdentity() {
   const {data,error}=await supabase.auth.getUser();
-  currentUser=!error?data.user:null;
+  currentUser=(!error && isVerifiedMember(data.user)) ? data.user : null;
   const authed=!!currentUser;
   $("rede-signin").hidden=authed;$("rede-signout").hidden=!authed;
   $("perfil").hidden=!authed;$("meus-conteudos").hidden=!authed;
