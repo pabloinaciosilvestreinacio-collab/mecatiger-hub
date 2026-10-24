@@ -1,5 +1,43 @@
-# Meca Sim private API: JWT validation at the Supabase Edge gateway.
-# Backend also invokes auth.getUser() and database RLS restricts ownership.
-# No functions have been deployed or activated in production by this file.
+# Local-only Supabase CLI configuration. No linked cloud project or paid resources.
+# supabase start runs Docker containers on the developer's own computer.
+project_id = "mecatiger-rede-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:8080"
+additional_redirect_urls = [
+  "http://127.0.0.1:8080/entrar.html",
+  "http://127.0.0.1:8080/entrar.html?next=rede.html",
+  "http://127.0.0.1:8080/entrar.html?next=mecasim.html",
+  "http://127.0.0.1:8080/entrar.html?next=mecasim-demo.html"
+]
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "1m"
+
+[auth.email.template.magic_link]
+subject = "Entrar na Rede Meca Tiger (homologação local)"
+content_path = "./supabase/templates/magic_link.html"
+
 [functions.mecasim-trajectories]
 verify_jwt = true
