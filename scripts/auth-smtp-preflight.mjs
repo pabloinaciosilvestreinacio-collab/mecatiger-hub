@@ -53,7 +53,9 @@ export function inspectAuth(root=ROOT) {
     "Somente operador autorizado atribui editor; não existe auto-cadastro administrativo");
   check("auth-local-not-hosted",local.includes('site_url = "http://127.0.0.1:8000"')&&
     local.includes("enable_anonymous_sign_ins = false")&&
-    local.includes("enable_confirmations = true"),
+    local.includes("enable_confirmations = true")&&
+    ["127.0.0.1","localhost"].every(host=>AUTH_ROUTES.every(route=>
+      local.includes('"http://'+host+':8000/entrar.html?next='+route+'"'))),
     "A configuração versionada pertence à CLI local, não ao projeto hospedado");
   check("email-templates",confirmation.includes("{{ .ConfirmationURL }}")&&
     magic.includes("{{ .ConfirmationURL }}")&&
