@@ -73,3 +73,13 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - JWT de acesso já emitido pode continuar válido até expirar mesmo após logout; o teste confirma a revogação do refresh token e rejeita explicitamente um JWT expirado.
 - A proteção de trajetórias cobre os dados armazenados. Os arquivos estáticos do simulador no GitHub Pages continuam publicamente recuperáveis, conforme já documentado em `MECASIM_SECURITY.md`.
 - Rate limiting local comprova as configurações e os limites de banco existentes, mas não reproduz comportamento de IP/proxy de produção.
+
+## Ciclo PR #12 — correção do bundle de navegador (24/10/2026)
+
+- **Falha observada:** workflow `Supabase disposable homologation`, run [`40117111539`](https://github.com/pabloinaciosilvestreinacio-collab/mecatiger-hub/actions/runs/40117111539), commit `b114b78d`: `ENOENT: no such file or directory, open 'test-results/supabase-browser.mjs'` durante carregamento dos arquivos Playwright.
+- **Causa raiz:** `scripts/build-test-browser-client.mjs` produzia o bundle ESM dentro de `test-results/`; Playwright limpa a pasta de resultados ao iniciar e `tests/ui/local-app.mjs` tentava carregar o arquivo excluído.
+- **Correção limitada a testes:** saída e leitura movidas para `.mecatiger-browser-build/supabase-browser.mjs`; diretório ignorado pelo Git, distinto de `test-results/` e de artefatos publicados. Não alterar interface, produção, Auth ou RLS.
+- **Comando de verificação:** `npm run test:ui` (que executa `node scripts/build-test-browser-client.mjs && playwright test`) no job `disposable-stack` de `.github/workflows/supabase-local-homologation.yml`.
+- **Critério objetivo:** o workflow deve concluir com sucesso **no SHA final do PR #12**. A execução antiga falhada continua registrada como evidência histórica; nunca a tratar como aprovada.
+- **Segurança:** somente runners GitHub hospedados padrão, arquivos temporários locais e `supabase stop --no-backup`; nenhum `supabase login/link/db push/functions deploy`, nenhuma gravação em produção, nenhum merge.
+- **Limites de validação:** unitários/contratos não substituem navegador. Somente uma execução Playwright + Supabase descartável com conclusão `success` comprova esta etapa; ainda não equivale a homologação em produção.
