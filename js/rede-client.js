@@ -13,7 +13,7 @@ if (localOrigin) {
     throw new Error("Local Supabase configuration must use the loopback API");
   }
   clientUrl = local.url;
-  clientKey = local.key; // local publishable or anon only, never service_role.
+  clientKey = local.key; // local browser-safe key only; no privileged keys.
 }
 export const supabase = createClient(clientUrl, clientKey, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true,
