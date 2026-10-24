@@ -14,6 +14,7 @@ const SHARED_DOMAINS=new Set([
   "yahoo.com","icloud.com","proton.me","protonmail.com","live.com"
 ]);
 const RESERVED_TLDS=new Set(["localhost","local","internal","invalid","example","test"]);
+const DOCUMENTATION_DOMAINS=new Set(["example.com","example.net","example.org"]);
 const DOMAIN_LABEL=/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 export function normalizeCandidate(value) {
   if(typeof value!=="string")return null;
@@ -23,6 +24,7 @@ export function normalizeCandidate(value) {
   if(labels.length<2||labels.some(x=>!DOMAIN_LABEL.test(x)))return null;
   if(RESERVED_TLDS.has(labels.at(-1)) || labels.at(-1).length<2)return null;
   if([...SHARED_DOMAINS].some(x=>s===x||s.endsWith("."+x)))return null;
+  if([...DOCUMENTATION_DOMAINS].some(x=>s===x||s.endsWith("."+x)))return null;
   if(/^[0-9.]+$/.test(s))return null;
   return s;
 }
