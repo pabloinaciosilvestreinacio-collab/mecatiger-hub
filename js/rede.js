@@ -9,6 +9,8 @@ const CATEGORIES = {
 };
 const PAGE_SIZE = 8;
 let currentUser = null, profileReady = false, isModerator = false;
+// Increment on every identity change; stale asynchronous reads must never restore access.
+let identityEpoch = 0, identityLoading = true, identityResolved = false;
 let page = 0, requestKind = "ajuda";
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -20,6 +22,21 @@ const message = (id, value, error=false) => {
   const node = $(id); if (!node) return;
   node.textContent = value; node.dataset.error = String(error);
 };
+// UI gating is not authorization: the Supabase RLS policies remain authoritative.
+function syncIdentityControls() {
+  const authed = !identityLoading && Boolean(currentUser);
+  const usable = authed && identityResolved;
+  $("rede-signin").hidden = identityLoading || authed;
+  $("rede-signout").hidden = !authed;
+  $("perfil").hidden = !authed;
+  $("meus-conteudos").hidden = !authed;
+  $("moderacao").hidden = !usable || !isModerator;
+  $("post-form").hidden = !usable || !profileReady;
+  $("display-name").disabled = !usable;
+  $("profile-form").querySelector('button[type="submit"]').disabled = !usable;
+  for (const button of document.querySelectorAll("[data-request-kind]")) button.disabled = !usable;
+}
+
 const date = value => new Date(value).toLocaleDateString("pt-BR", {day:"2-digit", month:"short", year:"numeric"});
 const readableError = error => error?.code === "P0001"
   ? "Limite de envios atingido. Tente mais tarde."
@@ -136,7 +153,7 @@ async function toggleComments(postId,container) {
   container.append(form);
 }
 async function reportContent(target) {
-  if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
+  if (!currentUser || identityLoading || !identityResolved || !profileReady) {location.href="entrar.html?next=rede.html";return;}
   const reason=window.prompt("Por que esta publicação deve ser revisada? Não inclua dados pessoais (10 a 500 caracteres).");
   if (reason===null) return;
   if (reason.trim().length<10||reason.trim().length>500) {alert("Escreva entre 10 e 500 caracteres.");return;}
@@ -220,42 +237,91 @@ async function loadModeration() {
   });
 }
 async function refreshIdentity() {
-  const {data,error}=await supabase.auth.getUser();
-  currentUser=(!error && isVerifiedMember(data.user)) ? data.user : null;
-  const authed=!!currentUser;
-  $("rede-signin").hidden=authed;$("rede-signout").hidden=!authed;
-  $("perfil").hidden=!authed;$("meus-conteudos").hidden=!authed;
-  $("rede-identity").textContent=authed?"Sessão autenticada. Suas ações serão vinculadas à sua conta.":"Modo visitante — leitura pública.";
-  profileReady=false;isModerator=false;
-  if (authed) {
-    const [profile,mod]=await Promise.all([
-      supabase.from("rede_profiles").select("display_name").eq("id",currentUser.id).maybeSingle(),
-      supabase.from("rede_moderators").select("user_id").eq("user_id",currentUser.id).maybeSingle()
+  const epoch = ++identityEpoch;
+  identityLoading = true;
+  identityResolved = false;
+  currentUser = null;
+  profileReady = false;
+  isModerator = false;
+  syncIdentityControls();
+  $("rede-identity").textContent = "Verificando sessão e permissões...";
+  message("profile-status", "Verificando perfil...");
+  message("post-status", "Aguarde a verificação da sua conta.");
+  try {
+    const {data,error} = await supabase.auth.getUser();
+    if (epoch !== identityEpoch) return;
+    const verified = !error && isVerifiedMember(data?.user) ? data.user : null;
+    if (!verified) {
+      identityLoading = false;
+      identityResolved = true;
+      syncIdentityControls();
+      $("rede-identity").textContent = "Modo visitante — leitura pública.";
+      message("post-status", "Entre na conta para publicar.");
+      await loadFeed();
+      return;
+    }
+    const [profile,mod] = await Promise.all([
+      supabase.from("rede_profiles").select("display_name").eq("id",verified.id).maybeSingle(),
+      supabase.from("rede_moderators").select("user_id").eq("user_id",verified.id).maybeSingle()
     ]);
-    if (profile.data) {profileReady=true;$("display-name").value=profile.data.display_name;}
-    message("profile-status",profileReady?"Perfil público ativo.":"Escolha um apelido público para participar.");
-    isModerator=!!mod.data;
-    $("moderacao").hidden=!isModerator;
-    if (isModerator) await loadModeration();
-    await loadOwn();
+    if (epoch !== identityEpoch) return;
+    currentUser = verified;
+    identityLoading = false;
+    identityResolved = !profile.error && !mod.error;
+    if (identityResolved) {
+      profileReady = Boolean(profile.data);
+      isModerator = Boolean(mod.data);
+      if (profileReady) $("display-name").value = profile.data.display_name;
+      message("profile-status", profileReady ? "Perfil público ativo." : "Escolha um apelido público para participar.");
+      message("post-status", profileReady ? "As publicações precisam ser aprovadas." : "Salve seu perfil público antes de publicar.");
+    } else {
+      message("profile-status", "Não foi possível verificar seu perfil e permissões. Atualize a página.", true);
+      message("post-status", "Interações indisponíveis até verificar as permissões.", true);
+    }
+    syncIdentityControls();
+    $("rede-identity").textContent = identityResolved
+      ? "Sessão autenticada. Suas ações serão vinculadas à sua conta."
+      : "Sessão identificada, mas permissões indisponíveis.";
+    if (identityResolved) {
+      if (isModerator) await loadModeration();
+      if (epoch !== identityEpoch) return;
+      await loadOwn();
+    }
+    if (epoch !== identityEpoch) return;
+    await loadFeed();
+  } catch {
+    if (epoch !== identityEpoch) return;
+    identityLoading = false;
+    identityResolved = false;
+    currentUser = null;
+    profileReady = false;
+    isModerator = false;
+    syncIdentityControls();
+    $("rede-identity").textContent = "Não foi possível verificar sua conta.";
+    message("profile-status", "A verificação falhou. Atualize a página.", true);
+    message("post-status", "Interações indisponíveis até verificar a conta.", true);
+    await loadFeed().catch(() => message("feed-status", "Não foi possível carregar o feed.", true));
   }
-  $("post-form").hidden=!authed||!profileReady;
-  message("post-status",!authed?"Entre na conta para publicar.":!profileReady?"Salve seu perfil público antes de publicar.":"As publicações precisam ser aprovadas.");
-  await loadFeed();
 }
 $("profile-form").addEventListener("submit",async event=>{
   event.preventDefault();
-  if (!currentUser) return;
+  if (!currentUser || identityLoading || !identityResolved) return;
+  const userId = currentUser.id, epoch = identityEpoch;
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
   const display_name=$("display-name").value.trim();
-  if (display_name.length<2||display_name.length>60) return;
-  const {error}=await supabase.from("rede_profiles").upsert({id:currentUser.id,display_name},{onConflict:"id"});
+  if (display_name.length<2||display_name.length>60) {syncIdentityControls();return;}
+  const {error}=await supabase.from("rede_profiles").upsert({id:userId,display_name},{onConflict:"id"});
+  if (epoch !== identityEpoch || currentUser?.id !== userId) return;
+  syncIdentityControls();
   message("profile-status",error?readableError(error):"Perfil salvo.",!!error);
-  if (!error) {profileReady=true;$("post-form").hidden=false;await loadOwn();}
+  if (!error) {profileReady=true;syncIdentityControls();await loadOwn();}
 });
 $("post-form").addEventListener("submit",async event=>{
   event.preventDefault();
   const form=event.currentTarget; // Preserve the target before awaiting network I/O.
-  if (!currentUser||!profileReady) return;
+  if (!currentUser || identityLoading || !identityResolved || !profileReady) return;
   const button=form.querySelector("button[type=submit]");button.disabled=true;
   const payload={author_id:currentUser.id,kind:$("post-kind").value,category:$("post-category").value,
     title:$("post-title").value.trim(),content:$("post-content").value.trim()};
@@ -274,7 +340,7 @@ for (const button of document.querySelectorAll("[data-request-kind]")) button.ad
 $("request-form").addEventListener("submit",async event=>{
   event.preventDefault();
   const form=event.currentTarget; // currentTarget is null after async event dispatch.
-  if (!currentUser||!profileReady)return;
+  if (!currentUser || identityLoading || !identityResolved || !profileReady) return;
   const button=form.querySelector("button[type=submit]");button.disabled=true;
   const {error}=await supabase.from("rede_requests").insert({
     author_id:currentUser.id,kind:requestKind,category:$("request-category").value,
@@ -285,11 +351,16 @@ $("request-form").addEventListener("submit",async event=>{
   if (!error) {form.reset();await loadOwn();}
 });
 $("rede-signout").addEventListener("click",async()=>{
-  $("rede-signout").disabled=true;
+  // Invalidate in-flight profile/moderator queries BEFORE revoking the session.
+  ++identityEpoch;
+  identityLoading = true;
+  identityResolved = false;
+  currentUser = null;
+  profileReady = false;
+  isModerator = false;
+  syncIdentityControls();
   const {error}=await supabase.auth.signOut();
-  $("rede-signout").disabled=false;
-  if (error) {alert("Não foi possível encerrar a sessão.");return;}
-  currentUser=null;profileReady=false;isModerator=false;
+  if (error) alert("Não foi possível encerrar a sessão.");
   await refreshIdentity();
 });
 $("feed-prev").addEventListener("click",()=>{if(page>0){page--;loadFeed();}});
