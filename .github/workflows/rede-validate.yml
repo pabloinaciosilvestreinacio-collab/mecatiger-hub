@@ -35,3 +35,5 @@ jobs:
         run: node scripts/release-preflight.mjs
       - name: Offline legacy migration reconciliation (no database writes)
         run: node scripts/audit-migration-reconciliation.mjs
+      - name: Offline SMTP/Auth/first editor preflight (no accounts or email sent)
+        run: node scripts/auth-smtp-preflight.mjs
