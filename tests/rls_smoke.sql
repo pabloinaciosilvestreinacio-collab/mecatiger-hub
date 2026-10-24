@@ -208,7 +208,7 @@ select public.rede_assert((select count(*) from public.rede_requests)=0,
  'anonymous Auth identity cannot read private requests');
 select public.rede_assert((select count(*) from public.rede_reports)=0,
  'anonymous Auth identity cannot read reports');
-do $
+do $$
 declare
  allowed boolean;
 begin
@@ -276,7 +276,7 @@ begin
  exception when insufficient_privilege then null;
  end;
  if allowed then raise exception 'anonymous Auth reported'; end if;
-end $;
+end $$;
 commit;
 
 -- Fail closed when the JWT claim is missing, instead of silently trusting
@@ -286,7 +286,7 @@ set local role authenticated;
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.rede_assert((select count(*) from public.rede_posts)=2,
  'missing claim still allows approved posts');
-do $
+do $$
 declare allowed boolean:=false;
 begin
   begin
@@ -297,7 +297,7 @@ begin
   exception when insufficient_privilege then null;
   end;
   if allowed then raise exception 'missing is_anonymous claim bypassed policy'; end if;
-end $;
+end $$;
 commit;
 
 select 'RLS TEST SUITE PASSED' as result;
