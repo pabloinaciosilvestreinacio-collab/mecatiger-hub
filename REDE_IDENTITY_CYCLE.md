@@ -29,6 +29,12 @@
 
 **Importante:** só declarar aprovação integral depois de conferir `conclusion=success` em cada check do SHA final do novo PR. Simulações/contratos Node não equivalem a testes de navegador ou implantação. Tokens de teste, contas fictícias e chaves efêmeras ficam apenas nos containers/runner local descartável.
 
+## Diagnóstico da primeira homologação deste ciclo
+
+- [`40120629192`](https://github.com/pabloinaciosilvestreinacio-collab/mecatiger-hub/actions/runs/40120629192) terminou com falha no cenário Playwright que segura a primeira consulta de perfil: `route.continue: Route is already handled!`.
+- **Causa real:** o próprio teste chamava `page.unroute(...)` imediatamente após `releaseProfileRead()`, enquanto o interceptador aguardava a liberação. Remover uma rota em processamento provocou manipulação concorrente.
+- **Correção confinada aos testes:** não remover o interceptador durante a requisição pendente. O bloqueio permanece de uso único (`heldOnce`), e o Playwright descarta automaticamente a interceptação ao encerrar o contexto.
+- Validação de frontend, segurança, RLS e regressões continuam exigindo um workflow completo de sucesso no commit final.
 ## Auditoria: riscos e limites
 
 - Os bloqueios de frontend **não** são a fronteira de autorização; RLS, JWT e validação na Edge Function seguem responsáveis pelo isolamento de dados.
