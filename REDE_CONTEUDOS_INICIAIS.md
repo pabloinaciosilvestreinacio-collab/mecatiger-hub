@@ -1,6 +1,6 @@
-# Cinco conteúdos de abertura — pauta editorial, NÃO publicações cadastradas
+# Ideias opcionais para o feed — NÃO publicações cadastradas
 
-**Estado auditado (24/10/2026):** as cinco pautas abaixo foram sugeridas para inaugurar a Rede Meca Tiger, mas **não há evidência de INSERT, IDs de posts, aprovação pela moderação ou publicação no feed hospedado**. Este arquivo não cria contas, não insere dados e não deve ser contabilizado como conteúdo existente.
+**Pautas OPCIONAIS, não são critério de lançamento. Estado auditado (24/10/2026):** as cinco pautas abaixo foram sugeridas para inaugurar a Rede Meca Tiger, mas **não há evidência de INSERT, IDs de posts, aprovação pela moderação ou publicação no feed hospedado**. Este arquivo não cria contas, não insere dados e não deve ser contabilizado como conteúdo existente.
 
 ## Pautas para validação e publicação real
 
@@ -23,4 +23,4 @@
 
 **Não inserir conteúdo usando chave administrativa, script automático ou usuário fictício.** Os testes E2E descartáveis usam apenas textos sintéticos e não comprovam a existência destas publicações reais.
 
-**O que falta para concluir:** textos/autores aprovados, links de referência e provas de cadastro e moderação em ambiente autorizado. Não presumir quantidade nem publicar por conta própria.
+**Se a equipe decidir publicar essas pautas futuramente:** preparar textos/autores aprovados, links de referência e provas de cadastro e moderação em ambiente autorizado. **O feed vazio não impede o lançamento técnico** se as funções operacionais, privacidade e Auth tiverem aprovação. Não presumir quantidade nem publicar por conta própria.
