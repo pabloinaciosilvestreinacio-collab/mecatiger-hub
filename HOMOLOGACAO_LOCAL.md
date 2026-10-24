@@ -91,3 +91,11 @@ Em 24/10/2026 foram executados localmente, sem Docker:
 - **Teste de página protegida incorreto:** a suíte pública esperava o título `Meca Sim` na prévia sem autenticação, mas o sistema redirecionava corretamente para `entrar.html?next=mecasim-demo.html`. O teste agora verifica o redirecionamento; a navegação com sessão real continua no teste E2E autenticado.
 - **Contratos reforçados:** `tests/rede-runtime-config.test.mjs` cobre JWT sintético não privilegiado, negação de credencial administrativa, porta incorreta e host de produção. Nenhum token verdadeiro é escrito em código ou log.
 - **Veredito final:** consultar o workflow `Supabase disposable homologation` no SHA atual do PR #12. A aprovação anterior de Node/RLS ou do PR #11 não representa sucesso do fluxo de navegador do PR #12.
+
+### Terceira tentativa — sincronização de estado no navegador
+
+- Run [`40118092347`](https://github.com/pabloinaciosilvestreinacio-collab/mecatiger-hub/actions/runs/40118092347): falhou com **6/7 testes Playwright aprovados**. O login via Mailpit e Magic Link avançou até a Rede, comprovando que o override local com JWT `anon` funcionou.
+- O `#rede-identity` exibe a autenticação antes de completar as consultas assíncronas do perfil e permissões (`refreshIdentity`); o teste começava a salvar/publicar nesse intervalo.
+- O fluxo automatizado agora espera `#post-status` informar que o perfil inicial foi consultado antes de executar `Salvar perfil`. Isso elimina o falso avanço do teste baseado somente no banner de sessão.
+- **Risco residual real:** a UI permite que uma pessoa muito rápida interaja antes da resolução inicial do perfil. Um ciclo futuro pode proteger a interface durante o carregamento; nenhuma mudança visual/funcional foi introduzida neste ciclo sem escolha do responsável.
+- A execução final continua pendente de um run GitHub Actions com `conclusion=success` no SHA final; não inferir sucesso destes marcos intermediários.
