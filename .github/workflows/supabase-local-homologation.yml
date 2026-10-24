@@ -1,0 +1,91 @@
+name: Supabase disposable homologation
+
+on:
+  push:
+    branches:
+      - feature/mecasim-private-trajectories-20261024
+      - test/supabase-local-homologation-20261024
+    paths:
+      - ".github/workflows/supabase-local-homologation.yml"
+      - "supabase/**"
+      - "tests/**"
+      - "*.html"
+      - "*.css"
+      - "js/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.mjs"
+      - "HOMOLOGACAO_LOCAL.md"
+  pull_request:
+    paths:
+      - ".github/workflows/supabase-local-homologation.yml"
+      - "supabase/**"
+      - "tests/**"
+      - "*.html"
+      - "*.css"
+      - "js/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.mjs"
+      - "HOMOLOGACAO_LOCAL.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-homologation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  disposable-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Install pinned test tools
+        run: npm ci
+      - name: Install Chromium for interface checks
+        run: npx playwright install --with-deps chromium
+      - name: Start disposable Supabase and execute end-to-end checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npx --yes supabase@2.122.0 start \
+            --exclude realtime,storage-api,imgproxy,postgres-meta,studio,logflare,vector,supavisor \
+            > "$RUNNER_TEMP/supabase-start.log" 2>&1
+          npx --yes supabase@2.122.0 status -o env > "$RUNNER_TEMP/supabase-local.env"
+          set -a
+          source "$RUNNER_TEMP/supabase-local.env"
+          set +a
+          export SUPABASE_URL="$API_URL"
+          export SUPABASE_ANON_KEY="$ANON_KEY"
+          export SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
+          export SUPABASE_JWT_SECRET="$JWT_SECRET"
+          export MAILPIT_URL="${MAILPIT_URL:-${INBUCKET_URL:-http://127.0.0.1:54324}}"
+          case "$SUPABASE_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Refusing non-local Supabase URL" >&2; exit 1 ;;
+          esac
+          for attempt in {1..60}; do
+            code="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              -X POST -H 'Origin: http://127.0.0.1:8000' -H 'Content-Type: application/json' \
+              -d '{"action":"list"}' "$SUPABASE_URL/functions/v1/mecasim-trajectories" || true)"
+            if [ "$code" = "401" ]; then break; fi
+            if [ "$attempt" = "60" ]; then
+              echo "Local Edge Function did not become ready" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          npm run test:local-supabase
+          npm run test:ui
+      - name: Stop and erase disposable local stack
+        if: always()
+        run: npx --yes supabase@2.122.0 stop --no-backup

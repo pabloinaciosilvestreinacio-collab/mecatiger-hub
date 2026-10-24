@@ -6,6 +6,10 @@ import { createTrajectoryHandler } from "./handler.mjs";
 const handle = createTrajectoryHandler({
   createClient,
   env: name => Deno.env.get(name),
-  allowedOrigins: ["https://pabloinaciosilvestreinacio-collab.github.io"]
+  allowedOrigins: [
+    "https://pabloinaciosilvestreinacio-collab.github.io",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000"
+  ]
 });
 Deno.serve(handle);
