@@ -15,6 +15,7 @@ on:
       - "package.json"
       - "package-lock.json"
       - "playwright.config.mjs"
+      - "HOMOLOGACAO_LOCAL.md"
   pull_request:
     paths:
       - ".github/workflows/supabase-local-homologation.yml"
@@ -26,6 +27,7 @@ on:
       - "package.json"
       - "package-lock.json"
       - "playwright.config.mjs"
+      - "HOMOLOGACAO_LOCAL.md"
   workflow_dispatch:
 
 permissions:
