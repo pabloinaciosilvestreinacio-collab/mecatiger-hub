@@ -148,7 +148,7 @@ commit;
 begin;
 set local role authenticated;
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
-update public.rede_comments set status='approved' where id=1;
+update public.rede_comments set status='approved' where content='Comentário legítimo em aprovação';
 commit;
 begin;
 set local role anon;
