@@ -1,0 +1,23 @@
+name: Rede Meca Tiger static validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-rede:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: JavaScript syntax validation
+        run: |
+          node --check js/rede-client.js
+          node --check js/rede-auth.js
+          node --check js/rede.js
+          node --check js/sim-gate.js
+      - name: Static community and security checks
+        run: python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v
