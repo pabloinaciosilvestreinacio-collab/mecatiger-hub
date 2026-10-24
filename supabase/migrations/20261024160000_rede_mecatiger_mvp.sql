@@ -171,6 +171,10 @@ declare
 begin
   if tg_op='INSERT' then
     if uid is not null then
+      -- Prevent backdating records to bypass quotas or falsify chronology.
+      if tg_table_name in ('rede_posts','rede_comments','rede_requests','rede_reports') then
+        new.created_at := now();
+      end if;
       if tg_table_name='rede_posts' then max_actions:=5; window_length:=interval '1 hour';
         select count(*) into recent_count from public.rede_posts where author_id=uid and created_at>now()-window_length;
       elsif tg_table_name='rede_comments' then max_actions:=10; window_length:=interval '10 minutes';
