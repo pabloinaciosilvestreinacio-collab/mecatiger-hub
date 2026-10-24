@@ -79,10 +79,14 @@ result=await send(site+"meca_site_copy",{
   body:{slot:"home-intro",body:text,updated_by:a.id}
 });
 assert.equal(result.status,201, "Authorized editor must be able to add copy");
-mustDeny(await send(site+"meca_site_copy?slot=eq.home-intro",{
+const attemptedUpdate=await send(site+"meca_site_copy?slot=eq.home-intro",{
   method:"PATCH",token:b.jwt,headers:jsonHeaders,
   body:{body:"Edição indevida por um participante comum",updated_by:b.id}
-}),"non-editor copy update");
+});
+// PostgREST may legitimately return 200 with zero affected rows under RLS.
+assert.ok(!attemptedUpdate.ok ||
+  (Array.isArray(attemptedUpdate.json) && attemptedUpdate.json.length===0),
+  "A non-editor cannot update a CMS row");
 mustDeny(await send(site+"meca_site_copy",{
   method:"POST",token:a.jwt,headers:jsonHeaders,
   body:{slot:"unknown-field",body:"Bypass de campo desconhecido",updated_by:a.id}
