@@ -43,6 +43,7 @@ Os arquivos novos foram inspecionados por nome, operação e objetos alterados. 
 - `node scripts/audit-migration-reconciliation.mjs --authorize-production`: **exit code 4 proposital**; não existe autorização via este script.
 - `npm run test:unit` inclui testes negativos (DROP/TRUNCATE, GRANT/REVOKE e escrita nas tabelas antigas, migração inesperada, duplicação, colisão de versões).
 - GitHub Actions `rede-validate.yml` executa este script e os testes de regressão. Outros workflows continuam validando RLS em PostgreSQL descartável e Auth/Storage/UI em Supabase CLI local.
+- Teste de compatibilidade legada em PostgreSQL **descartável**: `tests/legacy-schema-before.sql` monta uma **aproximação sintética** (com dados `@mecatiger.invalid`) das tabelas, RPC e policy antigos a partir dos metadados inspecionados; o CI aplica as migrações novas em seguida e `tests/legacy-schema-after.sql` compara fingerprints das estruturas, verifica conservação de registros fictícios e exercita novamente a RPC pública. O **trigger antigo verdadeiro não foi capturado**; o trigger sintético é apenas um marcador de preservação, não prova de equivalência com produção. Isto não recupera os quatro SQL históricos originais.
 - Não foi criado nenhum arquivo falso das migrations antigas. **Não inserir uma baseline inventada na linha do tempo.**
 
 ## 3. Revisão de segurança do cadastro antigo
