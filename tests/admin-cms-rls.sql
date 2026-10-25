@@ -41,6 +41,35 @@ select public.rede_assert(
   'administrator can list only authorized accounts');
 commit;
 
+-- A verified editor can upload only a WebP object inside their own folder and publish metadata.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values('meca-site-gallery','meca-site-gallery',true,2097152,array['image/webp'])
+on conflict(id) do nothing;
+begin;
+set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+insert into storage.objects(bucket_id,name)
+values('meca-site-gallery','00000000-0000-0000-0000-000000000002/10000000-0000-0000-0000-000000000001.webp');
+insert into public.meca_site_gallery(asset_path,caption,created_by)
+values('00000000-0000-0000-0000-000000000002/10000000-0000-0000-0000-000000000001.webp',
+  'Foto de teste', '00000000-0000-0000-0000-000000000002');
+commit;
+begin;
+set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+do $
+begin
+  begin
+    insert into storage.objects(bucket_id,name)
+    values('meca-site-gallery','00000000-0000-0000-0000-000000000001/20000000-0000-0000-0000-000000000001.webp');
+    raise exception 'non-editor uploaded a photo';
+  exception when insufficient_privilege then null;
+  end;
+end $;
+commit;
+
 -- Editor writes a draft; visitors cannot see it until it is published.
 begin;
 set local role authenticated;
