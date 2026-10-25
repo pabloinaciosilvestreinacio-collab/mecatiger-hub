@@ -44,7 +44,7 @@ sessionStorage.setItem(savedNextKey, next);
     tell("Verificando link de entrada...");
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
-    await finishLogin();
+    await finishLogin(true);
     return;
   }
   const tokenHash = params.get("token_hash");
@@ -56,7 +56,7 @@ sessionStorage.setItem(savedNextKey, next);
     tell("Verificando link de entrada...");
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
-    await finishLogin();
+    await finishLogin(true);
     return;
   }
   const { data } = await supabase.auth.getUser();
