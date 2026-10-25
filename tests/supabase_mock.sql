@@ -2,6 +2,24 @@
 create role anon nologin;
 create role authenticated nologin;
 create schema auth;
+create schema storage;
+grant usage on schema storage to anon, authenticated;
+create table storage.buckets (
+  id text primary key,
+  name text not null,
+  public boolean not null default false,
+  file_size_limit bigint,
+  allowed_mime_types text[]
+);
+create table storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets(id),
+  name text not null
+);
+create or replace function storage.foldername(name text)
+returns text[] language sql immutable
+as $ select array[split_part(name,'/',1)] $;
+
 grant usage on schema auth to anon, authenticated;
 grant usage on schema public to anon, authenticated;
 create table auth.users (
