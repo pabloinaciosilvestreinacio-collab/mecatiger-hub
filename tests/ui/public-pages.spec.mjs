@@ -56,11 +56,18 @@ for (const [path, title] of pages) {
 }
 
 
-test("Home keeps optional registration closed until the visitor asks", async ({ page }) => {
+test("Home opens optional registration for first-time visitors and allows skipping", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1_100);
   const panel = page.locator("#cadastro-panel");
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("role", "dialog");
+  await expect(panel).toHaveAttribute("aria-modal", "true");
+  await expect(panel).toContainText("Este cadastro é opcional");
+  const skipButton = page.getByRole("button", { name: /agora não/i });
+  await expect(skipButton).toBeVisible();
+  await skipButton.click();
   await expect(panel).toBeHidden();
 
   const registrationButton = page.getByRole("button", {
@@ -69,9 +76,6 @@ test("Home keeps optional registration closed until the visitor asks", async ({ 
   await expect(registrationButton).toBeVisible();
   await registrationButton.click();
   await expect(panel).toBeVisible();
-  await expect(panel).toHaveAttribute("role", "dialog");
-  await expect(panel).toHaveAttribute("aria-modal", "true");
-  await expect(panel).toContainText("Este cadastro é opcional");
   await expect(page.getByRole("button", { name: /continuar sem cadastro/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .include("#cadastro-panel")
@@ -125,9 +129,13 @@ test("Rede explica o processo completo e a separação dos cadastros", async ({ 
   const section=page.locator("#como-funciona");
   await expect(section).toBeVisible();
   await expect(section.locator("ol > li")).toHaveCount(4);
-  await expect(section).toContainText("Entre com e-mail confirmado");
-  await expect(section).toContainText("não substitui esse login");
-  await expect(section).toContainText("A equipe Meca Tiger revisa publicações");
+  await expect(section).toContainText("Entre com e-mail confirmado (login em preparação)");
+  await expect(section).toContainText("O acesso por link do Supabase Auth ainda não está ativo");
+  await expect(section).toContainText("use os botões de e-mail para falar com a equipe");
+  await expect(section).toContainText("A equipe responde às mensagens recebidas por e-mail");
+  await expect(page.locator("#ajuda a[href^='mailto:']")).toBeVisible();
+  await expect(page.locator("#conexao a[href^='mailto:']")).toBeVisible();
+  await expect(page.locator("#compartilhar a[href^='mailto:']")).toBeVisible();
   await expect(page.locator(".rede-banner")).toContainText("não cria uma conta");
   await expect(page.locator("#feed-status")).not.toContainText("5 publicações");
 });
