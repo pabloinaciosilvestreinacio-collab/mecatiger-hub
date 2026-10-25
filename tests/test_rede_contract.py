@@ -121,7 +121,8 @@ class RedeContracts(unittest.TestCase):
         self.assertIn('$("own-items").replaceChildren()',source)
         self.assertIn('$("own-items").replaceChildren()',source)
         admin=(ROOT/"js/admin.js").read_text(encoding="utf-8")
-        self.assertIn('byId("admin-mod-list").replaceChildren()',admin)
+        self.assertIn('modList.replaceChildren()',admin)
+        self.assertIn('const modList=byId("admin-mod-list")',admin)
 
     def test_rede_participation_is_explicit_and_not_falsely_populated(self):
         page=(ROOT/"rede.html").read_text(encoding="utf-8")
