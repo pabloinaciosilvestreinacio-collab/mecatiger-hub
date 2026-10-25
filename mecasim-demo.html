@@ -24,6 +24,7 @@ canvas{display:block;width:100%;height:auto;border-radius:8px;touch-action:manip
 button,.button{min-height:46px;padding:10px;border:1px solid var(--orange);border-radius:8px;background:var(--orange);color:#21170e;font:700 14px Arial,sans-serif;cursor:pointer;text-align:center;text-decoration:none}
 button.secondary,.button.secondary{background:transparent;border-color:#777;color:var(--text)}
 button:disabled{opacity:.45;cursor:not-allowed}
+.private-routes{border-top:1px solid var(--line);margin-top:22px;padding-top:18px}.private-routes h3{margin:0 0 6px}.private-routes label{display:block;margin:12px 0 5px;font-size:13px;font-weight:700}.private-routes input,.private-routes select{box-sizing:border-box;width:100%;min-height:42px;padding:9px 12px;background:#151719;border:1px solid #797979;border-radius:7px;color:white;font:inherit}.private-routes .buttons{margin-top:12px}.private-routes .status{margin:10px 0;color:#ffd08b;min-height:20px;font-size:13px}
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
 .metric{padding:9px;border:1px solid var(--line);border-radius:8px;background:#242629}
 .metric span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.metric strong{font:700 17px ui-monospace,monospace}
@@ -36,7 +37,7 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <header><div class="container head"><a class="brand" href="index.html#top">MECATIGER<small>FTC #32578 · MECA SIM</small></a><a class="button secondary" href="mecasim.html">← Sobre o Meca Sim</a></div></header>
 <main class="container">
 <span class="eyebrow">Integração web · demonstração limitada</span>
@@ -61,6 +62,23 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
 <div class="metric"><span>Yaw</span><strong id="yaw">0,0°</strong></div>
 <div class="metric"><span>Pontos</span><strong id="count">0 / 16</strong></div>
 </div>
+<section class="private-routes" aria-labelledby="saved-route-title">
+<h3 id="saved-route-title">Minhas trajetórias privadas</h3>
+<p>Salve até 30 rotas na sua conta. Elas ficam no Supabase, separadas por usuário, e não aparecem no feed público.</p>
+<label for="route-name">Nome da trajetória</label>
+<input id="route-name" type="text" minlength="3" maxlength="70" placeholder="Ex.: Saída pela esquerda">
+<div class="buttons">
+<button id="route-save" type="button" disabled>Salvar rota</button>
+<button id="route-refresh" type="button" class="secondary" disabled>Atualizar biblioteca</button>
+</div>
+<label for="saved-route-select">Trajetórias da minha conta</label>
+<select id="saved-route-select" disabled><option value="">Nenhuma trajetória carregada</option></select>
+<div class="buttons">
+<button id="route-load" type="button" class="secondary" disabled>Carregar rota</button>
+<button id="route-delete" type="button" class="secondary" disabled>Excluir rota</button>
+</div>
+<p id="route-private-status" class="status" role="status" aria-live="polite">Verificando conta e conexão...</p>
+</section>
 <p id="status" role="status" aria-live="polite">Pronto. Posição inicial demonstrativa.</p>
 <div class="notice"><strong>Limites:</strong> esta prévia desenha o campo e interpola visualmente o marcador entre os pontos. Não simula colisões, física, sensores, pontuação ou teleoperação, e não executa Java/código enviado. O simulador completo segue no repositório e roda localmente.</div>
 <div class="links"><a href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim/blob/main/README.md">Instruções da versão completa ↗</a><a href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim">Repositório Meca Sim ↗</a></div>
@@ -93,8 +111,41 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
  $('clear').addEventListener('click',()=>{points.length=0;Object.assign(pose,start);render();status('Trajetória apagada.')});
  $('reset').addEventListener('click',()=>{cancelAnimationFrame(raf);raf=0;points.length=0;Object.assign(pose,start);adding=false;$('add').setAttribute('aria-pressed','false');$('add').textContent='Adicionar ponto';canvas.style.cursor='default';render();status('Prévia reiniciada.')});
  $('play').addEventListener('click',()=>{if(!points.length||raf)return;adding=false;$('add').setAttribute('aria-pressed','false');$('add').textContent='Adicionar ponto';canvas.style.cursor='default';const path=[{x:pose.x,y:pose.y},...points.map(p=>({...p}))],lens=path.slice(1).map((p,i)=>Math.hypot(p.x-path[i].x,p.y-path[i].y)),total=lens.reduce((a,b)=>a+b,0),duration=Math.max(1200,total/.45*1000),begin=performance.now();status('Reproduzindo prévia visual, sem física ou colisões.');function frame(now){const f=Math.min(1,(now-begin)/duration),dist=f*total;let acc=0,i=0;while(i<lens.length-1&&acc+lens[i]<dist){acc+=lens[i];i++}const l=lens[i]||1,t=Math.min(1,Math.max(0,(dist-acc)/l)),a=path[i],b=path[i+1];pose.x=a.x+(b.x-a.x)*t;pose.y=a.y+(b.y-a.y)*t;pose.yaw=Math.atan2(b.x-a.x,b.y-a.y)*180/Math.PI;render();if(f<1)raf=requestAnimationFrame(frame);else{raf=0;render();status('Prévia de trajetória concluída.')}}raf=requestAnimationFrame(frame)});
+ // UI bridge only. Saved route authorization is enforced by Edge Function + RLS.
+ window.mecaSimDemo = Object.freeze({
+   getPoints: () => points.map(p => ({x:p.x,y:p.y})),
+   setPoints: imported => {
+     if (!Array.isArray(imported) || imported.length<1 || imported.length>MAX ||
+         !imported.every(p => p && typeof p.x==='number' && typeof p.y==='number' &&
+           Number.isFinite(p.x) && Number.isFinite(p.y) &&
+           p.x>=.25 && p.x<=F-.25 && p.y>=.25 && p.y<=F-.25)) return false;
+     cancelAnimationFrame(raf);raf=0;adding=false;
+     Object.assign(pose,start);
+     points.splice(0,points.length,...imported.map(p=>({x:p.x,y:p.y})));
+     $('add').setAttribute('aria-pressed','false');$('add').textContent='Adicionar ponto';
+     canvas.style.cursor='default';render();
+     status('Trajetória recuperada da sua biblioteca.');
+     return true;
+   }
+ });
  render();
 })();
 </script>
+<noscript><p>Ative o JavaScript para autenticar e acessar a prévia do simulador.</p></noscript>
+<script>
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  document.body.style.visibility = "visible";
+  const box = document.querySelector(".private-routes");
+  if (box) {
+    const heading = document.createElement("h3");
+    heading.textContent = "Biblioteca privada em preparação";
+    const note = document.createElement("p");
+    note.textContent = "Experimente o campo, adicione pontos e reproduza trajetórias. Salvar e recuperar rotas na nuvem ainda não está disponível.";
+    box.replaceChildren(heading, note);
+  }
+}
+</script>
+<script type="module" src="js/sim-gate.js"></script>
+<script type="module" src="js/mecasim-private.js"></script>
 </body>
 </html>

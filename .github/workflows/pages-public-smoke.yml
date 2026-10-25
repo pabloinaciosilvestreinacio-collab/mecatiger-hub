@@ -1,0 +1,42 @@
+name: Verify public GitHub Pages release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pages-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify actual published site from outside
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub"
+          for page in index.html rede.html mecasim.html mecasim-demo.html entrar.html admin.html; do
+            ok=0
+            for attempt in $(seq 1 24); do
+              if curl -fsSL --connect-timeout 8 --max-time 20 "$base/$page" -o /tmp/mecatiger-page; then
+                case "$page" in
+                  index.html) pattern="MECATIGER" ;;
+                  rede.html) pattern="CONEXÕES QUE" ;;
+                  mecasim.html) pattern="PRÉVIA INTERATIVA" ;;
+                  mecasim-demo.html) pattern="Adicionar ponto" ;;
+                  entrar.html) pattern="ACESSAR A" ;;
+                  admin.html) pattern="PAINEL DA" ;;
+                esac
+                if grep -Fq "$pattern" /tmp/mecatiger-page; then ok=1; break; fi
+              fi
+              sleep 8
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "::error::Public GitHub Pages page not available or outdated: $base/$page"
+              exit 1
+            fi
+            echo "PASS $base/$page"
+          done

@@ -1,0 +1,46 @@
+name: Visual preview Meca Tiger (screenshots only)
+
+on:
+  push:
+    branches:
+      - feature/rede-mecatiger-mvp-20261024
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout consolidated website
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install browser test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Start read-only local static server
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 > /tmp/mecatiger-preview-http.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8080/index.html > /dev/null
+
+      - name: Capture real rendered pages (no Supabase calls or sign-ins)
+        run: |
+          node scripts/capture-visual-preview.mjs
+
+      - name: Upload visual preview (not a deployment)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mecatiger-preview-paginas
+          path: visual-preview/
+          if-no-files-found: warn
+          retention-days: 7
