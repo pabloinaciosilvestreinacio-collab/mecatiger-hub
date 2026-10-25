@@ -59,9 +59,14 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          npx --yes supabase@2.122.0 start \
+          if ! timeout 12m npx --yes supabase@2.122.0 start \
             --exclude realtime,imgproxy,postgres-meta,studio,logflare,vector,supavisor \
-            > "$RUNNER_TEMP/supabase-start.log" 2>&1
+            > "$RUNNER_TEMP/supabase-start.log" 2>&1; then
+            result=$?
+            cat "$RUNNER_TEMP/supabase-start.log"
+            if [ "$result" -eq 0 ]; then result=124; fi
+            exit "$result"
+          fi
           npx --yes supabase@2.122.0 status -o env > "$RUNNER_TEMP/supabase-local.env"
           set -a
           source "$RUNNER_TEMP/supabase-local.env"
