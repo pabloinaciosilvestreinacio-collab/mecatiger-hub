@@ -4,19 +4,19 @@ import { isVerifiedMember } from "./rede-identity.mjs";
 // Public GitHub Pages launch: informational Rede only until hosted Auth/DB approval.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
   const byId = id => document.getElementById(id);
-  byId("rede-identity").textContent = "Prévia pública: login e feed em preparação; contato com a equipe disponível por e-mail.";
-  byId("feed-status").textContent = "O feed e as publicações no site aguardam ativação do backend. Use o botão de compartilhamento por e-mail para enviar conteúdo à equipe.";
+  byId("rede-identity").textContent = "Prévia pública: feed e participação pelo site aguardam ativação segura do backend. Ajuda e denúncia por e-mail.";
+  byId("feed-status").textContent = "O feed público será exibido aqui depois que o backend for ativado.";
   byId("rede-signin").hidden = true;
   byId("rede-signout").hidden = true;
   for (const btn of document.querySelectorAll("[data-request-kind]")) {
     btn.disabled = true;
     btn.title = "Solicitações em preparação";
   }
-  byId("post-status").textContent = "Publicações no feed aguardam ativação. O envio por e-mail será revisado pela equipe.";
+  byId("post-status").textContent = "Publicações pelo site serão liberadas após a ativação segura do login e do banco.";
   const banner = document.createElement("p");
   banner.className = "rede-banner";
   banner.setAttribute("role", "status");
-  banner.textContent = "Login e publicações no feed ainda não estão ativos. Para pedir ajuda, solicitar conexão STEM ou compartilhar conhecimento, use os botões de e-mail abaixo; o envio só acontece quando você confirma no aplicativo.";
+  banner.textContent = "O backend do feed ainda não está ativo. Publicações e solicitações de conexão serão feitas pelo próprio site. Para pedir ajuda ou denunciar, use os contatos por e-mail abaixo.";
   document.querySelector(".rede-page").insertBefore(banner, document.querySelector(".rede-toolbar"));
 } else {
 const $ = id => document.getElementById(id);
