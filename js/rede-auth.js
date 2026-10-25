@@ -35,6 +35,15 @@ if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
 sessionStorage.setItem(savedNextKey, next);
 (async () => {
   const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  if (code) {
+    history.replaceState({}, "", location.pathname);
+    tell("Verificando link de entrada...");
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
+    await finishLogin();
+    return;
+  }
   const tokenHash = params.get("token_hash");
   const type = params.get("type");
   if (tokenHash) {
