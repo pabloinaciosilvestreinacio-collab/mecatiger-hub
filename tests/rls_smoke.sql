@@ -85,7 +85,7 @@ set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select public.rede_assert((select count(*) from public.rede_requests)=0,'other member cannot view request A');
 select public.rede_assert((select count(*) from public.rede_request_messages where request_id=:'test_request_id')=0,
  'other member cannot read request messages');
-do $
+do $$
 declare allowed boolean:=false;
 begin
   begin
@@ -96,7 +96,7 @@ begin
   exception when insufficient_privilege then null;
   end;
   if allowed then raise exception 'other member wrote to request messages'; end if;
-end $;
+end $$;
 commit;
 
 -- Moderator can see all pending posts, manage moderation and inspect audit trail.
