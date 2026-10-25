@@ -27,6 +27,11 @@ async function finishLogin() {
   return true;
 }
 
+// Never offer real Magic Link signup until external SMTP, redirects and privacy are approved.
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  sendForm.hidden = true;
+  tell("O acesso por e-mail está em preparação. Conheça a Rede sem cadastro por enquanto.");
+} else {
 sessionStorage.setItem(savedNextKey, next);
 (async () => {
   const params = new URLSearchParams(location.search);
@@ -68,3 +73,5 @@ sendForm.addEventListener("submit", async event => {
   }
 });
 
+
+}
