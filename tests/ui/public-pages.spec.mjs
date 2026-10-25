@@ -129,10 +129,10 @@ test("Rede explica o processo completo e a separação dos cadastros", async ({ 
   await expect(section).toBeVisible();
   await expect(section.locator("ol > li")).toHaveCount(4);
   await expect(section).toContainText("Entre na Rede pelo site");
-  await expect(section).toContainText("Use o login GitHub ou por e-mail");
-  await expect(section).toContainText("não cria conta na Rede");
+  await expect(section).toContainText("Informe seu e-mail para receber um link de acesso");
+  await expect(section).toContainText("não cria uma conta na Rede");
   await expect(section).toContainText("publicações e conexões serão enviadas por formulários no site");
-  await expect(section).toContainText("A equipe acompanha solicitações e moderação no painel administrativo");
+  await expect(section).toContainText("A equipe analisa os pedidos no painel administrativo");
   await expect(page.locator(".rede-banner")).toContainText("Os formulários ficam no site");
   await expect(page.locator("#ajuda button[data-request-kind=ajuda]")).toBeVisible();
   await expect(page.locator("#conexao button[data-request-kind=conexao]")).toBeVisible();
