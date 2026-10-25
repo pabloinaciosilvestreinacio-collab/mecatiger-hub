@@ -10,7 +10,7 @@ const config = resolveSupabaseConfig(location.hostname, globalThis.__MECA_TIGER_
 
 export const supabase = createClient(config.url, config.key, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true,
-    detectSessionInUrl: true, storageKey: "mecatiger-rede-session-v1" }
+    detectSessionInUrl: false, storageKey: "mecatiger-rede-session-v1" }
 });
 
 // This is a navigation allowlist, not a server access-control boundary.
