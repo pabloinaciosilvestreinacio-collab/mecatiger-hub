@@ -16,7 +16,7 @@ if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
   const banner = document.createElement("p");
   banner.className = "rede-banner";
   banner.setAttribute("role", "status");
-  banner.textContent = "Login e publicações no feed ainda não estão ativos. Para pedir ajuda, solicitar conexão STEM ou compartilhar conhecimento, use os botões de e-mail abaixo; o envio só acontece quando você confirma no aplicativo.",
+  banner.textContent = "Login e publicações no feed ainda não estão ativos. Para pedir ajuda, solicitar conexão STEM ou compartilhar conhecimento, use os botões de e-mail abaixo; o envio só acontece quando você confirma no aplicativo.";
   document.querySelector(".rede-page").insertBefore(banner, document.querySelector(".rede-toolbar"));
 } else {
 const $ = id => document.getElementById(id);
