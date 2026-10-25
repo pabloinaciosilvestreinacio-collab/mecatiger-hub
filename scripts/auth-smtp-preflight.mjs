@@ -43,8 +43,11 @@ export function inspectAuth(root=ROOT) {
     auth.includes("emailRedirectTo: redirectUrl"),
     "O navegador recusa destinos fora da allowlist e envia redirectTo explícito");
   check("pkce-verified-email",client.includes('flowType: "pkce"')&&
+    client.includes("detectSessionInUrl: false")&&
     auth.includes("signInWithOtp(")&&auth.includes("verifyOtp(")&&
-    auth.includes('type: "email"')&&
+    auth.includes('["email", "magiclink"].includes(type)')&&
+    auth.includes("verifyOtp({ token_hash: tokenHash, type })")&&
+    auth.includes("exchangeCodeForSession(code)")&&
     identity.includes("email_confirmed_at")&&identity.includes("is_anonymous === false"),
     "Sessão exige email confirmado; local testa OTP/Magic Link, hosted ainda não testado");
   check("no-browser-role-bootstrap",cms.includes("meca_site_editors")&&
