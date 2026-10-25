@@ -53,6 +53,8 @@ export function auditSqlText(sql,{allowAdminRoleRevocations=false}={}) {
     const roleRevocation=allowAdminRoleRevocations &&
       /^delete\s+from\s+public\.(meca_site_admins|meca_site_editors|rede_moderators)\b/i.test(stmt);
     if(/\b(drop\s+(table|schema|function|policy|trigger|index|view)|truncate\b|delete\s+from\b)/i.test(stmt) && !roleRevocation)
+      risks.push("Operação destrutiva detectada");
+    if(/\b(drop\s+(table|schema|function|policy|trigger|index|view)|truncate\b|delete\s+from\b)/i.test(stmt) && !roleRevocation)
     if(/\b(update|insert\s+into|merge\s+into|alter\s+table|create\s+or\s+replace\s+function|drop\s+function)\s+(?:if\s+(?:not\s+)?exists\s+)?(?:public\.)?(?:community_registrations|community_metrics|register_community_member)\b/i.test(stmt))
       risks.push("Tentativa de escrever em estrutura legada");
     if(/\b(?:grant|revoke)\b[\s\S]*?\bon\s+(?:table\s+|function\s+)?(?:public\.)?(?:community_registrations|community_metrics|register_community_member)\b/i.test(stmt))
