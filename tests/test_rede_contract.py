@@ -75,7 +75,7 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("isVerifiedMember",gate)
         self.assertNotIn("location.hostname",gate)
         page=(ROOT/"mecasim-demo.html").read_text(encoding="utf-8")
-        self.assertRegex(page,r'src="js/sim-gate\\.js(?:\\?v=[^"]*)?"')
+        self.assertRegex(page,r'src="js/sim-gate\.js(?:\?v=[^"]*)?"')
 
 
     def test_social_actions_do_not_fake_success(self):
