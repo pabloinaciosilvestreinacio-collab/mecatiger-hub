@@ -72,8 +72,10 @@ class RedeContracts(unittest.TestCase):
     def test_simulator_limitation(self):
         gate=(ROOT/"js/sim-gate.js").read_text(encoding="utf-8")
         self.assertIn("getUser()",gate)
-        self.assertIn("publicly retrievable",gate)
-        self.assertRegex((ROOT/"mecasim-demo.html").read_text(encoding="utf-8"),r'src="js/sim-gate\.js(?:\?v=[^"]*)?"')
+        self.assertIn("isVerifiedMember",gate)
+        self.assertNotIn("location.hostname",gate)
+        page=(ROOT/"mecasim-demo.html").read_text(encoding="utf-8")
+        self.assertRegex(page,r'src="js/sim-gate\\.js(?:\\?v=[^"]*)?"')
 
 
     def test_social_actions_do_not_fake_success(self):
