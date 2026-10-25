@@ -16,6 +16,8 @@ create table storage.objects (
   bucket_id text references storage.buckets(id),
   name text not null
 );
+alter table storage.objects enable row level security;
+grant insert on storage.objects to authenticated;
 create or replace function storage.foldername(name text)
 returns text[] language sql immutable
 as $fn$ select array[split_part(name,'/',1)] $fn$;
