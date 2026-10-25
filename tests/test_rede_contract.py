@@ -79,7 +79,7 @@ class RedeContracts(unittest.TestCase):
     def test_public_pages_disclose_private_simulator_limitation(self):
         document=(ROOT/"REDE_MVP.md").read_text(encoding="utf-8")
         self.assertIn("NÃO bloqueia leitura",document)
-        self.assertIn("NÃO foi executada",document)
+        self.assertIn("migrations hospedadas aplicadas",document)
         site=(ROOT/"index.html").read_text(encoding="utf-8")
         self.assertIn("rede.html",site)
         self.assertIn("não cria uma conta autenticada",site)
