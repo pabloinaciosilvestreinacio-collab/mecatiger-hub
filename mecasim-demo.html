@@ -132,6 +132,19 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-s
 })();
 </script>
 <noscript><p>Ative o JavaScript para autenticar e acessar a prévia do simulador.</p></noscript>
+<script>
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  document.body.style.visibility = "visible";
+  const box = document.querySelector(".private-routes");
+  if (box) {
+    const heading = document.createElement("h3");
+    heading.textContent = "Biblioteca privada em preparação";
+    const note = document.createElement("p");
+    note.textContent = "Experimente o campo, adicione pontos e reproduza trajetórias. Salvar e recuperar rotas na nuvem ainda não está disponível.";
+    box.replaceChildren(heading, note);
+  }
+}
+</script>
 <script type="module" src="js/sim-gate.js"></script>
 <script type="module" src="js/mecasim-private.js"></script>
 </body>
