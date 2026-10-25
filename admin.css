@@ -112,3 +112,12 @@
   .admin-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
   .admin-tabs .button { width:100%; }
 }
+
+
+#admin-panel-team .admin-page-card,#admin-access-manager .admin-page-card { overflow-wrap:anywhere; }
+#admin-panel-team .rede-controls { flex-wrap:wrap; }
+#admin-access-manager input[type="email"] { width:min(100%,560px); }
+@media (max-width:600px) {
+  .admin-tabs { gap:8px; }
+  .admin-tabs .button { min-height:44px; }
+}
