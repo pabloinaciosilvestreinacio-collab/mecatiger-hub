@@ -36,6 +36,12 @@
   margin:18px 0;
 }
 .admin-request-filters label { display:grid; gap:6px; }
+.admin-overview-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr)); gap:12px; margin:18px 0 28px; }
+.admin-overview-card { display:grid; gap:8px; padding:16px; border:1px solid #51565b; border-radius:12px; background:#222427; }
+.admin-overview-card strong { color:#ff7a45; font-size:clamp(1.8rem,4vw,2.4rem); }
+.admin-overview-card span { color:#dedede; }
+.admin-overview-activity { display:grid; gap:8px; }
+.admin-overview-activity p { margin:0; overflow-wrap:anywhere; }
 .admin-requests-list { display:grid; gap:14px; margin-top:18px; }
 .admin-request-card {
   border:1px solid #51565b;
