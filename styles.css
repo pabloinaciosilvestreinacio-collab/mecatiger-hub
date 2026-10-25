@@ -428,3 +428,9 @@ html { scroll-padding-top:84px; }
   .team-preview h3 { font-size:clamp(40px,13vw,52px); overflow-wrap:anywhere; }
   .team-count { column-gap:6px; }
 }
+
+
+@media (max-width:400px) {
+  html { overflow-x:clip; }
+  .registration-panel .panel-header h2 { font-size:clamp(32px,10vw,44px); line-height:.95; overflow-wrap:anywhere; }
+}
