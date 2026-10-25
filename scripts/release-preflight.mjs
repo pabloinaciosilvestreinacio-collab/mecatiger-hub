@@ -11,7 +11,8 @@ export const REQUIRED_MIGRATIONS = Object.freeze([
   "20261025032012_rede_mecatiger_mvp.sql",
   "20261025032022_require_nonanonymous_identity.sql",
   "20261025032028_mecasim_private_trajectories.sql",
-  "20261025032035_mecatiger_site_cms.sql"
+  "20261025032035_mecatiger_site_cms.sql",
+  "20261025140000_rede_request_messages.sql"
 ]);
 
 export const EXTERNAL_GATES = Object.freeze([
@@ -38,14 +39,16 @@ export function inspectRepository(root=process.cwd()) {
   check("migration-order",REQUIRED_MIGRATIONS.every(n=>existing.includes(n)) &&
     REQUIRED_MIGRATIONS.every((n,i)=>i===0||n>REQUIRED_MIGRATIONS[i-1]) &&
     existing.length===REQUIRED_MIGRATIONS.length,
-    "Quatro migrations esperadas, únicas e em ordem; conferência estrutural, não revisão SQL completa");
+    "Cinco migrations allowlisted, únicas e em ordem; conferência estrutural, não revisão SQL completa");
   const community=read("supabase/migrations/20261025032012_rede_mecatiger_mvp.sql");
   const anon=read("supabase/migrations/20261025032022_require_nonanonymous_identity.sql");
   const sim=read("supabase/migrations/20261025032028_mecasim_private_trajectories.sql");
   const cms=read("supabase/migrations/20261025032035_mecatiger_site_cms.sql");
+  const messages=read("supabase/migrations/20261025140000_rede_request_messages.sql");
   check("schema-rls",
     ["rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests","rede_reports"]
       .every(t=>community.includes("alter table public."+t+" enable row level security")) &&
+      messages.includes("rede_request_messages enable row level security") &&
       sim.includes("mecasim_trajectories enable row level security") &&
       ["meca_site_editors","meca_site_copy","meca_site_gallery","meca_site_pages"].every(t=>cms.includes("alter table public."+t+" enable row level security")),
     "Políticas RLS previstas nos arquivos; a integração com banco real é testada em workflow separado");
