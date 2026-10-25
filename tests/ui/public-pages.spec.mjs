@@ -129,9 +129,9 @@ test("Rede explica o processo completo e a separação dos cadastros", async ({ 
   await expect(section).toBeVisible();
   await expect(section.locator("ol > li")).toHaveCount(4);
   await expect(section).toContainText("Entre na Rede pelo site");
-  await expect(section).toContainText("O login autenticado ainda aguarda ativação do backend");
-  await expect(section).toContainText("não use e-mail para publicar ou pedir conexão");
-  await expect(section).toContainText("Quando o feed estiver ativo");
+  await expect(section).toContainText("O login ainda aguarda configuração de envio de e-mail");
+  await expect(section).toContainText("Não envie esses pedidos por e-mail");
+  await expect(section).toContainText("O feed já está aberto para leitura");
   await expect(page.locator("#ajuda button[data-request-kind=ajuda]")).toBeVisible();
   await expect(page.locator("#conexao button[data-request-kind=conexao]")).toBeVisible();
   await expect(page.locator("#compartilhar a[href^='mailto:']")).toHaveCount(0);
