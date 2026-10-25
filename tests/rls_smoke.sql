@@ -90,8 +90,7 @@ declare allowed boolean:=false;
 begin
   begin
     insert into public.rede_request_messages(request_id,sender_id,body)
-      select id,'00000000-0000-0000-0000-000000000002','Unauthorized reply'
-      from public.rede_requests where title='Preciso de mentoria';
+      values(1,'00000000-0000-0000-0000-000000000002','Unauthorized reply');
     allowed:=true;
   exception when insufficient_privilege then null;
   end;
