@@ -154,6 +154,66 @@ async function reportContent(target) {
   });
   alert(error?readableError(error):"Denúncia enviada para análise.");
 }
+function attachRequestConversation(box,request,ownerId) {
+  const toggle=control("Ver conversa com a equipe",async()=>{
+    toggle.disabled=true;
+    if(thread.isConnected) {thread.remove();toggle.textContent="Ver conversa com a equipe";toggle.disabled=false;return;}
+    thread.replaceChildren(el("p","Carregando conversa..."));
+    box.append(thread);toggle.textContent="Ocultar conversa";
+    const {data,error}=await supabase.from("rede_request_messages")
+      .select("id,sender_id,body,created_at").eq("request_id",request.id)
+      .order("created_at",{ascending:true}).order("id",{ascending:true}).limit(100);
+    toggle.disabled=false;
+    if(currentUser?.id!==ownerId)return;
+    thread.replaceChildren();
+    if(error) {thread.append(el("p","A conversa não pôde ser carregada. Atualize ou tente novamente.", "rede-status"));return;}
+    if(!(data||[]).length)thread.append(el("p","Ainda não há mensagens neste pedido."));
+    for(const row of data||[]) {
+      const message=el("article",null,"rede-comment");
+      message.append(el("strong",row.sender_id===ownerId?"Você":"Equipe Meca Tiger"),
+        el("span",date(row.created_at),"rede-meta"),el("p",row.body));
+      thread.append(message);
+    }
+    if(["pending","em_analise"].includes(request.status)) {
+      const form=el("form",null,"rede-form");
+      const label=el("label","Responder à equipe");const input=el("textarea");
+      input.minLength=1;input.maxLength=3000;input.required=true;
+      input.placeholder="Envie uma resposta ou informação adicional (até 3000 caracteres).";
+      const send=el("button","Enviar mensagem","button");send.type="submit";
+      const statusNode=el("p",null,"rede-status");statusNode.setAttribute("role","status");statusNode.setAttribute("aria-live","polite");
+      form.append(label,input,send,statusNode);
+      form.addEventListener("submit",async event=>{
+        event.preventDefault();
+        const formNode=event.currentTarget, body=input.value.trim();
+        if(!currentUser||currentUser.id!==ownerId||body.length<1||body.length>3000)return;
+        send.disabled=true;statusNode.textContent="Enviando...";
+        const {error:sendError}=await supabase.from("rede_request_messages")
+          .insert({request_id:request.id,sender_id:ownerId,body});
+        send.disabled=false;
+        if(currentUser?.id!==ownerId)return;
+        if(sendError){statusNode.textContent=readableError(sendError);statusNode.dataset.error="true";}
+        else {formNode.reset();statusNode.textContent="Mensagem enviada para a equipe no site.";statusNode.dataset.error="false";
+          toggle.disabled=true;thread.replaceChildren(el("p","Carregando conversa..."));
+          const refreshed=await supabase.from("rede_request_messages")
+            .select("id,sender_id,body,created_at").eq("request_id",request.id)
+            .order("created_at",{ascending:true}).order("id",{ascending:true}).limit(100);
+          toggle.disabled=false;thread.replaceChildren();
+          if(refreshed.error)thread.append(el("p","Mensagem gravada, mas não foi possível atualizar a conversa. Atualize a página."));
+          else for(const row of refreshed.data||[]) {
+            const message=el("article",null,"rede-comment");
+            message.append(el("strong",row.sender_id===ownerId?"Você":"Equipe Meca Tiger"),
+              el("span",date(row.created_at),"rede-meta"),el("p",row.body));
+            thread.append(message);
+          }
+          thread.append(form);
+        }
+      });
+      thread.append(form);
+    }
+  });
+  const thread=el("section",null,"rede-request-thread");
+  box.append(toggle);
+}
 async function loadOwn() {
   if (!currentUser || !identityResolved) return;
   const epoch = identityEpoch, ownerId = currentUser.id;
@@ -196,6 +256,7 @@ async function loadOwn() {
       const {error}=await supabase.from("rede_posts").delete().eq("id",item.id);
       if (error) alert(readableError(error)); else {await loadOwn();await loadFeed();}
     }));
+    if(item.table==="rede_requests")attachRequestConversation(box,item,ownerId);
     items.append(box);
   }
 }
