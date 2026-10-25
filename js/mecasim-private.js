@@ -1,18 +1,7 @@
 import { supabase } from "./rede-client.js?v=20261025d";
 import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 
-// Public demo does not call unprovisioned Edge Functions or offer fake cloud saving.
-if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
-  const section = document.querySelector(".private-routes");
-  if (section) {
-    section.replaceChildren();
-    const title = document.createElement("h3");
-    title.textContent = "Biblioteca privada em preparação";
-    const note = document.createElement("p");
-    note.textContent = "Você já pode desenhar e reproduzir trajetórias aqui. Salvar, carregar e excluir rotas na nuvem serão liberados depois.";
-    section.append(title, note);
-  }
-} else {
+// Saved trajectories are enabled for verified accounts; RLS and the Edge Function enforce ownership.
 const $ = id => document.getElementById(id);
 const status = (text, problem=false) => {
   $("route-private-status").textContent = text;
@@ -115,5 +104,3 @@ $("route-delete").addEventListener("click",()=>{
   setEnabled(true);
   await refreshList();
 })().catch(error => status(error.message || "Não foi possível conectar à biblioteca.", true));
-
-}

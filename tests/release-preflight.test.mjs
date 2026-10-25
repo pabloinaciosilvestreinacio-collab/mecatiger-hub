@@ -13,7 +13,9 @@ test("exact migration order and additive launch artifact inventory",()=>{
     "20261025032022_require_nonanonymous_identity.sql",
     "20261025032028_mecasim_private_trajectories.sql",
     "20261025032035_mecatiger_site_cms.sql",
-    "20261025140000_rede_request_messages.sql"
+    "20261025140000_rede_request_messages.sql",
+    "20261025160000_admin_access_and_team_members.sql",
+    "20261025170000_fix_admin_access_email_return_type.sql"
   ]);
   const actual=inspectRepository(base);
   assert.equal(actual.codeReady,true,JSON.stringify(actual.codeChecks.filter(c=>!c.ok)));

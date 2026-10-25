@@ -33,6 +33,7 @@
       <button class="button outline" id="admin-tab-copy" type="button" role="tab" aria-controls="admin-panel-copy" aria-selected="false" tabindex="-1" data-admin-tab="copy" data-admin-role="editor">Textos</button>
       <button class="button outline" id="admin-tab-pages" type="button" role="tab" aria-controls="admin-panel-pages" aria-selected="false" tabindex="-1" data-admin-tab="pages" data-admin-role="editor">Páginas e abas</button>
       <button class="button outline" id="admin-tab-photos" type="button" role="tab" aria-controls="admin-panel-photos" aria-selected="false" tabindex="-1" data-admin-tab="photos" data-admin-role="editor">Fotos</button>
+      <button class="button outline" id="admin-tab-team" type="button" role="tab" aria-controls="admin-panel-team" aria-selected="false" tabindex="-1" data-admin-tab="team" data-admin-role="editor">Integrantes</button>
       <button class="button outline" id="admin-tab-requests" type="button" role="tab" aria-controls="admin-panel-requests" aria-selected="false" tabindex="-1" data-admin-tab="requests" data-admin-role="moderator">Solicitações</button>
       <button class="button outline" id="admin-tab-moderation" type="button" role="tab" aria-controls="admin-panel-moderation" aria-selected="false" tabindex="-1" data-admin-tab="moderation" data-admin-role="moderator">Moderação</button>
       <button class="button outline" id="admin-tab-security" type="button" role="tab" aria-controls="admin-panel-security" aria-selected="false" tabindex="-1" data-admin-tab="security">Segurança</button>
@@ -155,10 +156,42 @@
       <p id="cms-photo-status" role="status" aria-live="polite" class="rede-status"></p>
       <div id="cms-gallery-list" class="admin-gallery" aria-label="Fotos publicadas"></div>
     </section>
+    <section class="rede-box admin-panel" id="admin-panel-team" role="tabpanel" aria-labelledby="admin-tab-team" data-admin-panel="team" data-admin-role="editor" hidden>
+      <h2>Perfis dos integrantes</h2>
+      <p class="rede-muted">Adicione ou atualize fotos autorizadas, função e descrição. Somente perfis publicados aparecem na Home.</p>
+      <form id="cms-team-form" class="rede-form">
+        <input id="cms-team-id" type="hidden">
+        <label for="cms-team-name">Nome ou apelido público</label><input id="cms-team-name" maxlength="80" minlength="2" required>
+        <label for="cms-team-slug">Identificador do perfil</label><input id="cms-team-slug" pattern="[a-z0-9][a-z0-9-]{1,63}" maxlength="64" required>
+        <label for="cms-team-role">Função</label><select id="cms-team-role"><option value="integrante">Integrante</option><option value="tecnico">Técnico</option><option value="mentor">Mentor</option></select>
+        <label for="cms-team-bio">Descrição</label><textarea id="cms-team-bio" maxlength="600" minlength="10" required></textarea>
+        <label for="cms-team-photo">Foto WebP da galeria</label><select id="cms-team-photo"><option value="">Sem foto</option></select>
+        <label for="cms-team-alt">Texto alternativo da foto</label><input id="cms-team-alt" maxlength="160" minlength="3" required>
+        <label for="cms-team-order">Ordem na página</label><input id="cms-team-order" type="number" min="0" max="999" value="0" required>
+        <label><input id="cms-team-published" type="checkbox"> Publicar este perfil</label>
+        <div class="rede-controls"><button class="button" type="submit">Salvar perfil</button><button id="cms-team-reset" class="button outline" type="button">Novo perfil</button></div>
+      </form>
+      <p id="cms-team-status" role="status" aria-live="polite" class="rede-status"></p>
+      <div id="cms-team-list" class="admin-pages-list" aria-label="Perfis da equipe"></div>
+    </section>
     <section class="rede-box admin-panel" id="admin-panel-security" role="tabpanel" aria-labelledby="admin-tab-security" data-admin-panel="security" hidden>
       <h2>Segurança e limites</h2>
-      <p>Somente contas explicitamente autorizadas no banco podem alterar conteúdo. Administradores não recebem acesso ao código, ao banco completo ou a segredos. Fotos e textos são publicados somente pelos recursos autorizados no banco.</p>
-      <p class="rede-muted">O painel permite editar textos e páginas, publicar fotos WebP e retirar páginas do ar. Não há exclusão de imagens nem execução de HTML. Revise autorização e consentimento antes de publicar fotos.</p>
+      <p id="admin-session-status" role="status" aria-live="polite" class="rede-status">Validando sua sessão...</p>
+      <p>O login não concede privilégios por e-mail. A administração verifica papéis individuais no banco; somente administradores autenticados podem alterar acessos por funções protegidas do Supabase.</p>
+      <div id="admin-access-manager" data-admin-admin hidden>
+        <h3>Gerenciar acessos da equipe</h3>
+        <p class="rede-muted">A pessoa precisa criar e confirmar a própria conta primeiro. Administradores podem conceder acesso de editor, moderador ou administrador. Administradores também recebem os papéis de editor e moderador.</p>
+        <form id="admin-access-form" class="rede-form">
+          <label for="admin-access-email">E-mail confirmado da pessoa</label><input id="admin-access-email" type="email" maxlength="320" required>
+          <label><input id="admin-access-editor" type="checkbox"> Editor do site</label>
+          <label><input id="admin-access-moderator" type="checkbox"> Moderador da comunidade</label>
+          <label><input id="admin-access-admin" type="checkbox"> Administrador (inclui editor e moderador)</label>
+          <button class="button" type="submit">Salvar permissões</button>
+        </form>
+        <p id="admin-access-status" role="status" aria-live="polite" class="rede-status"></p>
+        <div id="admin-access-list" class="admin-pages-list"></div>
+      </div>
+      <p class="rede-muted">Revise autorização e consentimento antes de publicar fotos. O painel não revela segredos nem concede acesso ao código ou ao banco completo.</p>
     </section>
     <dialog id="admin-request-dialog" class="admin-request-dialog" aria-labelledby="admin-request-dialog-title">
       <div class="admin-request-dialog-head">
@@ -179,5 +212,5 @@
     </dialog>
   </div>
 </main>
-<script type="module" src="js/admin.js?v=20261025g"></script>
+<script type="module" src="js/admin.js?v=20261025i"></script>
 </body></html>

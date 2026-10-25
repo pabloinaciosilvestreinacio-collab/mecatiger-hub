@@ -15,6 +15,7 @@ const pageForm=byId("cms-page-form");
 let editorUser=null;
 let adminUser=null;
 let isModerator=false;
+let isSiteAdmin=false;
 let storedCopy = new Map();
 let storedPages = new Map();
 let editingPageSlug = null;
@@ -637,6 +638,135 @@ photoForm.addEventListener("submit",async event=>{
   }
 });
 
+const accessForm=byId("admin-access-form");
+const teamForm=byId("cms-team-form");
+const teamStatus=(message,error=false)=>status("cms-team-status",message,error);
+function escapeSlug(value) {
+  return /^[a-z0-9][a-z0-9-]{1,63}$/.test(value);
+}
+async function loadAccessList() {
+  const root=byId("admin-access-list");
+  const {data,error}=await supabase.rpc("meca_site_list_access");
+  root.replaceChildren();
+  if(error) {status("admin-access-status","Não foi possível carregar os acessos da equipe.",true);return;}
+  for(const row of data||[]) {
+    const card=document.createElement("article");card.className="admin-page-card";
+    const title=document.createElement("h3");title.textContent=row.email||"Conta sem e-mail";
+    const summary=document.createElement("p");
+    summary.textContent=[
+      row.is_admin?"Administrador":null,
+      row.is_editor?"Editor":null,
+      row.is_moderator?"Moderador":null
+    ].filter(Boolean).join(" · ")||"Sem privilégios";
+    const edit=document.createElement("button");edit.type="button";edit.className="button outline";edit.textContent="Editar acesso";
+    edit.addEventListener("click",()=>{
+      byId("admin-access-email").value=row.email||"";
+      byId("admin-access-editor").checked=Boolean(row.is_editor);
+      byId("admin-access-moderator").checked=Boolean(row.is_moderator);
+      byId("admin-access-admin").checked=Boolean(row.is_admin);
+      byId("admin-access-email").focus();
+    });
+    card.append(title,summary,edit);root.append(card);
+  }
+  status("admin-access-status",(data||[]).length+" conta(s) autorizada(s).");
+}
+async function saveAccess(email,editor,moderator,admin) {
+  const {error}=await supabase.rpc("meca_site_set_access",{
+    target_email:email,
+    grant_editor:admin||editor,
+    grant_moderator:admin||moderator,
+    grant_admin:admin
+  });
+  if(error) throw error;
+  await loadAccessList();
+}
+accessForm?.addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(!isSiteAdmin) return;
+  const button=accessForm.querySelector('button[type="submit"]');
+  button.disabled=true;
+  const email=byId("admin-access-email").value.trim().toLowerCase();
+  try {
+    await saveAccess(email,byId("admin-access-editor").checked,
+      byId("admin-access-moderator").checked,byId("admin-access-admin").checked);
+    status("admin-access-status","Permissões atualizadas para "+email+".");
+    accessForm.reset();
+  } catch(error) {
+    status("admin-access-status",error?.message==="confirmed_user_not_found"
+      ? "Essa pessoa precisa criar e confirmar a conta antes de receber acesso."
+      : "Não foi possível atualizar as permissões. Confira o e-mail e tente novamente.",true);
+  } finally {button.disabled=false;}
+});
+async function refreshTeamMembers() {
+  const {data,error}=await supabase.from("meca_site_team_members")
+    .select("id,slug,full_name,team_role,bio,photo_path,photo_alt,sort_order,published")
+    .order("sort_order",{ascending:true}).order("id",{ascending:true});
+  const root=byId("cms-team-list");root.replaceChildren();
+  if(error) {teamStatus("Não foi possível carregar os perfis. Confira a migration de integrantes.",true);return;}
+  for(const member of data||[]) {
+    const card=document.createElement("article");card.className="admin-page-card";
+    const title=document.createElement("h3");title.textContent=member.full_name;
+    const summary=document.createElement("p");summary.textContent=member.team_role+" · "+(member.published?"Publicado":"Rascunho");
+    const edit=document.createElement("button");edit.type="button";edit.className="button outline";edit.textContent="Editar";
+    edit.addEventListener("click",()=>{
+      byId("cms-team-id").value=String(member.id);
+      byId("cms-team-name").value=member.full_name;
+      byId("cms-team-slug").value=member.slug;
+      byId("cms-team-role").value=member.team_role;
+      byId("cms-team-bio").value=member.bio;
+      byId("cms-team-photo").value=member.photo_path||"";
+      byId("cms-team-alt").value=member.photo_alt;
+      byId("cms-team-order").value=String(member.sort_order);
+      byId("cms-team-published").checked=Boolean(member.published);
+      byId("cms-team-name").focus();
+    });
+    const remove=document.createElement("button");remove.type="button";remove.className="button outline";remove.textContent="Excluir perfil";
+    remove.addEventListener("click",async()=>{
+      if(!editorUser)return;
+      const {error:deleteError}=await supabase.from("meca_site_team_members").delete().eq("id",member.id);
+      if(deleteError) teamStatus("Não foi possível excluir este perfil.",true);
+      else {teamStatus("Perfil removido.");await refreshTeamMembers();}
+    });
+    card.append(title,summary,edit,remove);root.append(card);
+  }
+  teamStatus((data||[]).length+" perfil(is) carregado(s).");
+}
+function resetTeamForm() {
+  teamForm.reset();byId("cms-team-id").value="";byId("cms-team-order").value="0";
+}
+byId("cms-team-reset").addEventListener("click",resetTeamForm);
+teamForm.addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(!editorUser)return;
+  const slug=byId("cms-team-slug").value.trim().toLowerCase();
+  if(!escapeSlug(slug)){teamStatus("Use letras minúsculas, números e hífens no identificador.",true);return;}
+  const photoPath=byId("cms-team-photo").value||null;
+  if(photoPath&&!validAssetPath(photoPath)){teamStatus("A foto selecionada não é válida.",true);return;}
+  const payload={
+    slug,full_name:byId("cms-team-name").value.trim(),team_role:byId("cms-team-role").value,
+    bio:byId("cms-team-bio").value.trim(),photo_path:photoPath,
+    photo_alt:byId("cms-team-alt").value.trim(),sort_order:Number(byId("cms-team-order").value),
+    published:byId("cms-team-published").checked,updated_by:editorUser.id
+  };
+  const id=byId("cms-team-id").value;
+  const button=teamForm.querySelector('button[type="submit"]');button.disabled=true;
+  const query=id
+    ? supabase.from("meca_site_team_members").update(payload).eq("id",id)
+    : supabase.from("meca_site_team_members").insert(payload);
+  const {error}=await query;
+  if(error) teamStatus("Não foi possível salvar o perfil. Confira os campos e a permissão de editor.",true);
+  else {teamStatus("Perfil salvo.");resetTeamForm();await refreshTeamMembers();}
+  button.disabled=false;
+});
+async function refreshTeamPhotoOptions() {
+  const select=byId("cms-team-photo");
+  const selected=select.value;
+  const {data,error}=await supabase.from("meca_site_gallery").select("caption,asset_path").order("id",{ascending:false}).limit(100);
+  if(error)return;
+  select.replaceChildren(new Option("Sem foto",""));
+  for(const row of data||[]) if(validAssetPath(row.asset_path)) select.append(new Option(row.caption,row.asset_path));
+  select.value=selected;
+}
 (async()=>{
   const {data,error}=await supabase.auth.getUser();
   if(error || !isVerifiedMember(data?.user)) {
@@ -644,35 +774,41 @@ photoForm.addEventListener("submit",async event=>{
     status("admin-status","Entre com um e-mail confirmado para solicitar acesso ao painel.");
     return;
   }
-  const [editorResult,moderatorResult]=await Promise.all([
+  const [editorResult,moderatorResult,adminResult]=await Promise.all([
     supabase.from("meca_site_editors").select("user_id").eq("user_id",data.user.id).maybeSingle(),
-    supabase.from("rede_moderators").select("user_id").eq("user_id",data.user.id).maybeSingle()
+    supabase.from("rede_moderators").select("user_id").eq("user_id",data.user.id).maybeSingle(),
+    supabase.rpc("meca_site_is_admin")
   ]);
-  if(editorResult.error||moderatorResult.error) {
+  if(editorResult.error||moderatorResult.error||adminResult.error) {
     locked.hidden=false;
-    status("admin-status","Não foi possível validar seus papéis no Supabase. Atualize e tente novamente.",true);
+    status("admin-status","Não foi possível validar seus papéis no Supabase. Confirme as migrations aplicadas e tente novamente.",true);
     return;
   }
-  if(!editorResult.data&&!moderatorResult.data) {
+  isSiteAdmin=Boolean(adminResult.data);
+  if(!editorResult.data&&!moderatorResult.data&&!isSiteAdmin) {
     locked.hidden=false;
-    status("admin-status","Esta conta ainda não tem papel de editor ou moderador. Peça à equipe responsável para autorizar o acesso.",true);
+    status("admin-status","Esta conta ainda não tem papel de editor, moderador ou administrador. Peça à equipe responsável para autorizar o acesso.",true);
     return;
   }
   adminUser=data.user;
-  editorUser=editorResult.data?data.user:null;
-  isModerator=Boolean(moderatorResult.data);
+  status("admin-session-status",`Conta autenticada: ${adminUser.email}. E-mail confirmado. Esta sessão está ativa neste navegador; use “Sair do painel” para encerrá-la.`);
+  editorUser=editorResult.data||isSiteAdmin?data.user:null;
+  isModerator=Boolean(moderatorResult.data||isSiteAdmin);
   for(const element of document.querySelectorAll("[data-admin-role]")) {
     const role=element.dataset.adminRole;
     element.hidden=role==="editor"?!editorUser:!isModerator;
   }
-  status("admin-status",`Acesso confirmado: ${[editorUser?"editor":null,isModerator?"moderador":null].filter(Boolean).join(" e ")}.`);
+  for(const element of document.querySelectorAll("[data-admin-admin]")) element.hidden=!isSiteAdmin;
+  status("admin-status",`Acesso confirmado: ${[isSiteAdmin?"administrador":null,editorUser?"editor":null,isModerator?"moderador":null].filter(Boolean).join(" e ")}.`);
   contentSection.hidden=false;
   selectAdminTab("overview");
   await loadOverview();
   if(editorUser) {
     await Promise.all([loadTexts(),refreshGallery()]);
     await refreshPages();
+    await Promise.all([refreshTeamMembers(),refreshTeamPhotoOptions()]);
   }
+  if(isSiteAdmin) await loadAccessList();
 })().catch(()=>{
   contentSection.hidden=true;
   locked.hidden=false;

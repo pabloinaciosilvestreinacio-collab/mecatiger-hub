@@ -27,6 +27,7 @@
           <a class="nav-link" href="#simulador">Simulador</a>
           <a class="nav-link" href="#contato">Contato</a>
           <a class="nav-link" href="conteudo.html">Conteúdo</a>
+          <a class="nav-link" href="admin.html" rel="nofollow">Sou administrador</a>
         </nav>
         <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Abrir menu">
           <span aria-hidden="true">☰</span>
@@ -41,10 +42,24 @@
           <a href="#simulador">Simulador</a>
           <a href="#contato">Contato</a>
           <a href="conteudo.html">Conteúdo</a>
+          <a href="admin.html" rel="nofollow">Sou administrador</a>
         </div>
       </nav>
     </header>
 
+    <dialog id="account-onboarding" class="account-onboarding" aria-labelledby="account-onboarding-title">
+      <div class="account-onboarding-head">
+        <p class="eyebrow">Meca Tiger Hub · acesso à comunidade</p>
+        <button id="account-onboarding-close" type="button" class="button outline" aria-label="Continuar explorando sem entrar">Continuar explorando</button>
+      </div>
+      <h2 class="display" id="account-onboarding-title">PARTICIPE COM SUA <span class="accent">CONTA.</span></h2>
+      <p>Para pedir ajuda, solicitar conexões STEM, publicar no feed ou usar recursos privados do Meca Sim, crie uma conta e confirme seu e-mail. Ler as páginas públicas continua disponível.</p>
+      <p class="account-onboarding-note">O cadastro de participação usado nas métricas é separado: ele não cria sua conta de acesso.</p>
+      <div class="account-onboarding-actions">
+        <a class="button" href="entrar.html?next=rede.html">Criar conta / entrar na comunidade →</a>
+        <a class="button outline" href="entrar.html?next=mecasim-demo.html">Entrar para usar o Meca Sim →</a>
+      </div>
+    </dialog>
     <main id="top">
       <section class="hero">
         <div class="container hero-content">
@@ -110,10 +125,10 @@
           <div>
             <span class="eyebrow">Equipe · temporada 2026–2027</span>
             <h3 class="display">CONHEÇA<br /><span class="accent">OS MEMBROS.</span></h3>
-            <p>O espaço da equipe está sendo preparado para receber as fotos e as descrições dos oito integrantes, do técnico e do mentor.</p>
-            <div class="team-count"><span>08</span> integrantes <i>·</i> <span>01</span> técnico <i>·</i> <span>01</span> mentor</div>
+            <p id="team-members-intro">Conheça as pessoas que constroem a Meca Tiger. Os perfis publicados pela equipe aparecem aqui.</p>
+            <div class="team-count" id="team-members-count">Equipe Meca Tiger FTC #32578</div>
           </div>
-          <a class="button outline team-preview-action" href="#equipe-panel" data-team-panel="true">Ver membros da equipe →</a>
+          <div id="team-member-list" class="team-member-grid" aria-live="polite"></div>
         </div>
       </div></section>
 
@@ -131,25 +146,11 @@
             <div><span class="eyebrow">A equipe · temporada</span><h2 class="display">QUEM FAZ A <span class="accent">MECATIGER.</span></h2></div>
             <button class="panel-close" type="button" data-close-panel>Fechar ×</button>
           </div>
-          <p class="panel-intro">Este painel será atualizado com as fotos, nomes e descrições da equipe assim que o material estiver disponível. A estrutura já está pronta para as próximas temporadas.</p>
-          <div class="season-tabs" role="tablist" aria-label="Temporadas da equipe">
-            <button class="season-tab is-active" type="button" role="tab" aria-selected="true" data-season="2026-2027">2026–2027</button>
-            <button class="season-tab" type="button" role="tab" aria-selected="false" data-season="2025-2026">2025–2026 <span>arquivo</span></button>
-          </div>
-          <div class="team-status"><span class="code-label">STATUS: EM ANDAMENTO</span><p>Fotos e perfis dos membros em preparação.</p></div>
+          <p class="panel-intro">Integrantes, técnicos e mentores aparecem aqui depois que a equipe publicar cada perfil no painel.</p>
+          <div class="team-count"><strong id="team-members-count">Carregando perfis publicados…</strong></div>
+          <p id="team-profile-status" class="team-profile-status" role="status" aria-live="polite">Carregando perfis publicados…</p>
           <div class="team-season" data-season-panel="2026-2027">
-            <div class="team-roster">
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>01</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>02</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>03</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>04</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>05</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>06</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>07</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>08</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-support"><div class="member-photo support-photo"><span>TEC</span></div><div><span class="member-role">Técnico</span><h3 class="display">APOIO<br /><span class="accent">TÉCNICO.</span></h3><p>Espaço reservado para a foto e uma breve apresentação do técnico.</p></div></article>
-              <article class="member-card member-card-support"><div class="member-photo support-photo"><span>MEN</span></div><div><span class="member-role">Mentor</span><h3 class="display">APOIO<br /><span class="accent">DA EQUIPE.</span></h3><p>Espaço reservado para a foto e uma breve apresentação do mentor.</p></div></article>
-            </div>
+            <div class="team-roster" id="team-roster" aria-label="Integrantes publicados da equipe"></div>
           </div>
           <div class="team-season" data-season-panel="2025-2026" hidden>
             <div class="team-empty-state"><span class="eyebrow">Temporada 2025–2026</span><h3 class="display">ARQUIVO<br /><span class="accent">EM PREPARAÇÃO.</span></h3><p>As fotos e informações da primeira temporada serão adicionadas quando o material for organizado.</p></div>
@@ -300,6 +301,6 @@
         }
       });
     </script>
-    <script type="module" src="js/cms-public.js?v=20261025d"></script>
+    <script type="module" src="js/cms-public.js?v=20261025f"></script>
   </body>
 </html>

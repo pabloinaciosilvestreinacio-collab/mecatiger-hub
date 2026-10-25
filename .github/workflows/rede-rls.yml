@@ -42,5 +42,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025140000_rede_request_messages.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_smoke.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025032028_mecasim_private_trajectories.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025032035_mecatiger_site_cms.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025160000_admin_access_and_team_members.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025170000_fix_admin_access_email_return_type.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/admin-cms-rls.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/mecasim_rls.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-after.sql

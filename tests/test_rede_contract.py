@@ -72,8 +72,10 @@ class RedeContracts(unittest.TestCase):
     def test_simulator_limitation(self):
         gate=(ROOT/"js/sim-gate.js").read_text(encoding="utf-8")
         self.assertIn("getUser()",gate)
-        self.assertIn("publicly retrievable",gate)
-        self.assertRegex((ROOT/"mecasim-demo.html").read_text(encoding="utf-8"),r'src="js/sim-gate\.js(?:\?v=[^"]*)?"')
+        self.assertIn("isVerifiedMember",gate)
+        self.assertNotIn("location.hostname",gate)
+        page=(ROOT/"mecasim-demo.html").read_text(encoding="utf-8")
+        self.assertRegex(page,r'src="js/sim-gate\.js(?:\?v=[^"]*)?"')
 
 
     def test_social_actions_do_not_fake_success(self):
@@ -209,5 +211,28 @@ class RedeContracts(unittest.TestCase):
         self.assertNotIn(".innerHTML",logic)
         self.assertIn('id="cms-page-list"',(ROOT/"conteudo.html").read_text(encoding="utf-8"))
         self.assertIn('id="cms-page-view"',(ROOT/"pagina.html").read_text(encoding="utf-8"))
+
+    def test_admin_roles_and_team_cms_are_authorized(self):
+        migration=(ROOT/"supabase/migrations/20261025160000_admin_access_and_team_members.sql").read_text(encoding="utf-8").lower()
+        admin=(ROOT/"admin.html").read_text(encoding="utf-8")
+        logic=(ROOT/"js/admin.js").read_text(encoding="utf-8")
+        public=(ROOT/"js/cms-public.js").read_text(encoding="utf-8")
+        home=(ROOT/"index.html").read_text(encoding="utf-8")
+        for table in ("meca_site_admins","meca_site_team_members"):
+            self.assertIn(f"alter table public.{table} enable row level security",migration)
+        self.assertIn("revoke all on public.meca_site_admins from public, anon, authenticated",migration)
+        self.assertIn("meca_site_is_admin()",migration)
+        self.assertIn("meca_site_set_access",migration)
+        self.assertIn("email_confirmed_at is not null",migration)
+        self.assertIn('data-admin-admin',admin)
+        self.assertIn('id="cms-team-form"',admin)
+        self.assertIn('rpc("meca_site_is_admin")',logic)
+        self.assertIn('rpc("meca_site_set_access"',logic)
+        self.assertIn('from("meca_site_team_members")',logic)
+        self.assertIn('from("meca_site_team_members")',public)
+        self.assertIn('id="team-roster"',home)
+        self.assertIn("textContent=member.full_name",public)
+        self.assertNotIn(".innerHTML",public)
+        self.assertNotIn("service_role",logic.lower())
 
 if __name__=="__main__": unittest.main()

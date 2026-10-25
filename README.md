@@ -1,37 +1,42 @@
 # MECATIGER FTC #32578
 
-Este repositório contém o Hub da equipe como site estático em HTML, CSS e JavaScript. Abra index.html diretamente no navegador ou sirva a raiz com qualquer servidor estático. Não há build step nem runtime JavaScript separado.
+O Meca Tiger Hub é um site estático em HTML, CSS e JavaScript, publicado no GitHub Pages.
 
-## Páginas e hospedagem
+Site: https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/
 
-O site está publicado pelo GitHub Pages a partir da raiz da branch `main`. O arquivo `.nojekyll` impede processamento Jekyll desnecessário. O endereço público atual é `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/`.
+## Acesso e comunidade
 
-Domínio próprio e DNS continuam fora do repositório e devem ser configurados somente após o domínio ser provisionado.
+A Home apresenta um convite de cadastro, com opção para continuar explorando. O cadastro de métricas da equipe é separado da conta usada para entrar.
 
-Configuração de preview e rollback: DEPLOYMENT.md.
+A Rede tem leitura pública do feed aprovado. Para publicar, comentar, pedir ajuda, solicitar conexão STEM ou denunciar conteúdo, é necessário entrar com e-mail confirmado. Os pedidos são gravados no Supabase e acompanhados pela equipe dentro do painel; não dependem de aplicativos externos de e-mail. O cadastro e o envio de Magic Link ainda dependem de configuração de SMTP e URL/redirects no Supabase.
 
-## Cadastro e métricas da comunidade
+A interface usa login por e-mail; não oferece botão de login GitHub. Os links do Magic Link precisam retornar a `entrar.html` no domínio publicado, nunca a localhost.
 
-A página apresenta cadastro opcional com e-mail, perfil (incluindo entusiasta de robótica), equipe/escola, estado e país. Links de ajuda, mentoria, compartilhamento e iniciação direcionam para comunidades e recursos existentes da FTC/FIRST.
+## Administração e edição
 
-O feed da Rede e o CMS são apresentados como rotas do site, mas exigem migrações hospedadas, Auth confirmado e permissões editor/moderador. Até isso ser ativado, a interface deve informar a indisponibilidade sem simular sucesso. As métricas exibidas são agregadas no Supabase: pessoas cadastradas, estados brasileiros distintos, países, estudantes e professores/mentores. O navegador pode inserir um cadastro consentido e ler somente a linha agregada de métricas; a lista de e-mails não é exposta pela API pública. O schema persistente está em supabase/schema.sql.
+A Home tem o link **Sou administrador**. O endereço `admin.html` pode ser aberto diretamente, mas só contas com papel autorizado pelo banco recebem acesso. Entrar com e-mail, por si só, não concede privilégios.
 
-Para revisar o formulário sem gravar dados, use `index.html#cadastro-teste`. Esse modo força o painel de cadastro e simula o envio. Sem o modo de teste, a página envia o cadastro consentido à função RPC do Supabase. O índice único evita contagem duplicada, e a resposta não informa se um e-mail já existe.
+O painel permite:
 
-A chave publishable usada no navegador é pública por natureza e depende das políticas RLS. A função RPC de cadastro reduz a exposição da tabela ao retirar INSERT direto do papel público. Nunca coloque `service_role`, secret keys ou credenciais privilegiadas no HTML. Antes de produção, confirme a RLS efetiva e teste com dados descartáveis.
+- acompanhar solicitações e moderação;
+- conceder ou retirar papéis de editor, moderador e administrador para contas já confirmadas;
+- editar textos, páginas e abas;
+- fazer upload de fotos WebP e editar perfis de integrantes.
 
-## Conteúdo, administração e Meca Sim
+A primeira conta administradora foi associada pelo banco à única conta confirmada que já possuía os papéis de editor e moderador. Não existe senha compartilhada ou credencial fixa. Consulte [ADMIN_EDITOR.md](ADMIN_EDITOR.md).
 
-`admin.html` está preparado para editar textos, enviar fotos convertidas para WebP e criar/editar páginas com abas de navegação. O painel só grava após autorização RLS de um usuário editor; não há credencial compartilhada.
+## Cadastro de métricas e privacidade
 
-`conteudo.html` lista páginas publicadas e `pagina.html?slug=...` exibe cada página. Feed, login, editor e formulários dependem da ativação segura do backend hospedado; verifique `LANCAMENTO_MECATIGER_20261025.md`.
+O formulário opcional da Home grava inscrições consentidas para contagem agregada. Visitantes podem consultar apenas métricas agregadas; a lista de e-mails não é exposta pela API pública. O modo `#cadastro-teste` é exclusivo para revisão local e simula o formulário.
+
+A chave publishable do Supabase no navegador é pública por natureza; RLS e Auth são os controles de segurança. Nunca coloque `service_role`, chaves secretas ou credenciais no HTML.
 
 ## Projetos e Meca Sim
 
-Os cards de projetos, evidências, comunidade e simulador mostram EM DESENVOLVIMENTO ou EM PREPARAÇÃO até que os materiais reais sejam publicados.
+`mecasim-demo.html` é uma demonstração interativa limitada, liberada após login com e-mail confirmado. Permite marcar e reproduzir trajetórias no campo; não simula física, colisões, sensores, pontuação nem teleoperação e não executa código Java. A biblioteca privada usa uma Edge Function autenticada.
 
-O Hub inclui `mecasim-demo.html`, uma prévia interativa estática e responsiva: mostra o campo BIOBUZZ, permite marcar até 16 pontos e reproduzir visualmente uma trajetória. Ela não simula física, colisões, sensores, pontuação ou teleoperação e não executa Java nem código enviado. A página `mecasim.html` explica esses limites e liga à demonstração, ao repositório público Meca Sim e às instruções locais. A versão completa requer Python 3.10+ e JDK 17+ e executa Java com as permissões da conta do usuário; use apenas código confiável. O projeto Meca Sim não foi modificado por este repositório.
+O simulador completo pertence ao repositório [meca-sim](https://github.com/pabloinaciosilvestreinacio-collab/meca-sim), que não é modificado por este projeto.
 
-## Verificações e rollback
+## Operação
 
-O checklist de testes, estado de execução, critérios de promoção e rollback está em DEPLOYMENT.md. Não considere domínio próprio, DNS ou HTTPS final validados até que o domínio seja provisionado e a configuração autorizada.
+O estado de publicação, os bloqueios externos, testes e reversão estão em [DEPLOYMENT.md](DEPLOYMENT.md) e [LANCAMENTO_MECATIGER_20261025.md](LANCAMENTO_MECATIGER_20261025.md).
