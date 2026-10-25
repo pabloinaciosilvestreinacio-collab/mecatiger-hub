@@ -71,7 +71,7 @@ sendForm.addEventListener("submit", async event => {
     if (error) throw error;
     tell("Confira seu e-mail e abra o link de acesso. Ele é pessoal e expira; não o encaminhe a outras pessoas.");
   } catch (error) {
-    tell("Não foi possível solicitar o acesso. Confira o e-mail e tente novamente mais tarde.", true);
+    tell(error?.status === 429 || error?.code === "over_email_send_rate_limit" ? "Limite de envio de e-mails atingido (429). Aguarde antes de tentar novamente; a equipe precisa configurar SMTP próprio para envios confiáveis." : "Falha no acesso: " + (error?.message || "erro de autenticação") + ".", true);
   } finally {
     button.disabled = false;
   }
