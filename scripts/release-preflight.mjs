@@ -8,10 +8,10 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const REQUIRED_MIGRATIONS = Object.freeze([
-  "20261024160000_rede_mecatiger_mvp.sql",
-  "20261024163000_require_nonanonymous_identity.sql",
-  "20261024170000_mecasim_private_trajectories.sql",
-  "20261024190000_mecatiger_site_cms.sql"
+  "20261025032012_rede_mecatiger_mvp.sql",
+  "20261025032022_require_nonanonymous_identity.sql",
+  "20261025032028_mecasim_private_trajectories.sql",
+  "20261025032035_mecatiger_site_cms.sql"
 ]);
 
 export const EXTERNAL_GATES = Object.freeze([
@@ -39,10 +39,10 @@ export function inspectRepository(root=process.cwd()) {
     REQUIRED_MIGRATIONS.every((n,i)=>i===0||n>REQUIRED_MIGRATIONS[i-1]) &&
     existing.length===REQUIRED_MIGRATIONS.length,
     "Quatro migrations esperadas, únicas e em ordem; conferência estrutural, não revisão SQL completa");
-  const community=read("supabase/migrations/20261024160000_rede_mecatiger_mvp.sql");
-  const anon=read("supabase/migrations/20261024163000_require_nonanonymous_identity.sql");
-  const sim=read("supabase/migrations/20261024170000_mecasim_private_trajectories.sql");
-  const cms=read("supabase/migrations/20261024190000_mecatiger_site_cms.sql");
+  const community=read("supabase/migrations/20261025032012_rede_mecatiger_mvp.sql");
+  const anon=read("supabase/migrations/20261025032022_require_nonanonymous_identity.sql");
+  const sim=read("supabase/migrations/20261025032028_mecasim_private_trajectories.sql");
+  const cms=read("supabase/migrations/20261025032035_mecatiger_site_cms.sql");
   check("schema-rls",
     ["rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests","rede_reports"]
       .every(t=>community.includes("alter table public."+t+" enable row level security")) &&
