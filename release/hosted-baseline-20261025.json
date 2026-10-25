@@ -91,7 +91,7 @@
     {
       "name": "rede_moderators",
       "rls_enabled": true,
-      "rows": 0,
+      "rows": 1,
       "policy_count": 2
     },
     {
@@ -133,7 +133,7 @@
     {
       "name": "meca_site_editors",
       "rls_enabled": true,
-      "rows": 0,
+      "rows": 1,
       "policy_count": 1
     },
     {
