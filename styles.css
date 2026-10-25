@@ -368,6 +368,7 @@ html { scroll-padding-top:84px; }
   .section-title { font-size:clamp(44px,11vw,68px); line-height:.9; }
   .section-copy { margin-top:20px; font-size:17px; }
   .project-card { min-height:0; padding:22px; }
+  .project-meta { min-width:0; flex-wrap:wrap; gap:8px 12px; }
   .project-card h3 { margin-top:34px; font-size:clamp(44px,12vw,58px); }
   .community-grid article { min-height:0; padding:24px; }
   .community-grid h3 { margin-top:28px; }
