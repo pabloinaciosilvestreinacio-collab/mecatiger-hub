@@ -791,6 +791,7 @@ async function refreshTeamPhotoOptions() {
     return;
   }
   adminUser=data.user;
+  status("admin-session-status",`Conta autenticada: ${adminUser.email}. E-mail confirmado. Esta sessão está ativa neste navegador; use “Sair do painel” para encerrá-la.`);
   editorUser=editorResult.data||isSiteAdmin?data.user:null;
   isModerator=Boolean(moderatorResult.data||isSiteAdmin);
   for(const element of document.querySelectorAll("[data-admin-role]")) {
