@@ -1,76 +1,44 @@
-# Painel administrativo Meca Tiger — MVP seguro de edição sem código
+# Painel administrativo Meca Tiger
 
-**Status:** implementado na branch de desenvolvimento, sem publicação ou instalação no Supabase hospedado. A sequência segura para futura ativação está no roteiro `LANCAMENTO_MECATIGER_20261025.md`. Não é uma senha pronta nem uma conta administrativa real. A homologação usa apenas usuários descartáveis no Supabase CLI local.
+## Acesso atual
 
-## Como a equipe usará o painel
+Abra **Sou administrador** no menu da Home ou acesse diretamente:
 
-1. Acessar `admin.html` pelo link **Painel da equipe** no rodapé.
-2. Escolher **Entrar pelo e-mail**, solicitar Magic Link e confirmar o e-mail pessoal de cada integrante.
-3. O painel verifica no servidor se o usuário está presente em `meca_site_editors`. Quem não estiver recebe acesso negado.
-4. Após aprovação de acesso por operador autorizado, o integrante pode atualizar quatro textos da Home/Rede, criar páginas, definir o nome da aba, resumo, ordem e publicar ou retirar do ar sem editar HTML.
-5. O formulário de imagens recebe PNG/JPEG/WebP, converte para WebP, reduz o tamanho e publica uma foto com legenda na galeria. Uma foto da galeria pode ser escolhida como capa de página. O arquivo final não excede **2 MiB**.
-6. Páginas usam URL curta (`pagina.html?slug=...`), texto simples e descrição alternativa da foto. As páginas publicadas aparecem na página **Conteúdo**; cada página marcada também ganha uma aba interna de navegação.
+https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/admin.html
 
-**Nenhuma senha fixa é criada ou enviada pelo chat.** O login é individual por Magic Link (senha descartável de uso único); um usuário só vira editor depois que o acesso é concedido explicitamente no banco. Nunca disponibilizar `service_role`, chaves secretas ou tokens no código estático nem compartilhá-los com participantes. Não implementar senha hardcoded ou permitir criar editor por formulário público.
+A rota não é secreta. O servidor Supabase confere a sessão e o papel antes de mostrar qualquer função administrativa; digitar um e-mail ou abrir o endereço não concede acesso.
 
-## O que pode ser editado sem programação
+A administração está protegida por funções do banco. A migração de produção concedeu o papel de administrador à única conta confirmada que já possuía, simultaneamente, os papéis de editor e moderador. Nenhuma senha compartilhada ou conta fictícia foi criada.
 
-- Home — apresentação (texto).
-- Home — introdução dos projetos (texto).
-- Home — apresentação da comunidade (texto).
-- Rede — texto de abertura (texto).
-- Home — galeria: adicionar imagens aprovadas e legenda.
+## Bloqueio atual do login
 
-**Limites:** o painel não edita HTML/CSS/JavaScript, não move as seções fixas da Home e não apaga imagens ou páginas. Para corrigir uma página publicada, edite seu conteúdo; para retirá-la do ar, desmarque Publicar. Não confundir editor de conteúdo com permissões de moderação da comunidade.
+O frontend usa Magic Link por e-mail e não exibe login GitHub. A solicitação de link já foi observada falhar por limite do SMTP padrão do Supabase (`429 over_email_send_rate_limit`); links também foram redirecionados para localhost quando o domínio publicado não estava permitido.
 
-Quando a tabela CMS não está presente ou ainda não tem conteúdo, as páginas mantêm os textos HTML originais. A galeria só aparece com fotos reais. O CMS é aplicado por `textContent`, evitando injeção de HTML.
+Para liberar entrada pública, em Supabase Dashboard → **Authentication → URL Configuration**:
 
-## Como ativar os primeiros editores DEPOIS da homologação e autorização
+1. Defina **Site URL** como `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/`.
+2. Adicione a allow-list de redirects para `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/**`.
+3. Em **Authentication → SMTP Settings**, configure SMTP externo com remetente/domínio que a equipe controla. Não compartilhe senha SMTP no chat nem no repositório.
 
-**Isto é somente instrução; NÃO executar agora em projeto hospedado.**
+Depois, solicite um Magic Link em `entrar.html`, abra no mesmo navegador e confirme que retorna para o Hub. O Supabase padrão tem limites de entrega e não é suficiente para cadastro público confiável.
 
-- Preparar migrations e Auth em ambiente de homologação; revisar políticas RLS e o bucket.
-- Configurar redirecionamentos permitidos para `.../entrar.html?next=admin.html`, SMTP e domínio definitivo.
-- Cada integrante faz login por um e-mail que controla, com confirmação real.
-- Operador autorizado verifica identidade e e-mail confirmado usando ferramenta administrativa protegida; concede o papel somente ao UUID verificado. Exemplo ilustrativo, **não executar sem autorização**:
+## O que editores e moderadores podem fazer
 
-```sql
-insert into public.meca_site_editors(user_id)
-select id from auth.users
-where email = '<email-verificado-da-equipe>'
-  and email_confirmed_at is not null;
-```
+- **Solicitações:** revisar pedidos privados de ajuda e conexão, filtrar por status, abrir detalhes, responder/encaminhar internamente e acompanhar histórico.
+- **Moderação:** revisar publicações e denúncias e aprovar ou rejeitar conteúdo.
+- **Textos:** editar os campos institucionais disponíveis no CMS.
+- **Páginas e abas:** criar/editar texto, slug, resumo, ordem e publicação.
+- **Fotos:** enviar PNG/JPEG/WebP; o navegador reprocessa a imagem como WebP, remove metadados e limita o arquivo final a 2 MiB. Fotos publicadas ficam no bucket público do site.
+- **Integrantes:** criar/editar nome, função, descrição, alternativa textual, posição e publicação do perfil na Home.
+- **Segurança:** administrador pode conceder/remover papel para um e-mail de conta já criada e confirmada. Administrador também recebe editor e moderador.
 
-- Conferir em outra sessão que integrantes não autorizados não conseguem selecionar/adicionar registros nem enviar imagens. Remover permissões apenas com procedimento aprovado.
-- Preferir uma conta individual por integrante; não usar conta/senha compartilhada.
+A aprovação do pedido só aparece ao visitante após gravação real. A aplicação não envia solicitações por aplicativo de e-mail.
 
-## Segurança implementada
+## Segurança e limites
 
-- `meca_site_editors`: tabela separada de `rede_moderators`, com SELECT do próprio cadastro para o usuário e **sem INSERT/UPDATE/DELETE** em clientes públicos.
-- `meca_site_copy`: quatro slots permitidos, texto de 8 a 700 caracteres, RLS para alterar apenas por editores autenticados não anônimos; qualquer visitante lê o conteúdo editado.
-- `meca_site_gallery`: publicação de foto associada ao usuário editor, RLS para INSERT e leitura pública; navegador sem permissão não grava.
-- `meca_site_pages`: páginas em texto simples, rascunhos visíveis apenas a editores, leitura pública somente após publicação e gravação restrita a editores não anônimos.
-- `meca-site-gallery`: bucket público somente para imagens destinadas ao site, upload WebP até 2 MiB com RLS no `storage.objects`, caminho limitado a pasta UUID do editor e nome UUID aleatório.
-- No navegador, cada imagem é reprocessada num canvas e convertida para WebP, descartando metadados embutidos. SVG e arquivos executáveis não são aceitos.
-- Clientes públicos nunca recebem chave administrativa; o dashboard e a UI não substituem as políticas RLS.
-
-## Riscos e pendências
-
-- As imagens no bucket são **públicas**: nunca enviar fotos privadas/de menores sem consentimento adequado. Não há fluxo de apagar fotos neste MVP; a remediação exige operador autorizado.
-- A conta administradora pode publicar conteúdo imediatamente. Definir responsáveis, revisão de imagens e procedimento de retirada antes de abrir para vários integrantes.
-- Não há editor livre de páginas; conteúdos hardcoded fora dos quatro campos continuam sendo modificados via GitHub.
-- Storage e serviços de e-mail podem consumir cotas da conta Supabase. A hospedagem local de testes é descartável; antes de habilitar em produção verificar limite gratuito e permissões, sem contratar serviço pago.
-- Se o upload for concluído e o registro da galeria falhar, um arquivo sem referência pode permanecer no bucket; documentar processo de limpeza operacional, sem exclusão automática.
-- GitHub Pages é público: o JavaScript do editor pode ser baixado por qualquer pessoa; **segurança depende inteiramente de Auth/RLS e Storage**, não de ocultar a URL.
-- O primeiro administrador real precisa de autorização humana e de um e-mail verificado; **nenhuma credencial real foi provisionada**.
-- O checkout na `main` continua sem estes recursos até merge explícito e deploy subsequente autorizado.
-- Legislação e política sobre dados de menores e retenção seguem revisão independente.
-
-## Homologação e custos
-
-- GitHub Actions executa testes de contratos (Node), RLS (PostgreSQL), integração Supabase CLI + Storage em Docker e testes Playwright de navegador; usar somente `ubuntu-latest`.
-- Comandos obrigatórios: `npm run test:unit`, `python3 -m unittest discover -s tests -p 'test_rede_contract.py' -v`, `npm run test:local-supabase`, `node tests/local-cms-e2e.mjs`, `npm run test:ui`.
-- Homologação deve testar duas contas reais **somente na stack local**; apenas um usuário recebe permissão de editor; tentativas de outro usuário de editar e elevar privilégios devem falhar.
-- Não executar `supabase login`, `supabase link`, `supabase db push`, `supabase functions deploy`, nem modificar produção, criar usuários reais, fazer merge ou provisionar cobrança.
-
-**Critério de conclusão de engenharia:** 4 famílias de checks verdes no commit final e evidências documentadas. **Critério de publicação pública:** SMTP e Auth real, migrações autorizadas, privilégio do primeiro editor verificado, LGPD/moderação revistos e teste de fumaça hospedado. São etapas diferentes.
+- RLS protege as tabelas; usuários comuns não podem consultar pedidos de terceiros, rascunhos de integrantes ou lista de acessos.
+- O papel não é concedido com base no e-mail digitado pelo visitante. A RPC procura uma conta Auth existente e confirmada e exige que o solicitante já seja administrador.
+- A última conta administradora não pode se remover.
+- O bucket é público para leitura porque contém imagens do site. Publique somente fotos autorizadas, com consentimento apropriado, especialmente para menores.
+- O painel não apaga arquivos de imagem nem edita HTML/CSS/JavaScript ou seções fixas. Mudanças estruturais continuam no repositório.
+- O teste de Storage/RLS foi executado em CI; ainda falta um upload visual autenticado com uma imagem aprovada pela equipe no domínio publicado.
