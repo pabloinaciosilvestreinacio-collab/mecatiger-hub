@@ -33,7 +33,7 @@ A chave publishable do Supabase no navegador é pública por natureza; RLS e Aut
 
 ## Projetos e Meca Sim
 
-`mecasim-demo.html` é uma demonstração interativa: permite marcar e reproduzir trajetórias no campo. Ela não simula física, colisões, sensores, pontuação nem teleoperação e não executa código Java. Salvar e carregar trajetórias privadas usa uma Edge Function autenticada e requer e-mail confirmado.
+`mecasim-demo.html` é uma demonstração interativa limitada, liberada após login com e-mail confirmado. Permite marcar e reproduzir trajetórias no campo; não simula física, colisões, sensores, pontuação nem teleoperação e não executa código Java. A biblioteca privada usa uma Edge Function autenticada.
 
 O simulador completo pertence ao repositório [meca-sim](https://github.com/pabloinaciosilvestreinacio-collab/meca-sim), que não é modificado por este projeto.
 
