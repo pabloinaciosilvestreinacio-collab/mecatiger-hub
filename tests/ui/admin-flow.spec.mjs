@@ -18,7 +18,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.waitForURL(/\/admin\.html$/,{timeout:20000});
   await expect(page.locator("#admin-locked")).toBeVisible();
   await expect(page.locator("#admin-content")).toBeHidden();
-  await expect(page.locator("#admin-status")).toContainText("não possui autorização");
+  await expect(page.locator("#admin-status")).toContainText("não tem papel de editor ou moderador");
 
   const userId=await page.evaluate(async()=>{
     const {supabase}=await import("/js/rede-client.js");
