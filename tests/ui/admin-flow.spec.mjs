@@ -40,6 +40,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
 
   await page.reload();
   await expect(page.locator("#admin-content")).toBeVisible();
+  await page.locator("#admin-tab-copy").click();
   const editorText="Texto de integração publicado no site apenas pelo editor autorizado em teste local.";
   await page.locator("#cms-slot").selectOption("home-intro");
   await page.locator("#cms-body").fill(editorText);
