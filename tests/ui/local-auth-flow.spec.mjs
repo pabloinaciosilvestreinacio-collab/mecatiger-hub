@@ -26,7 +26,7 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
 
   await page.goto("/entrar.html?next=rede.html");
   await page.locator("#auth-email").fill(email);
-  await page.getByRole("button", { name: "Solicitar link de acesso" }).click();
+  await page.getByRole("button", { name: "Enviar link de acesso" }).click();
   await expect(page.locator("#auth-status")).toContainText("Confira seu e-mail");
 
   const confirmationLink = await waitForConfirmationLink(email);
