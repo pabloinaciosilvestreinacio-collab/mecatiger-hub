@@ -11,7 +11,7 @@ Atualizado em 25/10/2026. Site: https://pabloinaciosilvestreinacio-collab.github
 | Comunidade/feed | Leitura pública ativa; pedidos, publicações e denúncias usam backend privado |
 | Administração | Migração/RLS aplicadas; conta administradora existente reconhecida pelo banco |
 | CMS de textos, páginas, fotos e perfis | Interface e políticas implementadas; upload visual real ainda não foi homologado |
-| Meca Sim demonstrativo | Público e funcional como demonstração limitada |
+| Meca Sim demonstrativo | Disponível após login confirmado, como demonstração limitada |
 | Biblioteca privada de trajetórias | Edge Function ativa com JWT obrigatório; gravação ligada à conta confirmada |
 | Login e cadastro por e-mail | Ainda bloqueados para lançamento público pelo SMTP padrão/redirects do Supabase |
 
