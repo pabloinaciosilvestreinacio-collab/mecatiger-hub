@@ -49,9 +49,9 @@ sessionStorage.setItem(savedNextKey, next);
   if (tokenHash) {
     // Token hashes must never be kept in browser history after use.
     history.replaceState({}, "", location.pathname);
-    if (type !== "email") { tell("Link inválido. Solicite outro e-mail.", true); return; }
+    if (!["email", "magiclink"].includes(type)) { tell("Link inválido. Solicite outro e-mail.", true); return; }
     tell("Verificando link de entrada...");
-    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "email" });
+    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
     await finishLogin();
     return;
