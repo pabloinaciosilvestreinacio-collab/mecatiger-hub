@@ -34,7 +34,7 @@ function syncIdentityControls() {
   $("post-form").hidden = !usable || !profileReady;
   $("display-name").disabled = !usable;
   $("profile-form").querySelector('button[type="submit"]').disabled = !usable;
-  for (const button of document.querySelectorAll("[data-request-kind]")) button.disabled = !usable;
+  for (const button of document.querySelectorAll("[data-request-kind]")) button.disabled = false;
 }
 
 const date = value => new Date(value).toLocaleDateString("pt-BR", {day:"2-digit", month:"short", year:"numeric"});
@@ -340,8 +340,26 @@ $("post-form").addEventListener("submit",async event=>{
   else {form.reset();message("post-status","Publicação recebida! Aguarde a moderação.");await loadOwn();}
 });
 for (const button of document.querySelectorAll("[data-request-kind]")) button.addEventListener("click",()=>{
-  if (!currentUser||!profileReady) {location.href="entrar.html?next=rede.html";return;}
-  requestKind=button.dataset.requestKind;
+  const kind=button.dataset.requestKind;
+  const statusNode=$(kind==="ajuda"?"help-status":"connection-status");
+  if (identityLoading) {
+    statusNode.textContent="Aguarde enquanto verificamos sua sessão.";
+    return;
+  }
+  if (!currentUser || !identityResolved) {
+    statusNode.replaceChildren(document.createTextNode(
+      "O pedido é tratado aqui no site, mas o login ainda aguarda a configuração de SMTP. Nada foi enviado. "
+    ),loginLink());
+    return;
+  }
+  if (!profileReady) {
+    statusNode.textContent="Salve um apelido no seu perfil antes de enviar esta solicitação.";
+    $("perfil").hidden=false;
+    $("perfil").scrollIntoView({behavior:"smooth",block:"center"});
+    $("display-name").focus();
+    return;
+  }
+  requestKind=kind;
   $("pedido").hidden=false;
   $("request-heading").textContent=requestKind==="ajuda"?"Pedir ajuda":"Solicitar conexão STEM";
   $("pedido").scrollIntoView({behavior:"smooth",block:"center"});
