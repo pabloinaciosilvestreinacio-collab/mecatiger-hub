@@ -62,7 +62,7 @@ class RedeContracts(unittest.TestCase):
         gate=(ROOT/"js/sim-gate.js").read_text(encoding="utf-8")
         self.assertIn("getUser()",gate)
         self.assertIn("publicly retrievable",gate)
-        self.assertIn('src="js/sim-gate.js"',(ROOT/"mecasim-demo.html").read_text(encoding="utf-8"))
+        self.assertRegex((ROOT/"mecasim-demo.html").read_text(encoding="utf-8"),r'src="js/sim-gate\.js(?:\?v=[^"]*)?"')
 
 
     def test_social_actions_do_not_fake_success(self):
