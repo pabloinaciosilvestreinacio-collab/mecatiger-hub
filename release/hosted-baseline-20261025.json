@@ -1,6 +1,6 @@
 {
   "snapshot_type": "post_migration_catalog_inventory",
-  "captured_at": "2026-10-25T03:25:00Z",
+  "captured_at": "2026-10-25T15:41:10Z",
   "project_id": "rnnzumzqilkuecvgsjnv",
   "project_status": "ACTIVE_HEALTHY",
   "plan": "FREE",
@@ -41,6 +41,14 @@
     {
       "version": "20261025140659",
       "name": "rede_request_messages"
+    },
+    {
+      "version": "20261025153851",
+      "name": "admin_access_and_team_members"
+    },
+    {
+      "version": "20261025153927",
+      "name": "fix_admin_access_email_return_type"
     }
   ],
   "hosted_public_tables": [
@@ -149,6 +157,18 @@
     {
       "name": "rede_request_messages",
       "rls_enabled": true
+    },
+    {
+      "name": "meca_site_admins",
+      "rls_enabled": true,
+      "rows": 1,
+      "policy_count": 1
+    },
+    {
+      "name": "meca_site_team_members",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 5
     }
   ],
   "legacy_rpc": {
@@ -177,7 +197,7 @@
     ]
   },
   "auth": {
-    "user_count": 0,
+    "user_count": 1,
     "anonymous_sign_ins_enabled": false
   },
   "storage": {
@@ -195,7 +215,13 @@
       "objects": 0
     }
   },
-  "edge_functions": [],
+  "edge_functions": [
+    {
+      "name": "mecasim-trajectories",
+      "status": "ACTIVE",
+      "verify_jwt": true
+    }
+  ],
   "development_branches": [],
   "new_product_objects_present": true,
   "security_advisories": [
@@ -206,17 +232,28 @@
     {
       "level": "WARN",
       "finding": "SECURITY DEFINER register_community_member callable by anon/authenticated; review abuse controls without breaking legacy registration."
+    },
+    {
+      "level": "WARN",
+      "finding": "Admin SECURITY DEFINER RPCs are callable only by authenticated users and enforce is_admin inside; empty search_path and explicit grants reviewed."
+    },
+    {
+      "level": "WARN",
+      "finding": "Supabase Auth leaked password protection remains disabled in hosted Auth settings."
     }
   ],
   "performance_advisories": [],
-  "note": "Inventário pós-implantação, somente metadados e contagens. Migrações novas são aditivas; nenhuma inscrição ou métrica existente foi alterada. Não é backup, e a restauração de backup não foi testada. Updated on 2026-10-25 after applying rede_request_messages; now used as the reviewed pre-admin migration baseline.",
+  "note": "Inventário pós-implantação, somente metadados e contagens. Migrações aditivas; cadastro e métricas antigos preservados. Não é backup, e restauração de backup não foi testada. Atualizado em 25/10/2026 após migrações de administração/equipe e correção da RPC, deploy seguro da Edge Function (verify_jwt=true) e verificação de permissões.",
   "migration_application": {
-    "applied_at_utc": "2026-10-25T03:20:12Z",
+    "applied_at_utc": "2026-10-25T15:39:27Z",
     "tracked_versions": [
       "20261025032012",
       "20261025032022",
       "20261025032028",
-      "20261025032035"
+      "20261025032035",
+      "20261025140659",
+      "20261025153851",
+      "20261025153927"
     ],
     "existing_legacy_tables_and_metrics_preserved": true,
     "pre_write_backup_restore_verified": false
