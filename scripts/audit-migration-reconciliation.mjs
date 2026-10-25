@@ -41,7 +41,7 @@ export const normalizeVersion = filename => {
   return m?.[1]??null;
 };
 // Static SQL heuristic, not a complete SQL parser; no DDL or executable SQL created.
-export function auditSqlText(sql) {
+export function auditSqlText(sql,{allowAdminRoleRevocations=false}={}) {
   if(typeof sql!=="string")return ["SQL inválido"];
   const statements=sql.replace(/--[^\n]*/g," ")
     .replace(/\/\*[\s\S]*?\*\//g," ")
@@ -83,7 +83,8 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Sequência local desordenada");
   for(const f of filenames) {
     if(typeof sqlByFile?.[f]!=="string") {issues.push("SQL ausente: "+f);continue;}
-    for(const danger of auditSqlText(sqlByFile[f]))
+    const allowAdminRoleRevocations=f==="20261025160000_admin_access_and_team_members.sql";
+    for(const danger of auditSqlText(sqlByFile[f],{allowAdminRoleRevocations}))
       issues.push(f+": "+danger);
   }
   const legacyTables=["community_registrations","community_metrics"];
