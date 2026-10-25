@@ -7,7 +7,7 @@
 - Feed aprovado: leitura pública. Escrita, solicitações e denúncias usam Supabase e exigem e-mail confirmado.
 - As migrações de Rede, mensagens de solicitação, CMS, administração e perfis de integrantes foram aplicadas, sem substituir o histórico antigo. A última fotografia hospedada está em `release/hosted-baseline-20261025.json`.
 - A primeira conta administradora foi criada a partir da única conta confirmada que já tinha papéis de editor e moderador.
-- A Edge Function `mecasim-trajectories` está ativa com JWT obrigatório. RLS limita trajetórias ao proprietário.
+- A demonstração do Meca Sim e a biblioteca de trajetórias exigem conta com e-mail confirmado. A Edge Function `mecasim-trajectories` está ativa com JWT obrigatório; RLS limita trajetórias ao proprietário.
 - O bucket `meca-site-gallery` está configurado para WebP até 2 MiB. As políticas de upload passaram por teste PostgreSQL; falta concluir um upload real autenticado com imagem aprovada.
 - O login público por e-mail segue bloqueado para homologação: logs registraram `429 over_email_send_rate_limit` no SMTP padrão e houve redirect para localhost quando a URL publicada não estava autorizada.
 
