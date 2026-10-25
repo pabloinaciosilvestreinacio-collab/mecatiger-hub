@@ -64,11 +64,24 @@ test("Home keeps optional registration closed until the visitor asks", async ({ 
 
   for (const width of [320, 360, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 844 });
-    const dimensions = await page.evaluate(() => ({
-      viewport: document.documentElement.clientWidth,
-      content: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.content, `horizontal overflow at ${width}px`)
+    const dimensions = await page.evaluate(() => {
+      const viewport = document.documentElement.clientWidth;
+      const offenders = [...document.body.querySelectorAll("*")]
+        .map(element => {
+          const rect = element.getBoundingClientRect();
+          return {
+            tag: element.tagName.toLowerCase(),
+            id: element.id,
+            className: typeof element.className === "string" ? element.className : "",
+            right: Math.round(rect.right),
+            width: Math.round(rect.width)
+          };
+        })
+        .filter(item => item.right > viewport + 1 && item.width > 0)
+        .slice(0, 10);
+      return { viewport, content: document.documentElement.scrollWidth, offenders };
+    });
+    expect(dimensions.content, `horizontal overflow at ${width}px: ${JSON.stringify(dimensions.offenders)}`)
       .toBeLessThanOrEqual(dimensions.viewport + 1);
   }
 });
