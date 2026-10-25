@@ -16,13 +16,29 @@
 <main class="rede-page"><section class="container rede-narrow" aria-labelledby="entry-heading">
 <span class="eyebrow">Participação na comunidade STEM</span>
 <h1 class="display" id="entry-heading">ACESSAR A <span class="accent">REDE.</span></h1>
-<p>Entre com seu e-mail para receber um link pessoal. A conta permite participar da Rede; o acesso administrativo só é liberado para contas autorizadas pela equipe.</p>
+<p>Entre com e-mail e senha, crie uma conta ou solicite um link de acesso. O painel administrativo só funciona para contas autorizadas pela equipe.</p>
 <div class="rede-box">
-<p class="rede-muted">O link de acesso é enviado ao e-mail confirmado. Há limites de envio; se aparecer aviso de limite, aguarde antes de solicitar outro.</p>
+<p class="rede-muted">Se entrar por link, você poderá definir uma senha segura depois que o e-mail for confirmado. O envio de e-mails ainda depende dos limites e do SMTP configurado no Supabase.</p>
 <form id="send-code" class="rede-form">
 <label for="auth-email">Endereço de e-mail</label>
 <input id="auth-email" name="email" type="email" autocomplete="email" maxlength="320" required placeholder="seu-email@exemplo.com">
-<button class="button" type="submit">Solicitar link de acesso</button>
+<label for="auth-password">Senha (para entrar ou criar acesso)</label>
+<input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="12" placeholder="Use ao menos 12 caracteres">
+<div class="auth-actions">
+<button class="button" type="button" id="password-login">Entrar com senha</button>
+<button class="button outline" type="button" id="password-signup">Criar conta com senha</button>
+<button class="button outline" type="submit" id="send-link">Enviar link de acesso</button>
+</div>
+</form>
+<form id="password-setup" class="rede-form" hidden>
+<label for="new-password">Criar uma senha para próximos acessos</label>
+<input id="new-password" type="password" autocomplete="new-password" minlength="12" required placeholder="Use ao menos 12 caracteres">
+<label for="confirm-password">Confirmar senha</label>
+<input id="confirm-password" type="password" autocomplete="new-password" minlength="12" required placeholder="Digite a senha novamente">
+<div class="auth-actions">
+<button class="button" type="submit">Salvar senha e continuar</button>
+<button class="button outline" type="button" id="skip-password-setup">Continuar sem criar senha</button>
+</div>
 </form>
 <p id="auth-status" role="status" aria-live="polite" class="rede-status">Verificando sessão...</p>
 </div>
