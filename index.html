@@ -274,7 +274,16 @@
         }
       });
       loadCommunityMetrics();
-      if (previewRegistrationMode) setTimeout(() => openPanel(panels.registration), 900);
+      // Show the optional metrics form once to first-time visitors; dismissal is remembered for this tab.
+      let registrationWasSeen = false;
+      try { registrationWasSeen = sessionStorage.getItem('mecatiger-registration-seen') === '1'; } catch (_) {}
+      const registrationWasCompleted = localStorage.getItem('mecatiger-registration-complete') === '1';
+      if (previewRegistrationMode || (!registrationWasSeen && !registrationWasCompleted)) {
+        setTimeout(() => {
+          openPanel(panels.registration);
+          document.getElementById('cadastro-email')?.focus({ preventScroll: true });
+        }, 900);
+      }
     </script>
     <script>
       const mobileNavToggle = document.querySelector('.menu-toggle');
