@@ -131,25 +131,11 @@
             <div><span class="eyebrow">A equipe · temporada</span><h2 class="display">QUEM FAZ A <span class="accent">MECATIGER.</span></h2></div>
             <button class="panel-close" type="button" data-close-panel>Fechar ×</button>
           </div>
-          <p class="panel-intro">Este painel será atualizado com as fotos, nomes e descrições da equipe assim que o material estiver disponível. A estrutura já está pronta para as próximas temporadas.</p>
-          <div class="season-tabs" role="tablist" aria-label="Temporadas da equipe">
-            <button class="season-tab is-active" type="button" role="tab" aria-selected="true" data-season="2026-2027">2026–2027</button>
-            <button class="season-tab" type="button" role="tab" aria-selected="false" data-season="2025-2026">2025–2026 <span>arquivo</span></button>
-          </div>
-          <div class="team-status"><span class="code-label">STATUS: EM ANDAMENTO</span><p>Fotos e perfis dos membros em preparação.</p></div>
+          <p class="panel-intro">Integrantes, técnicos e mentores aparecem aqui depois que a equipe publicar cada perfil no painel.</p>
+          <div class="team-count"><strong id="team-members-count">Carregando perfis publicados…</strong></div>
+          <p id="team-profile-status" class="team-profile-status" role="status" aria-live="polite">Carregando perfis publicados…</p>
           <div class="team-season" data-season-panel="2026-2027">
-            <div class="team-roster">
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>01</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>02</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>03</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>04</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>05</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>06</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>07</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-placeholder"><div class="member-photo"><span>08</span></div><div><span class="member-role">Integrante da equipe</span><h3 class="display">FOTO EM<br /><span class="accent">PREPARAÇÃO.</span></h3><p>Espaço reservado para a foto e a descrição do integrante.</p></div></article>
-              <article class="member-card member-card-support"><div class="member-photo support-photo"><span>TEC</span></div><div><span class="member-role">Técnico</span><h3 class="display">APOIO<br /><span class="accent">TÉCNICO.</span></h3><p>Espaço reservado para a foto e uma breve apresentação do técnico.</p></div></article>
-              <article class="member-card member-card-support"><div class="member-photo support-photo"><span>MEN</span></div><div><span class="member-role">Mentor</span><h3 class="display">APOIO<br /><span class="accent">DA EQUIPE.</span></h3><p>Espaço reservado para a foto e uma breve apresentação do mentor.</p></div></article>
-            </div>
+            <div class="team-roster" id="team-roster" aria-label="Integrantes publicados da equipe"></div>
           </div>
           <div class="team-season" data-season-panel="2025-2026" hidden>
             <div class="team-empty-state"><span class="eyebrow">Temporada 2025–2026</span><h3 class="display">ARQUIVO<br /><span class="accent">EM PREPARAÇÃO.</span></h3><p>As fotos e informações da primeira temporada serão adicionadas quando o material for organizado.</p></div>
@@ -300,6 +286,6 @@
         }
       });
     </script>
-    <script type="module" src="js/cms-public.js?v=20261025d"></script>
+    <script type="module" src="js/cms-public.js?v=20261025f"></script>
   </body>
 </html>
