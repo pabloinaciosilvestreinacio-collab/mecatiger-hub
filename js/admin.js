@@ -74,6 +74,151 @@ for(const tab of adminTabs) {
     selectAdminTab(next.dataset.adminTab,true);
   });
 }
+
+const REQUEST_STATUS_LABELS={pending:"Pendente",em_analise:"Em análise",concluido:"Concluído",rejeitado:"Rejeitado"};
+const REQUEST_KIND_LABELS={ajuda:"Pedido de ajuda",conexao:"Conexão STEM"};
+const REQUEST_CATEGORY_LABELS={programacao:"Programação",mecanica:"Mecânica e CAD",eletronica:"Eletrônica",ftc:"FTC e competições",projetos:"Projetos STEM",ajuda:"Dúvidas e ajuda",conhecimento:"Conhecimento compartilhado"};
+const requestList=byId("admin-requests-list");
+let requestsLoaded=false;
+function localDate(value) {
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?"Data indisponível":date.toLocaleString("pt-BR");
+}
+function requestField(label,value) {
+  const p=document.createElement("p");
+  const strong=document.createElement("strong");strong.textContent=label+": ";
+  p.append(strong,document.createTextNode(value||"—"));
+  return p;
+}
+function renderRequestCards(rows,names) {
+  requestList.replaceChildren();
+  if(!rows.length) {
+    const empty=document.createElement("p");empty.textContent="Nenhuma solicitação corresponde aos filtros.";
+    requestList.append(empty);return;
+  }
+  for(const request of rows) {
+    const card=document.createElement("article");card.className="admin-request-card";
+    const heading=document.createElement("h3");heading.textContent=request.title;
+    const meta=document.createElement("div");meta.className="admin-request-meta";
+    for(const text of [REQUEST_KIND_LABELS[request.kind]||"Solicitação",REQUEST_STATUS_LABELS[request.status]||request.status,
+      names.get(request.author_id)||"Participante sem apelido",localDate(request.created_at)]) {
+      const item=document.createElement("span");item.textContent=text;meta.append(item);
+    }
+    const detail=document.createElement("p");detail.className="admin-request-detail";
+    detail.textContent=request.details;
+    const category=document.createElement("p");category.className="rede-muted";
+    category.textContent="Categoria: "+(REQUEST_CATEGORY_LABELS[request.category]||request.category);
+    const actions=document.createElement("div");actions.className="admin-request-actions";
+    const statusLabel=document.createElement("label");statusLabel.textContent="Atualizar status";
+    const statusSelect=document.createElement("select");
+    for(const [value,label] of Object.entries(REQUEST_STATUS_LABELS)) {
+      const option=document.createElement("option");option.value=value;option.textContent=label;statusSelect.append(option);
+    }
+    statusSelect.value=request.status;statusLabel.append(statusSelect);
+    const save=document.createElement("button");save.type="button";save.className="button";save.textContent="Salvar status";save.disabled=true;
+    statusSelect.addEventListener("change",()=>{save.disabled=statusSelect.value===request.status;});
+    save.addEventListener("click",()=>updateRequestStatus(request, statusSelect.value, save));
+    const details=document.createElement("button");details.type="button";details.className="button outline";details.textContent="Abrir detalhes e histórico";
+    details.addEventListener("click",()=>openRequestDetails(request,names.get(request.author_id)||"Participante sem apelido"));
+    actions.append(statusLabel,save,details);
+    card.append(heading,meta,category,detail,actions);requestList.append(card);
+  }
+}
+async function loadRequests() {
+  if(!editorUser) return;
+  const message=byId("admin-requests-status");
+  message.textContent="Verificando autorização e carregando solicitações...";message.dataset.error="false";
+  requestList.replaceChildren();
+  try {
+    const {data:moderator,error:roleError}=await supabase.from("rede_moderators")
+      .select("user_id").eq("user_id",editorUser.id).maybeSingle();
+    if(roleError) throw roleError;
+    if(!moderator) {
+      requestsLoaded=false;
+      message.textContent="Acesso negado: esta conta editora não tem papel de moderador.";message.dataset.error="true";
+      return;
+    }
+    const {data,error}=await supabase.from("rede_requests")
+      .select("id,author_id,kind,category,title,details,status,created_at")
+      .order("created_at",{ascending:false}).limit(200);
+    if(error) throw error;
+    const rows=data||[];
+    const ids=[...new Set(rows.map(row=>row.author_id))];
+    let names=new Map();
+    if(ids.length) {
+      const {data:profiles,error:profileError}=await supabase.from("rede_profiles")
+        .select("id,display_name").in("id",ids);
+      if(profileError) throw profileError;
+      names=new Map((profiles||[]).map(profile=>[profile.id,profile.display_name]));
+    }
+    const statusFilter=byId("admin-request-status-filter").value;
+    const kindFilter=byId("admin-request-kind-filter").value;
+    const filtered=rows.filter(row=>(statusFilter==="all"||row.status===statusFilter)
+      &&(kindFilter==="all"||row.kind===kindFilter));
+    renderRequestCards(filtered,names);
+    requestsLoaded=true;
+    message.textContent=`${filtered.length} solicitação(ões) exibida(s), de ${rows.length} carregada(s).`;
+    message.dataset.error="false";
+  } catch {
+    requestsLoaded=false;
+    message.textContent="Não foi possível carregar as solicitações. Confirme a sessão, o papel de moderador e as políticas RLS.";
+    message.dataset.error="true";
+  }
+}
+async function updateRequestStatus(request,nextStatus,button) {
+  if(!editorUser||!Object.hasOwn(REQUEST_STATUS_LABELS,nextStatus)) return;
+  button.disabled=true;
+  const message=byId("admin-requests-status");message.textContent="Salvando status...";message.dataset.error="false";
+  try {
+    const {data,error}=await supabase.from("rede_requests").update({status:nextStatus})
+      .eq("id",request.id).select("id,status").maybeSingle();
+    if(error) throw error;
+    if(!data) throw new Error("No request was updated; check moderator policy.");
+    message.textContent="Status atualizado no Supabase. Atualizando histórico...";
+    await loadRequests();
+  } catch {
+    message.textContent="Falha ao gravar o status. Nenhuma confirmação foi registrada; confira a autorização e tente novamente.";
+    message.dataset.error="true";
+  } finally {button.disabled=false;}
+}
+async function openRequestDetails(request,displayName) {
+  const dialog=byId("admin-request-dialog");
+  const body=byId("admin-request-dialog-body");
+  const history=byId("admin-request-history");
+  body.replaceChildren(
+    requestField("Tipo",REQUEST_KIND_LABELS[request.kind]||request.kind),
+    requestField("Status",REQUEST_STATUS_LABELS[request.status]||request.status),
+    requestField("Assunto",request.title),
+    requestField("Categoria",REQUEST_CATEGORY_LABELS[request.category]||request.category),
+    requestField("Remetente",displayName),
+    requestField("Recebida em",localDate(request.created_at)),
+    requestField("Conteúdo",request.details)
+  );
+  history.replaceChildren();
+  const loading=document.createElement("p");loading.textContent="Carregando histórico...";history.append(loading);
+  if(!dialog.open) dialog.showModal();
+  const {data,error}=await supabase.from("rede_moderation_log")
+    .select("previous_status,new_status,logged_at").eq("entity","request").eq("entity_id",request.id)
+    .order("logged_at",{ascending:false}).limit(50);
+  history.replaceChildren();
+  if(error) {
+    const failure=document.createElement("p");failure.textContent="Não foi possível carregar o histórico.";history.append(failure);return;
+  }
+  if(!data?.length) {
+    const empty=document.createElement("p");empty.textContent="Ainda não há alterações de status registradas.";history.append(empty);return;
+  }
+  for(const row of data) {
+    const item=document.createElement("p");
+    item.textContent=`${REQUEST_STATUS_LABELS[row.previous_status]||row.previous_status||"Criado"} → ${REQUEST_STATUS_LABELS[row.new_status]||row.new_status} · ${localDate(row.logged_at)}`;
+    history.append(item);
+  }
+}
+byId("admin-request-dialog-close").addEventListener("click",()=>byId("admin-request-dialog").close());
+byId("admin-requests-reload").addEventListener("click",loadRequests);
+byId("admin-request-status-filter").addEventListener("change",()=>{if(requestsLoaded)loadRequests();});
+byId("admin-request-kind-filter").addEventListener("change",()=>{if(requestsLoaded)loadRequests();});
+byId("admin-tab-requests").addEventListener("click",loadRequests);
+
 function resetPageForm() {
   pageForm.reset();
   editingPageSlug=null;
