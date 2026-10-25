@@ -59,6 +59,15 @@
   </div>
 </main>
 <footer><div class="container footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><a href="index.html">Voltar ao Hub</a></div></footer>
+<script>
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  document.getElementById("rede-signin").hidden = true;
+  document.getElementById("rede-identity").textContent = "Prévia pública: participação em preparação.";
+  document.getElementById("feed-status").textContent = "Publicações em preparação. O feed ainda não foi ativado.";
+  for (const btn of document.querySelectorAll("[data-request-kind]")) btn.disabled = true;
+  document.getElementById("post-status").textContent = "Envio de publicações ainda indisponível.";
+}
+</script>
 <script type="module" src="js/rede.js"></script>
 <script type="module" src="js/cms-public.js"></script>
 </body></html>
