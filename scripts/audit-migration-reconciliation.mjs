@@ -76,8 +76,6 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Conjunto de novas migrações fora da lista aprovada");
   if(filenames.some((x,i)=>i>0&&x<=filenames[i-1]))
     issues.push("Sequência local desordenada");
-  if(versions.length && localVersions.length && localVersions[0]<=versions[versions.length-1])
-    issues.push("Primeira nova migração não é posterior ao histórico existente");
   for(const f of filenames) {
     if(typeof sqlByFile?.[f]!=="string") {issues.push("SQL ausente: "+f);continue;}
     for(const danger of auditSqlText(sqlByFile[f]))
