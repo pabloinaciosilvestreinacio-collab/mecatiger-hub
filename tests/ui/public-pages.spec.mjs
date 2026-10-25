@@ -45,6 +45,34 @@ for (const [path, title] of pages) {
   });
 }
 
+
+test("Home keeps optional registration closed until the visitor asks", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1_100);
+  const panel = page.locator("#cadastro-panel");
+  await expect(panel).toBeHidden();
+
+  const registrationButton = page.getByRole("button", {
+    name: /cadastro opcional de participação/i
+  });
+  await expect(registrationButton).toBeVisible();
+  await registrationButton.click();
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText("Este cadastro é opcional");
+  await expect(page.getByRole("button", { name: /continuar sem cadastro/i })).toBeVisible();
+
+  for (const width of [320, 360, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    const dimensions = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      content: document.documentElement.scrollWidth
+    }));
+    expect(dimensions.content, `horizontal overflow at ${width}px`)
+      .toBeLessThanOrEqual(dimensions.viewport + 1);
+  }
+});
+
 test("página de entrada expõe mensagens de autenticação a leitores de tela", async ({ page }) => {
   await page.goto("/entrar.html?next=rede.html", { waitUntil: "domcontentloaded" });
   const status = page.locator("#auth-status");
