@@ -8,7 +8,14 @@ alter table public.meca_site_admins enable row level security;
 revoke all on public.meca_site_admins from public, anon, authenticated;
 
 -- Bootstrap the already verified owner account identified during production audit.
+-- The initial administrator also receives editor and moderator roles so the panel works immediately.
 insert into public.meca_site_admins (user_id)
+values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
+on conflict (user_id) do nothing;
+insert into public.meca_site_editors (user_id)
+values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
+on conflict (user_id) do nothing;
+insert into public.rede_moderators (user_id)
 values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
 on conflict (user_id) do nothing;
 
