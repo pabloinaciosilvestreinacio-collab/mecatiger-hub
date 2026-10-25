@@ -6,6 +6,9 @@ create table public.meca_site_admins (
 );
 alter table public.meca_site_admins enable row level security;
 revoke all on public.meca_site_admins from public, anon, authenticated;
+create policy "Direct access to administrator grants is disabled"
+  on public.meca_site_admins for all to anon, authenticated
+  using (false) with check (false);
 
 -- Bootstrap the already verified owner account identified during production audit.
 -- The initial administrator also receives editor and moderator roles so the panel works immediately.
@@ -150,6 +153,8 @@ create table public.meca_site_team_members (
 );
 create index meca_site_team_members_public_order_idx
   on public.meca_site_team_members (published, sort_order, id);
+create index meca_site_team_members_updated_by_idx
+  on public.meca_site_team_members (updated_by);
 alter table public.meca_site_team_members enable row level security;
 revoke all on public.meca_site_team_members from public, anon, authenticated;
 grant select on public.meca_site_team_members to anon, authenticated;
