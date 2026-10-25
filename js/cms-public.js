@@ -157,9 +157,10 @@ function setupAccountOnboarding() {
   dialog.addEventListener("click",event=>{
     if(event.target===dialog)dialog.close();
   });
-  supabase.auth.getUser().then(({data,error})=>{
-    if(!error && !data?.user?.email_confirmed_at && !dialog.open)dialog.showModal();
-  }).catch(()=>{});
+  const showPrompt=()=>{ if(!dialog.open)dialog.showModal(); };
+  supabase.auth.getSession().then(({data,error})=>{
+    if(error || !data?.session?.user?.email_confirmed_at)showPrompt();
+  }).catch(showPrompt);
 }
 
 async function bootCms() {
