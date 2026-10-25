@@ -59,7 +59,7 @@ begin;
 set local role authenticated;
 set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
-do $
+do $test$
 begin
   begin
     insert into storage.objects(bucket_id,name)
@@ -67,7 +67,7 @@ begin
     raise exception 'non-editor uploaded a photo';
   exception when insufficient_privilege then null;
   end;
-end $;
+end $test$;
 commit;
 
 -- Editor writes a draft; visitors cannot see it until it is published.
