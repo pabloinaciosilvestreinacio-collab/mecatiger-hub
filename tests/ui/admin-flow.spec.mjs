@@ -11,7 +11,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
 
   await page.goto("/entrar.html?next=admin.html");
   await page.locator("#auth-email").fill(email);
-  await page.getByRole("button",{name:"Solicitar link de acesso"}).click();
+  await page.getByRole("button",{name:"Enviar link de acesso"}).click();
   await expect(page.locator("#auth-status")).toContainText("Confira seu e-mail");
   const link=await waitForConfirmationLink(email);
   await page.goto(link);
