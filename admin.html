@@ -32,8 +32,42 @@
       <button class="button outline" id="admin-tab-copy" type="button" role="tab" aria-controls="admin-panel-copy" aria-selected="true" tabindex="0" data-admin-tab="copy">Textos</button>
       <button class="button outline" id="admin-tab-pages" type="button" role="tab" aria-controls="admin-panel-pages" aria-selected="false" tabindex="-1" data-admin-tab="pages">Páginas e abas</button>
       <button class="button outline" id="admin-tab-photos" type="button" role="tab" aria-controls="admin-panel-photos" aria-selected="false" tabindex="-1" data-admin-tab="photos">Fotos</button>
+      <button class="button outline" id="admin-tab-requests" type="button" role="tab" aria-controls="admin-panel-requests" aria-selected="false" tabindex="-1" data-admin-tab="requests">Solicitações</button>
       <button class="button outline" id="admin-tab-security" type="button" role="tab" aria-controls="admin-panel-security" aria-selected="false" tabindex="-1" data-admin-tab="security">Segurança</button>
     </div>
+    <section class="rede-box admin-panel" id="admin-panel-requests" role="tabpanel" aria-labelledby="admin-tab-requests" data-admin-panel="requests" hidden>
+      <h2>Solicitações privadas</h2>
+      <p class="rede-muted">Pedidos de ajuda e conexão STEM são privados. Esta caixa usa a autorização de moderador do Supabase; uma conta editora sem esse papel não pode consultar pedidos.</p>
+      <div class="admin-request-filters">
+        <label for="admin-request-status-filter">Status</label>
+        <select id="admin-request-status-filter">
+          <option value="all">Todos</option>
+          <option value="pending">Pendente</option>
+          <option value="em_analise">Em análise</option>
+          <option value="concluido">Concluído</option>
+          <option value="rejeitado">Rejeitado</option>
+        </select>
+        <label for="admin-request-kind-filter">Tipo</label>
+        <select id="admin-request-kind-filter">
+          <option value="all">Todos</option>
+          <option value="ajuda">Pedido de ajuda</option>
+          <option value="conexao">Conexão STEM</option>
+        </select>
+        <button id="admin-requests-reload" type="button" class="button outline">Atualizar lista</button>
+      </div>
+      <p id="admin-requests-status" role="status" aria-live="polite" class="rede-status"></p>
+      <div id="admin-requests-list" class="admin-requests-list" aria-label="Solicitações recebidas"></div>
+      <dialog id="admin-request-dialog" class="admin-request-dialog" aria-labelledby="admin-request-dialog-title">
+        <div class="admin-request-dialog-head">
+          <h3 id="admin-request-dialog-title">Detalhes da solicitação</h3>
+          <button id="admin-request-dialog-close" type="button" class="button outline">Fechar</button>
+        </div>
+        <div id="admin-request-dialog-body"></div>
+        <h4>Histórico de status</h4>
+        <div id="admin-request-history"></div>
+      </dialog>
+      <p class="rede-muted">Respostas privadas e encaminhamentos ainda não podem ser registrados: o esquema hospedado não possui campos ou tabela para esse histórico. Nenhuma resposta será simulada ou enviada por e-mail.</p>
+    </section>
     <section class="rede-box admin-panel" id="admin-panel-copy" role="tabpanel" aria-labelledby="admin-tab-copy" data-admin-panel="copy">
       <h2 id="edit-copy-heading">Editar textos do site</h2>
       <p class="rede-muted">Selecione uma área, altere o texto e salve. Não é necessário editar HTML. O texto padrão permanece enquanto nenhuma alteração foi salva.</p>
@@ -102,5 +136,5 @@
     </section>
   </div>
 </main>
-<script type="module" src="js/admin.js?v=20261025d"></script>
+<script type="module" src="js/admin.js?v=20261025e"></script>
 </body></html>
