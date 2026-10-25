@@ -121,7 +121,7 @@ class RedeContracts(unittest.TestCase):
         self.assertIn('id="como-funciona"',page)
         self.assertIn('aria-labelledby="como-funciona-title"',page)
         self.assertIn("<ol",page)
-        for step in ("Explore sem entrar", "Entre com e-mail confirmado",
+        for step in ("Explore sem entrar", "Entre com e-mail confirmado (login em preparação)",
                      "Envie conteúdo ou um pedido", "Aguarde a análise"):
             self.assertIn(step,page)
         for anchor in ('rede.html#ajuda','rede.html#conexao','rede.html#compartilhar'):
