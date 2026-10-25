@@ -207,7 +207,7 @@ body.panel-open { overflow:hidden; }
 .registration-status { min-height:20px; margin:4px 0 0; color:var(--orange); font-size:12px; line-height:1.45; }
 .registration-skip { justify-self:start; border:0; padding:0; background:transparent; color:var(--muted); cursor:pointer; font:600 11px "JetBrains Mono",monospace; text-decoration:underline; text-underline-offset:4px; }
 .registration-skip:hover { color:var(--bone); }
-@media (max-width:800px) { .registration-layout { grid-template-columns:1fr; } .registration-reason,.registration-form { padding:24px; } }
+@media (max-width:800px) { .registration-layout { grid-template-columns:minmax(0,1fr); } .registration-reason,.registration-form { padding:24px; } }
 
 /* Rotas vivas: o mapa se desloca continuamente para sugerir a rotação da Terra,
    enquanto pontos luminosos percorrem conexões aéreas entre continentes. */
