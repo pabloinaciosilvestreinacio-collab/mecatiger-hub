@@ -36,4 +36,4 @@ Migrações aditivas e correção da RPC estão registradas no baseline hospedad
 
 O Advisor alerta a função legada de cadastro público `register_community_member` SECURITY DEFINER; não foi revogada para preservar o formulário e as métricas antigas. Auth leaked-password protection continua desligada. Fotos publicadas são públicas no bucket; moderação, consentimento e regras para dados de menores precisam de responsáveis da equipe.
 
-**Veredito: GO parcial.** Site público, banco de pedidos/administração e biblioteca privada do simulador estão preparados; o acesso real por e-mail e o upload público ainda exigem configuração e teste da equipe.
+**Veredito: GO parcial.** Site institucional público; Rede, administração e simulador exigem conta confirmada; banco de pedidos e biblioteca privada estão preparados; o acesso real por e-mail e o upload público ainda exigem configuração e teste da equipe.
