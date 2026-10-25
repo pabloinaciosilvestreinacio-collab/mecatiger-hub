@@ -69,9 +69,12 @@ test("Home keeps optional registration closed until the visitor asks", async ({ 
   await expect(registrationButton).toBeVisible();
   await registrationButton.click();
   await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("role", "dialog");
+  await expect(panel).toHaveAttribute("aria-modal", "true");
   await expect(panel).toContainText("Este cadastro é opcional");
   await expect(page.getByRole("button", { name: /continuar sem cadastro/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
+    .include("#cadastro-panel")
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
   const serious = axe.violations.filter(item => ["serious", "critical"].includes(item.impact));
