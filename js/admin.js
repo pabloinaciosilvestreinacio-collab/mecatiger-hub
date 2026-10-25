@@ -1,7 +1,7 @@
-import { supabase } from "./rede-client.js";
-import { isVerifiedMember } from "./rede-identity.mjs";
+import { supabase } from "./rede-client.js?v=20261025d";
+import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 import { CMS_SLOTS, CMS_BUCKET, MAX_INPUT_BYTES, MAX_PHOTO_BYTES,
-         validCopy, validCaption, validAssetPath, validPage } from "./cms-model.mjs";
+         validCopy, validCaption, validAssetPath, validPage } from "./cms-model.mjs?v=20261025d";
 
 // Admin UI is not provisioned on GitHub Pages. Do not query/write hosted CMS.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {

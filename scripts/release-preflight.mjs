@@ -66,9 +66,9 @@ export function inspectRepository(root=process.cwd()) {
     client.includes("safeReturn("),
     "Retornos permitidos no navegador, mas redirects do servidor ainda precisam de aprovação");
   const home=read("index.html"),rede=read("rede.html"),entry=read("entrar.html");
-  check("browser-routes",home.includes('src="js/cms-public.js?v=') &&
-    home.includes('href="admin.html"') && rede.includes('src="js/cms-public.js"') &&
-    entry.includes('src="js/rede-auth.js"') &&
+  check("browser-routes",/src="js\/cms-public\.js\?v=[^"]+"/.test(home) &&
+    home.includes('href="admin.html"') && /src="js\/cms-public\.js\?v=[^"]+"/.test(rede) &&
+    /src="js\/rede-auth\.js\?v=[^"]+"/.test(entry) &&
     existsSync(at("admin.html")) && existsSync(at("js/admin.js")) &&
     existsSync(at("pagina.html")) && existsSync(at("conteudo.html")),
     "Rotas, editor e CMS existem nos artefatos estáticos");
