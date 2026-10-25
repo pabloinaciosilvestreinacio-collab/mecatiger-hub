@@ -1,6 +1,24 @@
 import { supabase } from "./rede-client.js";
 import { isVerifiedMember } from "./rede-identity.mjs";
 
+// Public GitHub Pages launch: informational Rede only until hosted Auth/DB approval.
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  const byId = id => document.getElementById(id);
+  byId("rede-identity").textContent = "Prévia pública: leitura disponível. Login e publicações ainda não estão liberados.";
+  byId("feed-status").textContent = "A Rede ainda não possui um feed público habilitado. As publicações serão liberadas após homologação.";
+  byId("rede-signin").hidden = true;
+  byId("rede-signout").hidden = true;
+  for (const btn of document.querySelectorAll("[data-request-kind]")) {
+    btn.disabled = true;
+    btn.title = "Solicitações em preparação";
+  }
+  byId("post-status").textContent = "Envio de publicações em preparação.";
+  const banner = document.createElement("p");
+  banner.className = "rede-banner";
+  banner.setAttribute("role", "status");
+  banner.textContent = "Versão pública de apresentação: a autenticação, os pedidos privados e a moderação não estão ativos. Não envie dados pessoais.";
+  document.querySelector(".rede-page").insertBefore(banner, document.querySelector(".rede-toolbar"));
+} else {
 const $ = id => document.getElementById(id);
 const CATEGORIES = {
   programacao:"Programação", mecanica:"Mecânica e CAD", eletronica:"Eletrônica",
@@ -377,3 +395,5 @@ $("feed-next").addEventListener("click",()=>{page++;loadFeed();});
 $("mod-reload").addEventListener("click",loadModeration);
 fillCategories();
 refreshIdentity().catch(()=>message("feed-status","Não foi possível iniciar a comunidade.",true));
+
+}
