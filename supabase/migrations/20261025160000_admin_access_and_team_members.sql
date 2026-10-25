@@ -137,7 +137,7 @@ create table public.meca_site_team_members (
   updated_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (photo_path is null or photo_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}\\.webp$')
+  check (photo_path is null or photo_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}\.webp$')
 );
 create index meca_site_team_members_public_order_idx
   on public.meca_site_team_members (published, sort_order, id);
