@@ -458,3 +458,23 @@ html { scroll-padding-top:84px; }
   .cms-member-card { grid-template-columns:1fr; }
   .cms-member-card .member-photo { min-height:240px; }
 }
+
+
+/* Home account prompt */
+.account-onboarding {
+  width:min(680px,calc(100% - 32px));max-height:calc(100dvh - 32px);
+  padding:clamp(22px,5vw,40px);border:1px solid #6b6e70;border-radius:18px;
+  background:#202224;color:#f5f5f5;box-shadow:0 24px 80px #000b;
+}
+.account-onboarding::backdrop { background:#080909c9;backdrop-filter:blur(3px); }
+.account-onboarding-head { display:flex;align-items:center;justify-content:space-between;gap:16px; }
+.account-onboarding h2 { font-size:clamp(38px,8vw,66px);line-height:.98;margin:18px 0; }
+.account-onboarding p { color:#ddd;line-height:1.6; }
+.account-onboarding-note { border-left:3px solid var(--orange);padding-left:14px; }
+.account-onboarding-actions { display:flex;flex-wrap:wrap;gap:12px;margin-top:24px; }
+.account-onboarding-actions .button { flex:1 1 230px;justify-content:center;text-align:center; }
+@media(max-width:560px) {
+  .account-onboarding-head { align-items:flex-start;flex-direction:column; }
+  .account-onboarding-head .button { width:100%; }
+  .account-onboarding-actions .button { width:100%; }
+}
