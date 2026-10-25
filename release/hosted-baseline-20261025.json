@@ -1,10 +1,10 @@
 {
-  "snapshot_type": "read_only_catalog_inventory",
-  "captured_at": "2026-10-25",
+  "snapshot_type": "post_migration_catalog_inventory",
+  "captured_at": "2026-10-25T03:25:00Z",
   "project_id": "rnnzumzqilkuecvgsjnv",
   "project_status": "ACTIVE_HEALTHY",
   "plan": "FREE",
-  "write_operations_performed": false,
+  "write_operations_performed": true,
   "hosted_migrations": [
     {
       "version": "20261013171020",
@@ -21,6 +21,22 @@
     {
       "version": "20261019231824",
       "name": "secure_public_registration_rpc_v2"
+    },
+    {
+      "version": "20261025032012",
+      "name": "rede_mecatiger_mvp"
+    },
+    {
+      "version": "20261025032022",
+      "name": "require_nonanonymous_identity"
+    },
+    {
+      "version": "20261025032028",
+      "name": "mecasim_private_trajectories"
+    },
+    {
+      "version": "20261025032035",
+      "name": "mecatiger_site_cms"
     }
   ],
   "hosted_public_tables": [
@@ -53,6 +69,78 @@
         "students_count": 0,
         "countries_count": 0
       }
+    },
+    {
+      "name": "rede_profiles",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 5
+    },
+    {
+      "name": "rede_moderators",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 2
+    },
+    {
+      "name": "rede_posts",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 12
+    },
+    {
+      "name": "rede_comments",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 10
+    },
+    {
+      "name": "rede_requests",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 7
+    },
+    {
+      "name": "rede_reports",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 7
+    },
+    {
+      "name": "rede_moderation_log",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 2
+    },
+    {
+      "name": "mecasim_trajectories",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 3
+    },
+    {
+      "name": "meca_site_editors",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 1
+    },
+    {
+      "name": "meca_site_copy",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 3
+    },
+    {
+      "name": "meca_site_gallery",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 2
+    },
+    {
+      "name": "meca_site_pages",
+      "rls_enabled": true,
+      "rows": 0,
+      "policy_count": 4
     }
   ],
   "legacy_rpc": {
@@ -85,12 +173,23 @@
     "anonymous_sign_ins_enabled": false
   },
   "storage": {
-    "custom_buckets": [],
-    "community_registrations_preserved": true
+    "custom_buckets": [
+      "meca-site-gallery"
+    ],
+    "community_registrations_preserved": true,
+    "gallery_bucket": {
+      "id": "meca-site-gallery",
+      "public": true,
+      "file_size_limit": 2097152,
+      "allowed_mime_types": [
+        "image/webp"
+      ],
+      "objects": 0
+    }
   },
   "edge_functions": [],
   "development_branches": [],
-  "new_product_objects_present": false,
+  "new_product_objects_present": true,
   "security_advisories": [
     {
       "level": "INFO",
@@ -102,5 +201,16 @@
     }
   ],
   "performance_advisories": [],
-  "note": "Metadata-only catalog snapshot, not original historical migrations and not a backup. No personal registration values, email addresses, tokens or secrets."
+  "note": "Inventário pós-implantação, somente metadados e contagens. Migrações novas são aditivas; nenhuma inscrição ou métrica existente foi alterada. Não é backup, e a restauração de backup não foi testada.",
+  "migration_application": {
+    "applied_at_utc": "2026-10-25T03:20:12Z",
+    "tracked_versions": [
+      "20261025032012",
+      "20261025032022",
+      "20261025032028",
+      "20261025032035"
+    ],
+    "existing_legacy_tables_and_metrics_preserved": true,
+    "pre_write_backup_restore_verified": false
+  }
 }
