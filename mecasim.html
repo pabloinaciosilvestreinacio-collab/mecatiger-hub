@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#282a2c" />
     <title>Meca Sim · MECATIGER FTC #32578</title>
     <link rel="icon" href="public/mecatiger-favicon.png" type="image/png" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20261025h" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -19,6 +19,8 @@
       .sim-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
       .sim-status { display:inline-flex; padding:8px 12px; border:1px solid rgba(242,138,26,.55); border-radius:999px; color:var(--orange); font:600 11px "JetBrains Mono",monospace; text-transform:uppercase; }
       .sim-note { margin-top:24px; padding-left:16px; border-left:2px solid var(--orange); }
+      .sim-local-guide { margin-top:26px; padding:22px; border:1px solid rgba(242,138,26,.35); border-radius:12px; background:rgba(0,0,0,.16); scroll-margin-top:100px; }
+      .sim-local-guide p { color:var(--muted); line-height:1.65; }
       @media (max-width:620px) { .sim-page { padding:56px 0; } .sim-actions > * { width:100%; text-align:center; } }
     </style>
   </head>
@@ -40,12 +42,18 @@
         <section class="sim-card" aria-labelledby="sim-status-title">
           <span class="sim-status">Prévia web limitada disponível</span>
           <h2 class="display" id="sim-status-title">PRÉVIA INTERATIVA<br /><span class="accent">DO MECA SIM.</span></h2>
-          <p>Esta prévia web já permite explorar a arena BIOBUZZ e desenhar trajetórias simples no navegador. Ela é demonstrativa e não inclui o simulador completo. O código-fonte e as instruções da versão local estão no <a href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim">repositório público</a>.</p>
+          <p>Esta prévia web já permite explorar a arena BIOBUZZ e desenhar trajetórias simples no navegador. Ela é demonstrativa e não inclui o simulador completo. A demonstração gratuita abre no navegador após entrar com uma conta confirmada. Para iniciar a versão local, veja primeiro as instruções nesta página; ela não será aberta sem aviso em outro site.</p>
           <p class="sim-note">A prévia não executa Java, não aceita código nem uploads e não simula física, sensores ou teleoperação. A versão completa local compila e executa Java com as permissões da sua conta; use somente código confiável.</p>
           <div class="sim-actions">
             <a class="button" href="mecasim-demo.html">Experimentar a prévia interativa →</a>
-            <a class="button outline" href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim/blob/main/README.md#comece-em-poucos-minutos">Como iniciar a versão local ↗</a>
+            <a class="button outline" href="#versao-local">Como iniciar a versão local ↓</a>
           </div>
+          <section id="versao-local" class="sim-local-guide" aria-labelledby="local-heading">
+            <h3 class="display" id="local-heading">INICIAR A VERSÃO <span class="accent">LOCAL.</span></h3>
+            <p>A versão completa é um programa separado para computador; este botão apenas trouxe você a estas instruções no site. Ela não inicia dentro do navegador. O repositório está público, então o código pode ser baixado sem autenticação. Recursos privados do Hub continuam exigindo uma conta confirmada.</p>
+            <p>Para baixar e seguir os passos de instalação, abra o guia do projeto quando estiver pronto:</p>
+            <a class="button outline" href="https://github.com/pabloinaciosilvestreinacio-collab/meca-sim/blob/main/README.md#comece-em-poucos-minutos" target="_blank" rel="noopener noreferrer">Abrir instruções completas no GitHub ↗</a>
+          </section>
           <p class="sim-note">A página demonstra um recorte seguro da arena e de trajetórias. Ela não substitui nem reproduz todos os recursos do Meca Sim local.</p>
         </section>
       </div>

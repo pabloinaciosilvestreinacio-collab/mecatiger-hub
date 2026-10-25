@@ -11,10 +11,14 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
 
   await page.goto("/entrar.html?next=admin.html");
   await page.locator("#auth-email").fill(email);
-  await page.getByRole("button",{name:"Solicitar link de acesso"}).click();
+  await page.getByRole("button",{name:"Enviar link de acesso"}).click();
   await expect(page.locator("#auth-status")).toContainText("Confira seu e-mail");
   const link=await waitForConfirmationLink(email);
   await page.goto(link);
+  await expect(page.locator("#password-setup")).toBeVisible();
+  await page.locator("#new-password").fill("Admin-local-test-2026!");
+  await page.locator("#confirm-password").fill("Admin-local-test-2026!");
+  await page.getByRole("button", { name: "Salvar senha e continuar" }).click();
   await page.waitForURL(/\/admin\.html$/,{timeout:20000});
   await expect(page.locator("#admin-locked")).toBeVisible();
   await expect(page.locator("#admin-content")).toBeHidden();

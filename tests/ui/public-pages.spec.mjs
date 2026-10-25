@@ -58,30 +58,28 @@ for (const [path, title] of pages) {
 }
 
 
-test("Home opens optional registration only after explicit choice", async ({ page }) => {
+test("Home opens the metrics and account-access notice in one first-visit panel", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const accountDialog = page.locator("#account-onboarding");
-  await expect(accountDialog).toBeVisible();
-  await expect(accountDialog).toContainText("crie uma conta e confirme seu e-mail");
-  await page.getByRole("button", { name: /continuar explorando/i }).click();
-  await expect(accountDialog).toBeHidden();
-
   const panel = page.locator("#cadastro-panel");
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("role", "dialog");
+  await expect(panel).toHaveAttribute("aria-modal", "true");
+  await expect(panel).toContainText("PARTICIPE COM SUA CONTA");
+  await expect(panel).toContainText("não cria uma conta autenticada");
+  await expect(page.locator(".registration-account-callout a")).toHaveAttribute("href", "entrar.html?next=rede.html");
+  const skipButton = page.getByRole("button", { name: /continuar explorando o site/i });
+  await expect(skipButton).toBeVisible();
+  await skipButton.click();
+  await expect(panel).toBeHidden();
+
+  await page.reload();
   await expect(panel).toBeHidden();
   const registrationButton = page.getByRole("button", { name: /cadastro para métricas/i });
   await expect(registrationButton).toBeVisible();
   await registrationButton.click();
   await expect(panel).toBeVisible();
-  await expect(panel).toHaveAttribute("role", "dialog");
-  await expect(panel).toHaveAttribute("aria-modal", "true");
-  await expect(panel).toContainText("Este cadastro é opcional");
-  const skipButton = page.getByRole("button", { name: /agora não/i });
-  await expect(skipButton).toBeVisible();
-  await skipButton.click();
-  await expect(panel).toBeHidden();
 
-  await expect(page.getByRole("button", { name: /cadastro para métricas/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .include("#cadastro-panel")
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

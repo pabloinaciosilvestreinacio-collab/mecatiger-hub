@@ -26,11 +26,15 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
 
   await page.goto("/entrar.html?next=rede.html");
   await page.locator("#auth-email").fill(email);
-  await page.getByRole("button", { name: "Solicitar link de acesso" }).click();
+  await page.getByRole("button", { name: "Enviar link de acesso" }).click();
   await expect(page.locator("#auth-status")).toContainText("Confira seu e-mail");
 
   const confirmationLink = await waitForConfirmationLink(email);
   await page.goto(confirmationLink);
+  await expect(page.locator("#password-setup")).toBeVisible();
+  await page.locator("#new-password").fill("Senha-de-teste-local-2026!");
+  await page.locator("#confirm-password").fill("Senha-de-teste-local-2026!");
+  await page.getByRole("button", { name: "Salvar senha e continuar" }).click();
   await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
   // The session may be valid while profile/moderator queries remain in flight.
   // No authenticated action is available until both checks have resolved.
@@ -90,4 +94,8 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await expect(page.locator("#rede-identity")).toContainText("Modo visitante");
   await page.goto("/mecasim-demo.html");
   await page.waitForURL(/\/entrar\.html\?next=mecasim-demo\.html$/, { timeout: 20_000 });
+  await page.locator("#auth-email").fill(email);
+  await page.locator("#auth-password").fill("Senha-de-teste-local-2026!");
+  await page.getByRole("button", { name: "Entrar com senha" }).click();
+  await page.waitForURL(url => url.pathname.endsWith("/mecasim-demo.html"), { timeout: 20_000 });
 });
