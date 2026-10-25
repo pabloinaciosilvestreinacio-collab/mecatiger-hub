@@ -3,6 +3,13 @@ import { isVerifiedMember } from "./rede-identity.mjs";
 import { CMS_SLOTS, CMS_BUCKET, MAX_INPUT_BYTES, MAX_PHOTO_BYTES,
          validCopy, validCaption, validAssetPath } from "./cms-model.mjs";
 
+// Admin UI is not provisioned on GitHub Pages. Do not query/write hosted CMS.
+if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
+  document.getElementById("admin-content").hidden = true;
+  document.getElementById("admin-locked").hidden = false;
+  document.getElementById("admin-status").textContent =
+    "Painel em preparação: nenhuma conta editora foi habilitada. Não há login público nesta fase.";
+} else {
 const byId = id => document.getElementById(id);
 const status = (id, text, error=false) => {
   const el=byId(id); el.textContent=text; el.dataset.error=String(error);
@@ -161,3 +168,5 @@ photoForm.addEventListener("submit",async event=>{
   locked.hidden=false;
   status("admin-status","Painel indisponível. Verifique sua conexão e autorização.",true);
 });
+
+}
