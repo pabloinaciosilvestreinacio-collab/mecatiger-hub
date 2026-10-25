@@ -1,5 +1,5 @@
-import { supabase } from "./rede-client.js";
-import { isVerifiedMember } from "./rede-identity.mjs";
+import { supabase } from "./rede-client.js?v=20261025d";
+import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 
 // Public GitHub Pages launch: informational Rede only until hosted Auth/DB approval.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
