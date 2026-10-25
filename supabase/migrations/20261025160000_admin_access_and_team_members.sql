@@ -161,11 +161,13 @@ grant select on public.meca_site_team_members to anon, authenticated;
 grant insert, update, delete on public.meca_site_team_members to authenticated;
 grant usage, select on sequence public.meca_site_team_members_id_seq to authenticated;
 
-create policy "Published team members are public; editors see drafts"
+create policy "Published team members are public"
   on public.meca_site_team_members for select to anon, authenticated
+  using (published);
+create policy "Editors can see draft team members"
+  on public.meca_site_team_members for select to authenticated
   using (
-    published
-    or exists (
+    exists (
       select 1 from public.meca_site_editors e
       where e.user_id=(select auth.uid())
     )
