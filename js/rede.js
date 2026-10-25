@@ -4,7 +4,7 @@ import { isVerifiedMember } from "./rede-identity.mjs";
 // Public GitHub Pages launch: informational Rede only until hosted Auth/DB approval.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
   const byId = id => document.getElementById(id);
-  byId("rede-identity").textContent = "Prévia pública: feed e participação pelo site aguardam ativação segura do backend. Ajuda e denúncia por e-mail.";
+  byId("rede-identity").textContent = "Prévia pública: feed, login, ajuda, conexões e denúncias pelo site aguardam ativação segura do backend.";
   byId("feed-status").textContent = "O feed público será exibido aqui depois que o backend for ativado.";
   byId("rede-signin").hidden = true;
   byId("rede-signout").hidden = true;
@@ -13,10 +13,13 @@ if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
     btn.title = "Solicitações em preparação";
   }
   byId("post-status").textContent = "Publicações pelo site serão liberadas após a ativação segura do login e do banco.";
+  byId("help-status").textContent = "Pedido de ajuda pelo site indisponível até a ativação segura do backend e do login.";
+  byId("connection-status").textContent = "Conexão pelo site indisponível até a ativação segura do backend e do login.";
+  byId("request-status").textContent = "Pedidos e denúncias serão enviados e acompanhados dentro do site após a ativação do backend.";
   const banner = document.createElement("p");
   banner.className = "rede-banner";
   banner.setAttribute("role", "status");
-  banner.textContent = "O backend do feed ainda não está ativo. Publicações e solicitações de conexão serão feitas pelo próprio site. Para pedir ajuda ou denunciar, use os contatos por e-mail abaixo.";
+  banner.textContent = "O backend do feed ainda não está ativo. Publicações, pedidos de ajuda, conexões e denúncias serão enviados e acompanhados pelo próprio site quando o serviço estiver habilitado.";
   document.querySelector(".rede-page").insertBefore(banner, document.querySelector(".rede-toolbar"));
 } else {
 const $ = id => document.getElementById(id);
