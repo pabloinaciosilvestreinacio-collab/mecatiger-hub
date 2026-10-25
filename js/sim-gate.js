@@ -1,5 +1,5 @@
-import { supabase } from "./rede-client.js";
-import { isVerifiedMember } from "./rede-identity.mjs";
+import { supabase } from "./rede-client.js?v=20261025d";
+import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 // UX gate only. Static GitHub Pages content is publicly retrievable by URL.
 // The visual-only demo is public on GitHub Pages; local E2E retains Auth gating.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
