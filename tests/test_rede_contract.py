@@ -121,13 +121,17 @@ class RedeContracts(unittest.TestCase):
         self.assertIn('id="como-funciona"',page)
         self.assertIn('aria-labelledby="como-funciona-title"',page)
         self.assertIn("<ol",page)
-        for step in ("Explore sem entrar", "Entre com e-mail confirmado (login em preparação)",
-                     "Envie conteúdo ou um pedido", "Aguarde a análise"):
+        for step in ("Explore sem entrar", "Entre na Rede pelo site",
+                     "Participe pelo site", "Aguarde a análise"):
             self.assertIn(step,page)
         for anchor in ('rede.html#ajuda','rede.html#conexao','rede.html#compartilhar'):
             self.assertIn(anchor,main)
         self.assertIn("não cria uma conta autenticada",main)
         self.assertIn("não cria uma conta",page)
+        self.assertIn("Den%C3%BAncia",page)
+        self.assertIn("Pedido%20de%20ajuda",page)
+        self.assertNotIn("subject=Compartilhar",page)
+        self.assertNotIn("subject=Conex%C3%A3o",page)
         self.assertIn("não há evidência",editorial)
         self.assertIn("Pendente",editorial)
         self.assertIn("NÃO publicações cadastradas",editorial)
