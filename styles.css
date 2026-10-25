@@ -478,3 +478,9 @@ html { scroll-padding-top:84px; }
   .account-onboarding-head .button { width:100%; }
   .account-onboarding-actions .button { width:100%; }
 }
+
+/* Account access is presented inside the existing metrics registration panel. */
+.registration-account-callout{margin:18px 0 24px;padding:18px;border:1px solid rgba(242,138,26,.55);border-radius:12px;background:rgba(242,138,26,.08)}
+.registration-account-callout h3{margin:6px 0 8px;color:var(--text)}
+.registration-account-callout p{margin:0 0 14px;line-height:1.55}
+.registration-account-callout .button{display:inline-flex;align-items:center;justify-content:center}
