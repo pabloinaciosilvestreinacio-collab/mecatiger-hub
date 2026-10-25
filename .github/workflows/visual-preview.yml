@@ -37,7 +37,7 @@ jobs:
           node scripts/capture-visual-preview.mjs
 
       - name: Run local homepage interaction, responsive, and accessibility tests
-        run: npm run test:ui
+        run: node scripts/build-test-browser-client.mjs && npx playwright test tests/ui/public-pages.spec.mjs
 
       - name: Upload visual preview (not a deployment)
         if: always()
