@@ -20,20 +20,20 @@
   <div class="rede-grid-actions" aria-label="Caminhos da comunidade">
     <a href="#ajuda"><strong>Pedir ajuda ↗</strong><span class="rede-muted">Envie sua dúvida técnica para análise da Meca Tiger.</span></a>
     <a href="#conexao"><strong>Solicitar conexão STEM ↗</strong><span class="rede-muted">Busque equipes, professores, mentores e projetos.</span></a>
-    <a href="#compartilhar"><strong>Compartilhar conhecimento ↗</strong><span class="rede-muted">Envie experiências para publicação após aprovação.</span></a>
+    <a href="#compartilhar"><strong>Compartilhar conhecimento ↗</strong><span class="rede-muted">Envie experiências por e-mail para revisão da equipe.</span></a>
   </div>
   <section class="rede-box" id="como-funciona" aria-labelledby="como-funciona-title">
     <h2 id="como-funciona-title">COMO PARTICIPAR DA <span class="accent">REDE.</span></h2>
     <ol class="rede-steps">
       <li><strong>Explore sem entrar.</strong><p>Leia as publicações aprovadas. Publicações e comentários ainda pendentes não são públicos.</p></li>
       <li><strong>Entre com e-mail confirmado.</strong><p>O acesso por link cria uma sessão no Supabase Auth. O cadastro opcional do Hub, usado nas métricas, não substitui esse login.</p></li>
-      <li><strong>Envie conteúdo ou um pedido.</strong><p>Você pode compartilhar aprendizados para revisão ou solicitar ajuda e conexão STEM. Solicitações são privadas entre o autor e a moderação.</p></li>
-      <li><strong>Aguarde a análise.</strong><p>A equipe Meca Tiger revisa publicações antes de exibi-las e analisa os pedidos. As conexões são encaminhadas pela equipe; não há correspondência automática nem prazo garantido.</p></li>
+      <li><strong>Envie conteúdo ou um pedido.</strong><p>Enquanto o backend não está ativo, envie pedidos e contribuições pelos botões de e-mail. Eles só chegam à equipe quando você confirma o envio no aplicativo.</p></li>
+      <li><strong>Aguarde a análise.</strong><p>A equipe responde às mensagens recebidas por e-mail. Publicações no feed e conexões automáticas ainda não estão ativas; não há prazo garantido.</p></li>
     </ol>
-    <p class="rede-muted">A Rede Meca Tiger reúne a comunidade dentro deste Hub. Links para FIRST, Reddit e outras comunidades continuam disponíveis apenas como referências externas.</p>
+    <p class="rede-muted">A Rede Meca Tiger reúne a comunidade neste Hub. Enquanto o feed está em preparação, use os caminhos por e-mail ou consulte as referências externas.</p>
   </section>
   <div class="rede-categories" aria-label="Áreas da rede"><span>Programação</span><span>Mecânica e CAD</span><span>Eletrônica</span><span>FTC e competições</span><span>Projetos STEM</span><span>Dúvidas e ajuda</span><span>Conhecimento compartilhado</span></div>
-  <p class="rede-banner">Todos podem ler publicações aprovadas. Para interagir ou enviar material, é necessário estar autenticado com e-mail confirmado. O cadastro opcional de participação do Hub serve às métricas e <strong>não cria uma conta</strong> na Rede. Evite divulgar telefones, endereços, dados escolares privados ou dados de menores.</p>
+  <p class="rede-banner">O feed e o login da Rede ainda aguardam ativação do backend. Ajuda, conexão STEM e compartilhamento podem ser enviados por e-mail à equipe; nada é enviado sem confirmação no seu aplicativo. O cadastro opcional do Hub serve às métricas e <strong>não cria uma conta</strong> na Rede. Não inclua dados sensíveis ou informações de menores.</p>
   <div class="rede-layout">
     <div>
       <section id="feed" aria-labelledby="feed-heading">
@@ -47,14 +47,14 @@
     </div>
     <aside class="rede-stack">
       <section id="perfil" class="rede-box" hidden><h3 class="rede-section-title">Meu perfil público</h3><p class="rede-muted">Use um apelido. Não use nome completo ou informações pessoais de menores.</p><form class="rede-form" id="profile-form"><label for="display-name">Apelido público</label><input id="display-name" maxlength="60" minlength="2" required><button class="button" type="submit">Salvar perfil</button></form><p id="profile-status" class="rede-status" role="status"></p></section>
-      <section id="compartilhar" class="rede-box"><h3 class="rede-section-title">Compartilhar conhecimento</h3><p>Envie uma publicação. Ela ficará pendente até aprovação.</p>
+      <section id="compartilhar" class="rede-box"><h3 class="rede-section-title">Compartilhar conhecimento</h3><p>O feed ainda não recebe publicações pelo site. Para compartilhar agora, envie uma mensagem à equipe; ela não será publicada automaticamente.</p>
         <form id="post-form" class="rede-form" hidden><label for="post-kind">Tipo</label><select id="post-kind"><option value="conhecimento">Conhecimento compartilhado</option><option value="duvida">Dúvida pública</option></select><label for="post-category">Assunto</label><select id="post-category" class="rede-category-input"></select><label for="post-title">Título</label><input id="post-title" maxlength="120" minlength="6" required><label for="post-content">Texto</label><textarea id="post-content" maxlength="5000" minlength="15" required></textarea><button class="button" type="submit">Enviar para aprovação</button></form>
-        <p id="post-status" class="rede-status" role="status">Entre na conta para publicar.</p></section>
-      <section id="ajuda" class="rede-box"><h3 class="rede-section-title">Pedir ajuda</h3><p>Seu pedido será privado, acessível apenas a você e aos moderadores.</p><button class="button outline" type="button" data-request-kind="ajuda">Escrever pedido de ajuda</button></section>
-      <section id="conexao" class="rede-box"><h3 class="rede-section-title">Solicitar conexão STEM</h3><p>Sua solicitação é privada. Não inclua dados sensíveis.</p><button class="button outline" type="button" data-request-kind="conexao">Solicitar conexão</button></section>
+        <p id="post-status" class="rede-status" role="status">Publicações no feed aguardam ativação. O envio por e-mail será revisado pela equipe.</p><a class="button outline" href="mailto:mecatiger6@gmail.com?subject=Compartilhar%20conhecimento%20-%20Meca%20Tiger&amp;body=Ol%C3%A1%2C%20equipe%20Meca%20Tiger!%0A%0AGostaria%20de%20compartilhar%3A%0A%0A%5BDescreva%20o%20conte%C3%BAdo%20e%20inclua%20fontes%20quando%20necess%C3%A1rio%5D">Compartilhar por e-mail</a></section>
+      <section id="ajuda" class="rede-box"><h3 class="rede-section-title">Pedir ajuda</h3><p>O botão abre seu aplicativo de e-mail com uma mensagem para a equipe. O pedido só é enviado quando você confirma o envio.</p><a class="button outline" href="mailto:mecatiger6@gmail.com?subject=Pedido%20de%20ajuda%20-%20Meca%20Tiger&amp;body=Ol%C3%A1%2C%20equipe%20Meca%20Tiger!%0A%0APreciso%20de%20ajuda%20com%3A%0A%0A%5BDescreva%20sua%20d%C3%BAvida%20sem%20incluir%20dados%20sens%C3%ADveis%5D%0A%0AEquipe%20ou%20escola%20(opcional)%3A">Escrever pedido de ajuda por e-mail</a></section>
+      <section id="conexao" class="rede-box"><h3 class="rede-section-title">Solicitar conexão STEM</h3><p>Envie uma mensagem diretamente à equipe; não há cadastro automático de mentores. Não inclua dados sensíveis.</p><a class="button outline" href="mailto:mecatiger6@gmail.com?subject=Conex%C3%A3o%20STEM%20-%20Meca%20Tiger&amp;body=Ol%C3%A1%2C%20equipe%20Meca%20Tiger!%0A%0AProcuro%20uma%20conex%C3%A3o%20STEM%20na%20%C3%A1rea%20de%3A%0A%0A%5BConte%20o%20que%20est%C3%A1%20desenvolvendo%5D%0A%0AEquipe%20ou%20escola%20(opcional)%3A">Solicitar conexão STEM por e-mail</a></section>
       <section id="pedido" class="rede-box" hidden><h3 id="request-heading">Nova solicitação</h3><form id="request-form" class="rede-form"><label for="request-category">Área de interesse</label><select id="request-category" class="rede-category-input"></select><label for="request-title">Assunto</label><input id="request-title" maxlength="120" minlength="6" required><label for="request-details">Descrição</label><textarea id="request-details" maxlength="2500" minlength="15" required></textarea><button class="button" type="submit">Enviar solicitação privada</button></form><p id="request-status" class="rede-status" role="status"></p></section>
       <section class="rede-box"><h3>Comunidades externas</h3><p><a href="https://ftc-community.firstinspires.org/" target="_blank" rel="noopener noreferrer">Fórum FTC ↗</a></p><p><a href="https://www.reddit.com/r/FTC/" target="_blank" rel="noopener noreferrer">Reddit r/FTC ↗</a></p><p><a href="https://www.firstinspires.org/community/teams/coaches-and-mentors" target="_blank" rel="noopener noreferrer">Mentores FIRST ↗</a></p></section>
-      <section class="rede-box"><h3>Regras e privacidade</h3><p>Respeite as pessoas, dê crédito às fontes, evite spam e nunca publique informações pessoais de terceiros, especialmente menores. A equipe revisa conteúdos e denúncias.</p><p>O login da Rede utiliza e-mail no Supabase Auth; os perfis públicos usam apelidos. Pedidos privados e denúncias são acessíveis aos envolvidos e à moderação, conforme as políticas de acesso.</p><p>Para denunciar, solicitar acesso aos seus dados ou pedir exclusão, escreva para <a href="mailto:mecatiger6@gmail.com?subject=Privacidade%20Rede%20Meca%20Tiger">mecatiger6@gmail.com</a>. Informe apenas o necessário no contato.</p><p class="rede-muted">A política definitiva de retenção e o procedimento específico para menores estão em revisão antes do lançamento. Não envie dados sensíveis pelo feed.</p></section>
+      <section class="rede-box"><h3>Regras e privacidade</h3><p>Respeite as pessoas, dê crédito às fontes, evite spam e nunca publique informações pessoais de terceiros, especialmente menores. A equipe revisa conteúdos e denúncias.</p><p>Neste estágio, pedidos enviados por e-mail chegam à equipe; o feed, o login e as denúncias dentro da plataforma ainda não estão ativos.</p><p>Para denunciar, solicitar acesso aos seus dados ou pedir exclusão, escreva para <a href="mailto:mecatiger6@gmail.com?subject=Privacidade%20Rede%20Meca%20Tiger">mecatiger6@gmail.com</a>. Informe apenas o necessário no contato.</p><p class="rede-muted">A política definitiva de retenção e o procedimento específico para menores estão em revisão antes do lançamento. Não envie dados sensíveis pelo feed.</p></section>
     </aside>
   </div>
 </main>
@@ -62,10 +62,9 @@
 <script>
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
   document.getElementById("rede-signin").hidden = true;
-  document.getElementById("rede-identity").textContent = "Prévia pública: participação em preparação.";
-  document.getElementById("feed-status").textContent = "Publicações em preparação. O feed ainda não foi ativado.";
-  for (const btn of document.querySelectorAll("[data-request-kind]")) btn.disabled = true;
-  document.getElementById("post-status").textContent = "Envio de publicações ainda indisponível.";
+  document.getElementById("rede-identity").textContent = "Prévia pública: login e feed em preparação; contato com a equipe disponível por e-mail.";
+  document.getElementById("feed-status").textContent = "O feed e as publicações no site aguardam ativação do backend. Use o botão de compartilhamento por e-mail para enviar conteúdo à equipe.";
+  document.getElementById("post-status").textContent = "Publicações no feed aguardam ativação. O envio por e-mail será revisado pela equipe.";
 }
 </script>
 <script type="module" src="js/rede.js"></script>
