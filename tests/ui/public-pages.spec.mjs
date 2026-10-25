@@ -61,6 +61,12 @@ for (const [path, title] of pages) {
 test("Home opens optional registration only after explicit choice", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  const accountDialog = page.locator("#account-onboarding");
+  await expect(accountDialog).toBeVisible();
+  await expect(accountDialog).toContainText("crie uma conta e confirme seu e-mail");
+  await page.getByRole("button", { name: /continuar explorando/i }).click();
+  await expect(accountDialog).toBeHidden();
+
   const panel = page.locator("#cadastro-panel");
   await expect(panel).toBeHidden();
   const registrationButton = page.getByRole("button", { name: /cadastro para métricas/i });
