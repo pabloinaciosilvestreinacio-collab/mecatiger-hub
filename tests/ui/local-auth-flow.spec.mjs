@@ -42,8 +42,10 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await expect(page.locator("#profile-form button[type=submit]")).toBeDisabled();
   await expect(page.locator("#post-form")).toBeHidden();
   for (const button of await page.locator("[data-request-kind]").all()) {
-    await expect(button).toBeDisabled();
+    await expect(button).toBeEnabled();
   }
+  await page.locator("[data-request-kind=ajuda]").click();
+  await expect(page.locator("#help-status")).toContainText("Aguarde enquanto verificamos sua sessão.");
   // Keep this handler installed until test teardown: removing it while a held route
   // is resuming can cause Playwright to handle the same request twice.
   releaseProfileRead();
