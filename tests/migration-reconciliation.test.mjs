@@ -9,7 +9,7 @@ const snap=JSON.parse(readFileSync("release/hosted-baseline-20261025.json","utf8
 const safeSql=Object.fromEntries(EXPECTED_FILES.map(n=>[n,
   "create table if not exists public.rede_profiles(id uuid primary key); alter table public.rede_profiles enable row level security;"]));
 
-test("hosted history matches the four applied migrations; no production write authorization is inferred",()=>{
+test("hosted history matches the five applied migrations; no production write authorization is inferred",()=>{
   const v=inspectCheckout();
   assert.equal(v.valid,true,JSON.stringify(v.issues));
   assert.equal(v.historyAligned,true);
@@ -18,7 +18,7 @@ test("hosted history matches the four applied migrations; no production write au
   assert.match(v.recommendation,/Auth, SMTP/);
   assert.deepEqual(snap.hosted_migrations.map(x=>x.version),[
     "20261013171020","20261013173230","20261013174946","20261019231824",
-    "20261025032012","20261025032022","20261025032028","20261025032035"
+    "20261025032012","20261025032022","20261025032028","20261025032035","20261025140659"
   ]);
 });
 
