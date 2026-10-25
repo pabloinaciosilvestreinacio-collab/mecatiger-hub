@@ -60,7 +60,7 @@ h1 { margin:20px 0 0; font-size:clamp(78px,16vw,176px); line-height:.78; } .hero
 .contact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; border:1px solid var(--line); background:var(--line); } .contact-card { min-height:350px; padding:32px; background:var(--card); } .contact-card:hover { background:#414345; } .contact-icon { color:var(--orange); font-size:30px; } .contact-card h2 { margin:48px 0 0; font-size:48px; line-height:.9; overflow-wrap:anywhere; } .contact-card p { color:var(--muted); line-height:1.55; }
 footer { border-top:1px solid var(--line); padding:48px 0 24px; } .footer-top { display:grid; grid-template-columns:1fr 1.4fr; gap:40px; } .footer-copy { margin-top:20px; color:var(--muted); font-size:14px; line-height:1.6; } .footer-nav { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 24px; } .footer-nav a { color:var(--muted); font-size:14px; } .footer-nav a:hover { color:var(--text); } .footer-bottom { display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-top:40px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; } .footer-links { display:flex; gap:20px; }
 .reveal { opacity:0; transform:translateY(24px); transition:opacity .7s ease,transform .7s ease; } .reveal.visible { opacity:1; transform:none; }
-@media (max-width:900px) { .desktop-nav { display:flex; max-width:58vw; overflow-x:auto; gap:14px; scrollbar-width:none; } .desktop-nav::-webkit-scrollbar { display:none; } .nav-link,.nav-cta { white-space:nowrap; font-size:10px; } .menu-toggle { display:none; } .cards { grid-template-columns:repeat(2,1fr); } .project-grid,.community-grid { grid-template-columns:1fr; } .content-grid { grid-template-columns:repeat(2,1fr); } .footer-top { grid-template-columns:1fr; } }
+@media (max-width:900px) { .desktop-nav { display:flex; max-width:58vw; overflow-x:auto; gap:14px; scrollbar-width:none; } .desktop-nav::-webkit-scrollbar { display:none; } .nav-link,.nav-cta { white-space:nowrap; font-size:10px; } .menu-toggle { display:none; } .cards { grid-template-columns:repeat(2,1fr); } .project-grid,.community-grid { grid-template-columns:minmax(0,1fr); } .content-grid { grid-template-columns:repeat(2,1fr); } .footer-top { grid-template-columns:1fr; } }
 @media (max-width:620px) { .container { width:min(var(--max),calc(100% - 32px)); } .hero { min-height:calc(100svh - 72px); } .stats-grid { grid-template-columns:repeat(2,1fr); } .stat:nth-child(2) { border-right:0; } .stat:nth-child(-n+2) { border-bottom:1px solid var(--line); } .cards,.content-grid,.contact-grid,.split,.project-grid,.community-grid { grid-template-columns:1fr; } .timeline-item { grid-template-columns:1fr; gap:10px; padding:24px; } .timeline-index { display:none; } .split > div { padding:28px; } .cta-inner { align-items:flex-start; flex-direction:column; } .footer-nav { grid-template-columns:repeat(2,1fr); } .footer-bottom { flex-direction:column; } .project-card h3 { font-size:54px; } .project-note { align-items:flex-start; } .mission-line { gap:8px; font-size:9px; } }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .reveal { opacity:1; transform:none; transition:none; } }
 
@@ -365,12 +365,14 @@ html { scroll-padding-top:84px; }
   .actions { display:grid; grid-template-columns:1fr; }
   .actions .button { width:100%; white-space:normal; text-align:center; }
   .section-band { padding-block:clamp(56px,12vw,80px); }
-  .section-title { font-size:clamp(44px,11vw,68px); line-height:.9; }
+  .section-title { font-size:clamp(38px,11vw,68px); line-height:.9; }
   .section-copy { margin-top:20px; font-size:17px; }
   .project-card { min-height:0; padding:22px; }
   .project-meta { min-width:0; flex-wrap:wrap; gap:8px 12px; }
   .project-card h3 { margin-top:34px; font-size:clamp(44px,12vw,58px); }
-  .community-grid article { min-height:0; padding:24px; }
+  .community-grid article { min-width:0; min-height:0; padding:24px; }
+  .community-grid h3 { font-size:clamp(32px,10vw,42px); }
+  .project-card,.team-preview,.community-progress { min-width:0; }
   .community-grid h3 { margin-top:28px; }
   .simulator-panel { gap:22px; padding:24px; }
   .simulator-mark { font-size:clamp(48px,15vw,76px); }
