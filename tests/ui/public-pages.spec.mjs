@@ -63,7 +63,7 @@ test("Home opens optional registration only after explicit choice", async ({ pag
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const panel = page.locator("#cadastro-panel");
   await expect(panel).toBeHidden();
-  const registrationButton = page.getByRole("button", { name: /cadastro opcional de participação/i });
+  const registrationButton = page.getByRole("button", { name: /cadastro para métricas/i });
   await expect(registrationButton).toBeVisible();
   await registrationButton.click();
   await expect(panel).toBeVisible();
