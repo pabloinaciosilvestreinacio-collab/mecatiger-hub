@@ -434,3 +434,16 @@ html { scroll-padding-top:84px; }
   html { overflow-x:clip; }
   .registration-panel .panel-header h2 { font-size:clamp(32px,10vw,44px); line-height:.95; overflow-wrap:anywhere; }
 }
+
+
+/* Conteúdo sempre legível; a animação de entrada não pode ocultar texto nem reduzir contraste. */
+.reveal,
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Microtexto e índices visuais também mantêm contraste AA. */
+.map-credit { opacity: 1; color: var(--muted); }
+.project-index { opacity: 1; }

@@ -47,7 +47,7 @@ export function inspectRepository(root=process.cwd()) {
     ["rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests","rede_reports"]
       .every(t=>community.includes("alter table public."+t+" enable row level security")) &&
       sim.includes("mecasim_trajectories enable row level security") &&
-      ["meca_site_editors","meca_site_copy","meca_site_gallery"].every(t=>cms.includes("alter table public."+t+" enable row level security")),
+      ["meca_site_editors","meca_site_copy","meca_site_gallery","meca_site_pages"].every(t=>cms.includes("alter table public."+t+" enable row level security")),
     "Políticas RLS previstas nos arquivos; a integração com banco real é testada em workflow separado");
   check("anonymous-deny",anon.includes("as restrictive") && anon.includes("is_anonymous"),
     "Guarda contra identidade Auth anônima presente nos SQL");
@@ -66,10 +66,11 @@ export function inspectRepository(root=process.cwd()) {
     client.includes("safeReturn("),
     "Retornos permitidos no navegador, mas redirects do servidor ainda precisam de aprovação");
   const home=read("index.html"),rede=read("rede.html"),entry=read("entrar.html");
-  check("browser-routes",home.includes('src="js/cms-public.js"') &&
+  check("browser-routes",home.includes('src="js/cms-public.js?v=') &&
     home.includes('href="admin.html"') && rede.includes('src="js/cms-public.js"') &&
     entry.includes('src="js/rede-auth.js"') &&
-    existsSync(at("admin.html")) && existsSync(at("js/admin.js")),
+    existsSync(at("admin.html")) && existsSync(at("js/admin.js")) &&
+    existsSync(at("pagina.html")) && existsSync(at("conteudo.html")),
     "Rotas, editor e CMS existem nos artefatos estáticos");
   const edge=read("supabase/functions/mecasim-trajectories/index.ts");
   check("edge-present",edge.includes("createTrajectoryHandler") && edge.includes("Deno.serve(handle)") && existsSync(at("supabase/functions/mecasim-trajectories/handler.mjs")),
@@ -95,6 +96,7 @@ if(invoked){
     console.log("Meca Tiger | pré-lançamento OFFLINE, somente leitura");
     for(const c of report.codeChecks) console.log((c.ok?"PASS":"FAIL")+" "+c.id+" — "+c.reason);
     console.log("Resultado: "+report.summary);
+    console.log(report.summary);
     console.log("Bloqueios operacionais pendentes: "+report.externalGates.length);
     console.log("Nenhum deploy, merge, alteração de banco ou autorização efetuados.");
   }

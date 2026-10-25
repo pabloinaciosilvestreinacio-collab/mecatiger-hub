@@ -2,6 +2,7 @@ import {test,expect} from "@playwright/test";
 import {installLocalApp,waitForConfirmationLink} from "./local-app.mjs";
 
 test("painel requer concessão e permite edição e foto por integrante autorizado", async ({context,page})=>{
+  test.setTimeout(90_000);
   await installLocalApp(context,true);
   const email="editor-web-"+Date.now()+"@mecatiger.invalid";
   await page.goto("/admin.html");
@@ -45,6 +46,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.locator("#cms-copy-form button[type=submit]").click();
   await expect(page.locator("#cms-copy-status")).toContainText("Texto salvo");
 
+  await page.locator("#admin-tab-photos").click();
   const webp=Buffer.from("UklGRjoAAABXRUJQVlA4IC4AAAAQAgCdASoCAAIAAkA4JaACdLoB+AH4AAPIAP7n5L/6nAk8B/Br/9JoQ9W/KwAA","base64");
   await page.locator("#cms-photo").setInputFiles({name:"foto.webp",mimeType:"image/webp",buffer:webp});
   await page.locator("#cms-caption").fill("Foto homologada pela equipe");

@@ -1,7 +1,7 @@
 import { supabase } from "./rede-client.js";
 import { isVerifiedMember } from "./rede-identity.mjs";
 import { CMS_SLOTS, CMS_BUCKET, MAX_INPUT_BYTES, MAX_PHOTO_BYTES,
-         validCopy, validCaption, validAssetPath } from "./cms-model.mjs";
+         validCopy, validCaption, validAssetPath, validPage } from "./cms-model.mjs";
 
 // Admin UI is not provisioned on GitHub Pages. Do not query/write hosted CMS.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
@@ -18,8 +18,11 @@ const contentSection=byId("admin-content");
 const locked=byId("admin-locked");
 const copyForm=byId("cms-copy-form");
 const photoForm=byId("cms-photo-form");
+const pageForm=byId("cms-page-form");
 let editorUser=null;
 let storedCopy = new Map();
+let storedPages = new Map();
+let editingPageSlug = null;
 
 async function closeSession() {
   editorUser = null;
@@ -48,6 +51,131 @@ function showCurrentText() {
     : "Este é o texto padrão. Salve para publicar sua alteração.");
 }
 byId("cms-slot").addEventListener("change",showCurrentText);
+
+function selectAdminTab(name,focus=false) {
+  for(const tab of document.querySelectorAll("[data-admin-tab]")) {
+    const selected=tab.dataset.adminTab===name;
+    tab.setAttribute("aria-selected",String(selected));
+    tab.tabIndex=selected?0:-1;
+    const panel=byId(tab.getAttribute("aria-controls"));
+    if(panel) panel.hidden=!selected;
+    if(selected && focus) tab.focus();
+  }
+}
+const adminTabs=[...document.querySelectorAll("[data-admin-tab]")];
+for(const tab of adminTabs) {
+  tab.addEventListener("click",()=>selectAdminTab(tab.dataset.adminTab));
+  tab.addEventListener("keydown",event=>{
+    const direction=event.key==="ArrowRight"?1:event.key==="ArrowLeft"?-1:0;
+    if(!direction)return;
+    event.preventDefault();
+    const index=adminTabs.indexOf(tab);
+    const next=adminTabs[(index+direction+adminTabs.length)%adminTabs.length];
+    selectAdminTab(next.dataset.adminTab,true);
+  });
+}
+function resetPageForm() {
+  pageForm.reset();
+  editingPageSlug=null;
+  byId("cms-page-slug").readOnly=false;
+  byId("cms-page-order").value="100";
+  byId("cms-page-nav-visible").checked=true;
+  status("cms-page-status","Preencha os campos para criar uma página em rascunho.");
+}
+byId("cms-page-new").addEventListener("click",resetPageForm);
+byId("cms-page-cover").addEventListener("change",()=>{
+  if(!byId("cms-page-cover").value) byId("cms-page-cover-alt").value="";
+});
+function setPageForm(page) {
+  editingPageSlug=page.slug;
+  byId("cms-page-slug").value=page.slug;
+  byId("cms-page-slug").readOnly=true;
+  byId("cms-page-title").value=page.title;
+  byId("cms-page-nav-label").value=page.nav_label;
+  byId("cms-page-summary").value=page.summary||"";
+  byId("cms-page-body").value=page.body;
+  byId("cms-page-cover").value=page.cover_path||"";
+  byId("cms-page-cover-alt").value=page.cover_alt||"";
+  byId("cms-page-order").value=String(page.nav_order);
+  byId("cms-page-nav-visible").checked=page.show_in_nav;
+  byId("cms-page-published").checked=page.published;
+  status("cms-page-status","Editando “"+page.title+"”. O endereço fica fixo para não quebrar links.");
+  selectAdminTab("pages");
+  byId("cms-page-title").focus();
+}
+function renderPageList() {
+  const root=byId("cms-pages-list");
+  root.replaceChildren();
+  for(const page of storedPages.values()) {
+    const card=document.createElement("article");card.className="admin-page-card";
+    const title=document.createElement("h4");title.textContent=page.title;
+    const state=document.createElement("p");
+    state.textContent=(page.published?"Publicada":"Rascunho")+" · "+(page.show_in_nav?"visível nos menus":"fora dos menus");
+    const actions=document.createElement("div");actions.className="admin-page-actions";
+    const edit=document.createElement("button");edit.type="button";edit.className="button outline";edit.textContent="Editar";
+    edit.addEventListener("click",()=>setPageForm(page));
+    actions.append(edit);
+    if(page.published) {
+      const preview=document.createElement("a");preview.className="button outline";
+      preview.href="pagina.html?slug="+encodeURIComponent(page.slug);
+      preview.target="_blank";preview.rel="noopener noreferrer";preview.textContent="Pré-visualizar";
+      actions.append(preview);
+    }
+    card.append(title,state,actions);root.append(card);
+  }
+  if(!storedPages.size) {
+    const empty=document.createElement("p");empty.textContent="Nenhuma página criada ainda.";
+    root.append(empty);
+  }
+}
+async function refreshPages() {
+  const {data,error}=await supabase.from("meca_site_pages")
+    .select("slug,title,nav_label,summary,body,cover_path,cover_alt,show_in_nav,nav_order,published")
+    .order("nav_order",{ascending:true}).order("title",{ascending:true}).limit(100);
+  if(error) {
+    status("cms-page-status","Não foi possível carregar páginas. Verifique a instalação do CMS.",true);
+    return false;
+  }
+  storedPages=new Map((data||[]).map(page=>[page.slug,page]));
+  renderPageList();
+  return true;
+}
+pageForm.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const page={
+    slug:byId("cms-page-slug").value.trim(),
+    title:byId("cms-page-title").value.trim(),
+    nav_label:byId("cms-page-nav-label").value.trim(),
+    summary:byId("cms-page-summary").value.trim(),
+    body:byId("cms-page-body").value.trim(),
+    cover_path:byId("cms-page-cover").value||null,
+    cover_alt:byId("cms-page-cover-alt").value.trim(),
+    show_in_nav:byId("cms-page-nav-visible").checked,
+    nav_order:Number(byId("cms-page-order").value),
+    published:byId("cms-page-published").checked,
+    updated_by:editorUser?.id,
+    updated_at:new Date().toISOString()
+  };
+  if(!editorUser || !validPage(page)) {
+    status("cms-page-status","Página inválida. Confira endereço, texto, legenda da foto e ordem.",true);return;
+  }
+  if(storedPages.has(page.slug) && editingPageSlug!==page.slug) {
+    status("cms-page-status","Este endereço já existe. Use Editar na página correspondente.",true);return;
+  }
+  const button=pageForm.querySelector("button[type=submit]");
+  button.disabled=true;
+  status("cms-page-status","Salvando página...");
+  try {
+    const {error}=await supabase.from("meca_site_pages").upsert(page,{onConflict:"slug"});
+    if(error) throw error;
+    editingPageSlug=page.slug;
+    byId("cms-page-slug").readOnly=true;
+    status("cms-page-status",page.published?"Página publicada no site.":"Rascunho salvo; somente editores podem vê-lo.");
+    await refreshPages();
+  } catch {
+    status("cms-page-status","Não foi possível salvar. Confira a autorização do editor e tente novamente.",true);
+  } finally {button.disabled=false;}
+});
 
 copyForm.addEventListener("submit",async event=>{
   event.preventDefault();
@@ -101,6 +229,19 @@ async function refreshGallery() {
   const {data,error}=await supabase.from("meca_site_gallery")
     .select("id,caption,asset_path").order("id",{ascending:false}).limit(50);
   if(error) {status("cms-photo-status","Não foi possível consultar as fotos.",true);return;}
+  const coverSelect=byId("cms-page-cover");
+  const selectedCover=coverSelect.value;
+  coverSelect.replaceChildren();
+  const noCover=document.createElement("option");
+  noCover.value="";noCover.textContent="Sem foto de capa";
+  coverSelect.append(noCover);
+  for(const row of data||[]) {
+    if(!validAssetPath(row.asset_path)) continue;
+    const option=document.createElement("option");
+    option.value=row.asset_path;option.textContent=row.caption;
+    coverSelect.append(option);
+  }
+  coverSelect.value=selectedCover;
   const list=byId("cms-gallery-list");
   list.replaceChildren();
   for(const row of data||[]) {
@@ -163,6 +304,7 @@ photoForm.addEventListener("submit",async event=>{
   status("admin-status","Acesso de edição confirmado.");
   contentSection.hidden=false;
   await Promise.all([loadTexts(),refreshGallery()]);
+  await refreshPages();
 })().catch(()=>{
   contentSection.hidden=true;
   locked.hidden=false;

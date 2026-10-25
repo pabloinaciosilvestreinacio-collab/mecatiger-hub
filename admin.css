@@ -9,3 +9,58 @@
 .admin-photo p { padding:10px 14px; margin:0; overflow-wrap:anywhere; }
 #cms-copy-form textarea { min-height:150px; }
 .admin-main [hidden] { display:none !important; }
+
+.admin-tabs {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:24px 0;
+}
+.admin-tabs [aria-selected="true"] {
+  border-color:#f05a28;
+  color:#ff7a45;
+}
+.admin-panel[hidden] { display:none; }
+.admin-pages-list,.cms-page-list {
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));
+  margin-top:18px;
+}
+.admin-page-card,.cms-page-card {
+  border:1px solid #51565b;
+  border-radius:12px;
+  padding:16px;
+  background:#17191b;
+}
+.admin-page-card h4,.cms-page-card h2 { margin:0 0 8px; }
+.admin-page-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.cms-page-nav {
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:10px 0;
+  border-bottom:1px solid #51565b;
+  scrollbar-width:thin;
+}
+.cms-page-nav a {
+  flex:0 0 auto;
+  border:1px solid #51565b;
+  border-radius:999px;
+  padding:8px 14px;
+}
+.cms-page-shell { padding-block:clamp(32px,7vw,88px); }
+.cms-page-shell h1 { font-size:clamp(2.2rem,7vw,5rem); max-width:18ch; }
+.cms-page-summary { font-size:clamp(1.1rem,2vw,1.35rem); max-width:68ch; color:#dedede; }
+.cms-page-body {
+  max-width:72ch;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  line-height:1.75;
+}
+.cms-page-cover { margin:28px 0; max-width:100%; }
+.cms-page-cover img { display:block; width:100%; max-height:580px; object-fit:cover; border-radius:14px; }
+@media (max-width:600px) {
+  .admin-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .admin-tabs .button { width:100%; }
+}

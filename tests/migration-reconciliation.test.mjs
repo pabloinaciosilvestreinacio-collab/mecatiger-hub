@@ -5,7 +5,7 @@ import {resolve} from "node:path";
 import {auditSqlText,inspectCheckout,reconcile,EXPECTED_FILES} from "../scripts/audit-migration-reconciliation.mjs";
 import {readFileSync} from "node:fs";
 
-const snap=JSON.parse(readFileSync("release/hosted-baseline-20261024.json","utf8"));
+const snap=JSON.parse(readFileSync("release/hosted-baseline-20261025.json","utf8"));
 const safeSql=Object.fromEntries(EXPECTED_FILES.map(n=>[n,
   "create table if not exists public.rede_profiles(id uuid primary key); alter table public.rede_profiles enable row level security;"]));
 
