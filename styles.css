@@ -443,3 +443,7 @@ html { scroll-padding-top:84px; }
   transform: none;
   transition: none;
 }
+
+/* Microtexto e índices visuais também mantêm contraste AA. */
+.map-credit { opacity: 1; color: var(--muted); }
+.project-index { opacity: 1; }
