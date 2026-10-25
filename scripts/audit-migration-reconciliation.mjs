@@ -11,8 +11,10 @@ export const EXPECTED_FILES=Object.freeze([
   "20261025032012_rede_mecatiger_mvp.sql",
   "20261025032022_require_nonanonymous_identity.sql",
   "20261025032028_mecasim_private_trajectories.sql",
-  "20261025032035_mecatiger_site_cms.sql"
+  "20261025032035_mecatiger_site_cms.sql",
+  "20261025140000_rede_request_messages.sql"
 ]);
+export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES.slice(0,4));
 export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
   ["20261013171020","create_community_registration_metrics"],
   ["20261013173230","count_competitors_as_students"],
@@ -28,7 +30,7 @@ export const PROTECTED_LEGACY_OBJECTS=Object.freeze([
 ]);
 const NEW_OBJECTS=new Set([
  "rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests",
- "rede_reports","rede_moderation_log","mecasim_trajectories",
+ "rede_reports","rede_moderation_log","rede_request_messages","mecasim_trajectories",
  "meca_site_editors","meca_site_copy","meca_site_gallery","meca_site_pages"
 ]);
 export const normalizeVersion = filename => {
@@ -86,20 +88,27 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Tabela antiga sem RLS ou não encontrada na fotografia hospedada");
   if(remote.legacy_rpc?.name!=="register_community_member"||remote.legacy_rpc?.security_definer!==true)
     issues.push("RPC de cadastro hospedado mudou desde a inspeção");
-  // The four historical source files are unavailable in this checkout; align the
-  // four tracked product migrations by exact version and name against the hosted catalog.
+  // Four product migrations are confirmed applied. An explicitly allowlisted
+  // fifth migration is reviewed in this PR but intentionally remains unapplied.
   const expectedVersions=EXPECTED_HOSTED_MIGRATIONS.map(x=>x[0]);
   const expectedNames=new Map(EXPECTED_HOSTED_MIGRATIONS);
   const remoteByVersion=new Map(remote.hosted_migrations.map(x=>[x.version,x.name]));
   const inventoryAligned=JSON.stringify(versions)===JSON.stringify(expectedVersions);
-  const appliedAligned=EXPECTED_FILES.every(filename=>{
+  const appliedAligned=EXPECTED_APPLIED_FILES.every(filename=>{
     const version=normalizeVersion(filename);
     const name=basename(filename,".sql").slice(15);
     return remoteByVersion.get(version)===name && expectedNames.get(version)===name;
   });
+  const lastRemoteVersion=versions.at(-1);
+  const pendingFiles=EXPECTED_FILES.filter(filename=>!EXPECTED_APPLIED_FILES.includes(filename));
+  const pendingVersionsValid=pendingFiles.every(filename=>{
+    const version=normalizeVersion(filename);
+    return version>lastRemoteVersion && !remoteByVersion.has(version);
+  });
   if(!inventoryAligned)issues.push("Histórico hospedado difere do inventário verificado após implantação");
-  if(!appliedAligned)issues.push("Versão/nome local das migrations não corresponde ao histórico hospedado");
-  const historyAligned=inventoryAligned&&appliedAligned;
+  if(!appliedAligned)issues.push("Versão/nome local das migrations aplicadas não corresponde ao histórico hospedado");
+  if(!pendingVersionsValid)issues.push("Migration em revisão colide com o histórico ou não é posterior ao remoto");
+  const historyAligned=inventoryAligned&&appliedAligned&&pendingVersionsValid;
   const safeSql=issues.length===0;
   return {
     valid:safeSql,
