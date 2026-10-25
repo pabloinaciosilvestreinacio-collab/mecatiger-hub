@@ -119,7 +119,9 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("identityResolved = !profile.error",source)
         self.assertNotIn('from("rede_moderators")',source)
         self.assertIn('$("own-items").replaceChildren()',source)
-        self.assertIn('$("mod-items").replaceChildren()',source)
+        self.assertIn('$("own-items").replaceChildren()',source)
+        admin=(ROOT/"js/admin.js").read_text(encoding="utf-8")
+        self.assertIn('byId("admin-mod-list").replaceChildren()',admin)
 
     def test_rede_participation_is_explicit_and_not_falsely_populated(self):
         page=(ROOT/"rede.html").read_text(encoding="utf-8")
