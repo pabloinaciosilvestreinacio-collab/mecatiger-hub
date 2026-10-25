@@ -1,5 +1,5 @@
-import { supabase } from "./rede-client.js";
-import { isVerifiedMember } from "./rede-identity.mjs";
+import { supabase } from "./rede-client.js?v=20261025d";
+import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 
 // Public demo does not call unprovisioned Edge Functions or offer fake cloud saving.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
