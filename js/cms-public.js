@@ -1,5 +1,5 @@
-import { supabase } from "./rede-client.js";
-import { CMS_SLOTS, CMS_BUCKET, validAssetPath, CMS_SLUG } from "./cms-model.mjs";
+import { supabase } from "./rede-client.js?v=20261025d";
+import { CMS_SLOTS, CMS_BUCKET, validAssetPath, CMS_SLUG } from "./cms-model.mjs?v=20261025d";
 
 async function loadPublicCopy() {
   const slots=[...document.querySelectorAll("[data-cms-text]")]
