@@ -1,5 +1,5 @@
 -- Test only: apply after the Supabase shim and all product migrations.
-\\set ON_ERROR_STOP on
+\set ON_ERROR_STOP on
 
 update auth.users set email_confirmed_at=now();
 insert into public.meca_site_admins(user_id)
