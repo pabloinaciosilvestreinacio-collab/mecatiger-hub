@@ -18,7 +18,7 @@ create table storage.objects (
 );
 create or replace function storage.foldername(name text)
 returns text[] language sql immutable
-as $ select array[split_part(name,'/',1)] $;
+as $fn$ select array[split_part(name,'/',1)] $fn$;
 
 grant usage on schema auth to anon, authenticated;
 grant usage on schema public to anon, authenticated;
