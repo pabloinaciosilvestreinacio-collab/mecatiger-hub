@@ -75,7 +75,7 @@ test("Home opens optional registration only after explicit choice", async ({ pag
   await skipButton.click();
   await expect(panel).toBeHidden();
 
-  await expect(page.getByRole("button", { name: /cadastro opcional de participação/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /cadastro para métricas/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .include("#cadastro-panel")
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
