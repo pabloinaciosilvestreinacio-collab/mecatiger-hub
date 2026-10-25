@@ -50,6 +50,46 @@ async function loadPageTabs(pages) {
     }
   }
 }
+async function loadPublicTeamMembers() {
+  const root=document.getElementById("team-roster");
+  const status=document.getElementById("team-profile-status");
+  const count=document.getElementById("team-members-count");
+  if(!root)return;
+  const {data,error}=await supabase.from("meca_site_team_members")
+    .select("full_name,team_role,bio,photo_path,photo_alt,sort_order")
+    .eq("published",true).order("sort_order",{ascending:true}).order("full_name",{ascending:true}).limit(80);
+  root.replaceChildren();
+  if(error) {
+    if(status)status.textContent="Os perfis da equipe estão temporariamente indisponíveis.";
+    if(count)count.textContent="";
+    return;
+  }
+  const members=data||[];
+  for(const member of members) {
+    const card=document.createElement("article");card.className="member-card cms-member-card";
+    const photo=document.createElement("div");photo.className="member-photo";
+    if(member.photo_path && validAssetPath(member.photo_path)) {
+      const image=document.createElement("img");image.loading="lazy";image.decoding="async";
+      image.alt=member.photo_alt;
+      image.src=supabase.storage.from(CMS_BUCKET).getPublicUrl(member.photo_path).data.publicUrl;
+      photo.append(image);
+    } else {
+      const initials=document.createElement("span");initials.setAttribute("aria-hidden","true");
+      initials.textContent=member.full_name.trim().split(/\s+/).slice(0,2).map(part=>part[0]||"").join("").toUpperCase();
+      photo.append(initials);
+    }
+    const detail=document.createElement("div");
+    const role=document.createElement("span");role.className="member-role";
+    role.textContent=({integrante:"Integrante",tecnico:"Técnico",mentor:"Mentor"})[member.team_role]||"Equipe MecaTiger";
+    const name=document.createElement("h3");name.className="display";name.textContent=member.full_name;
+    const bio=document.createElement("p");bio.textContent=member.bio;
+    detail.append(role,name,bio);card.append(photo,detail);root.append(card);
+  }
+  if(count)count.textContent=members.length+" perfil(is) publicado(s)";
+  if(status)status.textContent=members.length
+    ? members.length+" perfil(is) publicado(s) nesta temporada."
+    : "Os perfis serão exibidos aqui quando a equipe os publicar.";
+}
 async function loadPublicGallery() {
   const root=document.getElementById("meca-photo-gallery");
   const section=document.getElementById("meca-gallery");
@@ -110,7 +150,7 @@ async function renderCurrentPage() {
   root.hidden=false;
 }
 async function bootCms() {
-  const [,pages]=await Promise.all([loadPublicCopy(),publicPages(),loadPublicGallery()]);
+  const [,pages]=await Promise.all([loadPublicCopy(),publicPages(),loadPublicGallery(),loadPublicTeamMembers()]);
   await loadPageTabs(pages);
   await Promise.all([renderPageDirectory(pages),renderCurrentPage()]);
 }
