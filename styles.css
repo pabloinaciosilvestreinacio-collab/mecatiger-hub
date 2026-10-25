@@ -182,7 +182,7 @@ body { background:var(--bg); color:#fff; font-family:"Inter","Barlow",sans-serif
 .site-panel .evidence-card h3 { margin:24px 0 0; font-size:clamp(52px,8vw,92px); line-height:.82; }
 .site-panel .evidence-card.is-selected { border-color:var(--orange); box-shadow:0 0 0 2px rgba(242,138,26,.16); }
 body.panel-open { overflow:hidden; }
-@keyframes panel-in { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+@keyframes panel-in { from { transform:translateY(18px); } to { transform:none; } }
 @media (max-width:620px) { .panel-inner { padding-top:92px; } .panel-header { flex-direction:column; } .panel-close { align-self:flex-end; } }
 
 .registration-panel { background:rgba(0,0,0,.96); }
