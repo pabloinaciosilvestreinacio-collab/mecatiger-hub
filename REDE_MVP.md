@@ -1,6 +1,6 @@
 # Rede Meca Tiger — implementação em branch e limites de segurança
 
-**Estado:** IMPLEMENTADO EM BRANCH, PENDENTE DE BANCO, CONFIGURAÇÃO DO AUTH E TESTES REAIS. NÃO PUBLICAR EM PRODUÇÃO AINDA.
+**Estado em 25/10/2026:** migrations hospedadas aplicadas, todas as tabelas novas com RLS. Feed público está ativo em leitura; login, gravações, pedidos, denúncias e CMS aguardam SMTP/Auth e usuários editor/moderador. Não anunciar a Rede como aberta até concluir estes gates.
 
 ## Arquitetura confirmada
 
@@ -10,8 +10,8 @@ O site atualmente publicado usa HTML, CSS e JavaScript estáticos no GitHub Page
 - entrar.html: solicitação de link por e-mail, sem senha. O envio/validação é feito no Supabase Auth.
 - js/rede-client.js: Supabase JS versionado, chave somente publishable, cliente PKCE.
 - js/rede.js: operações reais com Supabase, sem conteúdo fictício; controle de acesso no banco.
-- supabase/migrations/20261024160000_rede_mecatiger_mvp.sql: schema ADITIVO, sem alterar community_registrations ou community_metrics.
-- supabase/migrations/20261024163000_require_nonanonymous_identity.sql: reforço de políticas RLS, sem executar em produção.
+- supabase/migrations/20261025032012_rede_mecatiger_mvp.sql: schema ADITIVO, sem alterar community_registrations ou community_metrics.
+- supabase/migrations/20261025032022_require_nonanonymous_identity.sql: reforço de políticas RLS já aplicado no Supabase hospedado.
 - js/sim-gate.js: barreira visual/de navegação; NÃO bloqueia leitura do HTML público no GitHub Pages.
 
 ## Configuração necessária para autenticação por e-mail
@@ -25,7 +25,7 @@ O site atualmente publicado usa HTML, CSS e JavaScript estáticos no GitHub Page
 
 ## Banco de dados
 
-A migração está apenas em arquivo. NÃO foi executada no Supabase de produção. Revisar/aplicar em ambiente de testes isolado com contas descartáveis antes de qualquer migração de produção. O schema atual de métricas e a RPC register_community_member permanecem intactos.
+As quatro migrações novas foram aplicadas ao Supabase hospedado e o inventário pós-migração está em release/hosted-baseline-20261025.json. O schema de métricas e a RPC register_community_member permanecem intactos. Auth/SMTP, usuários de teste, moderador e editor ainda não estão configurados; a escrita da Rede segue bloqueada.
 
 Verificações de autorização obrigatórias após instalar o schema no ambiente de testes:
 
@@ -43,9 +43,9 @@ Testes SQL feitos com o proprietário postgres NÃO representam testes de RLS. U
 
 ## Ciclo de segurança: alternativa 3 — defesa dupla contra Auth anônimo
 
-**Estado: implementado e testado somente na branch. A opção de Anonymous Sign-Ins em produção NÃO foi alterada e seu estado atual não foi confirmado.**
+**Estado: aplicado no Supabase hospedado. Anonymous Sign-Ins estava desativado no inventário de 25/10/2026.**
 
-- Migração aditiva `supabase/migrations/20261024163000_require_nonanonymous_identity.sql`: RLS `AS RESTRICTIVE` obriga `auth.jwt()->>'is_anonymous' = false` para INSERT, UPDATE e DELETE nos recursos da Rede. Claims ausentes também não passam; donos e moderadores continuam sujeitos às políticas de autoria/autorização.
+- Migração aditiva `supabase/migrations/20261025032022_require_nonanonymous_identity.sql`: RLS `AS RESTRICTIVE` obriga `auth.jwt()->>'is_anonymous' = false` para INSERT, UPDATE e DELETE nos recursos da Rede. Claims ausentes também não passam; donos e moderadores continuam sujeitos às políticas de autoria/autorização.
 - Consultas públicas a publicações e comentários aprovados continuam permitidas; sessões anônimas não conseguem consultar conteúdo pendente privado, pedidos ou denúncias.
 - `js/rede-identity.mjs`: interface trata como participante somente usuário com identidade, e-mail confirmado e `is_anonymous === false`. Frontend não é uma barreira de segurança independente do banco.
 - `tests/rls_smoke.sql` agora testa a sessão Auth anônima usando papel `authenticated` e marca JWT `is_anonymous=true`, inclusive tentativa de inserir, alterar, apagar e visualizar conteúdo privado. Testa também a falta do claim, com negação por padrão.
@@ -94,12 +94,12 @@ A nova tela só exibe a prévia após getUser. Isso NÃO impede alguém de baixa
 
 ## Próximo ciclo
 
-1. Validar SQL em base de desenvolvimento e testar políticas com contas de teste.
-2. Configurar URLs/SMTP/template e autenticar no navegador real.
-3. Testar interações e moderação end-to-end, acessibilidade em dispositivos.
-4. Mover o simulador para serviço de origem autenticada, se o código precisar ser privado.
+1. Configurar e verificar SMTP/Auth com redirects estritos; criar contas individuais confirmadas de teste.
+2. Provisionar editor/moderador individualmente e testar upload, feed e formulários pelo site.
+3. Homologar denúncia, pedido privado, conexão, comentários e moderação ponta a ponta.
+4. Revisar privacidade, retenção, menores e procedimento de restauração.
 5. Revisar política de privacidade, retenção, conteúdo de menores, denúncias e exclusão.
-6. Somente depois solicitar revisão e autorização explícita para promover a main.
+6. Manter leitura pública do feed; liberar escrita somente depois que os gates acima passarem.
 7. Fase posterior: IA informativa com conteúdo público aprovado; nada de segredos no prompt/contexto.
 
 Regra operacional: o trabalho desta branch NÃO está pronto para lançamento até concluir as validações e eliminar falhas críticas conhecidas.
