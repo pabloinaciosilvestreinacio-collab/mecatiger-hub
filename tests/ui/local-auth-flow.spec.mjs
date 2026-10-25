@@ -97,5 +97,5 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await page.locator("#auth-email").fill(email);
   await page.locator("#auth-password").fill("Senha-de-teste-local-2026!");
   await page.getByRole("button", { name: "Entrar com senha" }).click();
-  await page.waitForURL(/\\/mecasim-demo\\.html$/, { timeout: 20_000 });
+  await page.waitForURL(url => url.pathname.endsWith("/mecasim-demo.html"), { timeout: 20_000 });
 });
