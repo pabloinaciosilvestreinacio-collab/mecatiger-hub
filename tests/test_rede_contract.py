@@ -68,13 +68,19 @@ class RedeContracts(unittest.TestCase):
     def test_social_actions_do_not_fake_success(self):
         source=(ROOT/"js/rede.js").read_text(encoding="utf-8")
         for table in ("rede_profiles","rede_posts","rede_comments","rede_requests",
-                      "rede_reports","rede_moderators"):
+                      "rede_reports"):
             with self.subTest(table=table):
                 self.assertIn(f'from("{table}")',source)
         self.assertIn("profileReady",source)
-        self.assertIn("isModerator",source)
         self.assertIn('status","approved"',source)
         self.assertIn("window.confirm(",source)
+        # Moderation is centralized in admin.js; the public Rede only reports content.
+        self.assertNotIn("loadModeration",source)
+        admin=(ROOT/"js/admin.js").read_text(encoding="utf-8")
+        for table in ("rede_moderators","rede_posts","rede_comments","rede_reports",
+                      "rede_moderation_log"):
+            self.assertIn(f'from("{table}")',admin)
+        self.assertIn("isModerator",admin)
 
     def test_public_pages_disclose_private_simulator_limitation(self):
         document=(ROOT/"REDE_MVP.md").read_text(encoding="utf-8")
@@ -99,7 +105,7 @@ class RedeContracts(unittest.TestCase):
         self.assertGreaterEqual(source.count("const form=event.currentTarget"),2)
         self.assertIn("form.reset()",source)
 
-    def test_identity_operations_are_gated_until_profile_and_role_load(self):
+    def test_identity_operations_are_gated_until_profile_load(self):
         source=(ROOT/"js/rede.js").read_text(encoding="utf-8")
         self.assertIn("function syncIdentityControls()",source)
         self.assertIn("identityLoading",source)
@@ -110,7 +116,8 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("loginLink()",source)
         self.assertIn('$("post-form").hidden = !usable || !profileReady',source)
         self.assertIn('$("profile-form").querySelector(\'button[type="submit"]\').disabled = !usable',source)
-        self.assertIn("identityResolved = !profile.error && !mod.error",source)
+        self.assertIn("identityResolved = !profile.error",source)
+        self.assertNotIn('from("rede_moderators")',source)
         self.assertIn('$("own-items").replaceChildren()',source)
         self.assertIn('$("mod-items").replaceChildren()',source)
 
