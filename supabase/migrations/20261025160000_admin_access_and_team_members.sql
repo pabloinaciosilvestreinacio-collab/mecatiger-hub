@@ -10,13 +10,15 @@ revoke all on public.meca_site_admins from public, anon, authenticated;
 -- Bootstrap the already verified owner account identified during production audit.
 -- The initial administrator also receives editor and moderator roles so the panel works immediately.
 insert into public.meca_site_admins (user_id)
-values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
+select u.id from auth.users u
+where u.id='bc7eac84-0c89-460e-b9a9-e55a4be08d1d'
+  and u.email_confirmed_at is not null
 on conflict (user_id) do nothing;
 insert into public.meca_site_editors (user_id)
-values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
+select user_id from public.meca_site_admins
 on conflict (user_id) do nothing;
 insert into public.rede_moderators (user_id)
-values ('bc7eac84-0c89-460e-b9a9-e55a4be08d1d')
+select user_id from public.meca_site_admins
 on conflict (user_id) do nothing;
 
 create or replace function public.meca_site_is_admin()
