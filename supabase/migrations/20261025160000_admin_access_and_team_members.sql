@@ -64,7 +64,7 @@ begin
     raise exception 'not_authorized' using errcode = '42501';
   end if;
   return query
-    select u.id, u.email,
+    select u.id, u.email::text,
       exists(select 1 from public.meca_site_editors e where e.user_id=u.id),
       exists(select 1 from public.rede_moderators m where m.user_id=u.id),
       exists(select 1 from public.meca_site_admins a where a.user_id=u.id)
