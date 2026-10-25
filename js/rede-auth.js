@@ -1,5 +1,5 @@
-import { supabase, safeReturn } from "./rede-client.js";
-import { isVerifiedMember } from "./rede-identity.mjs";
+import { supabase, safeReturn } from "./rede-client.js?v=20261025d";
+import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 
 const status = document.getElementById("auth-status");
 const sendForm = document.getElementById("send-code");
