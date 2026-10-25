@@ -149,9 +149,23 @@ async function renderCurrentPage() {
   status.textContent="";
   root.hidden=false;
 }
+function setupAccountOnboarding() {
+  const dialog=document.getElementById("account-onboarding");
+  const close=document.getElementById("account-onboarding-close");
+  if(!dialog||!close)return;
+  close.addEventListener("click",()=>dialog.close());
+  dialog.addEventListener("click",event=>{
+    if(event.target===dialog)dialog.close();
+  });
+  supabase.auth.getUser().then(({data,error})=>{
+    if(!error && !data?.user?.email_confirmed_at && !dialog.open)dialog.showModal();
+  }).catch(()=>{});
+}
+
 async function bootCms() {
   const [,pages]=await Promise.all([loadPublicCopy(),publicPages(),loadPublicGallery(),loadPublicTeamMembers()]);
   await loadPageTabs(pages);
   await Promise.all([renderPageDirectory(pages),renderCurrentPage()]);
 }
+setupAccountOnboarding();
 Promise.allSettled([bootCms()]);
