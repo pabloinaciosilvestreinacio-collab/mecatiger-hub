@@ -58,3 +58,8 @@
 .admin-request-message{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;padding:.75rem;border:1px solid var(--rede-border,#444);border-radius:.6rem}
 .admin-request-message p{grid-column:1/-1;margin:.25rem 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .admin-request-message time{font-size:.875rem;color:var(--rede-muted,#aaa)}
+
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.auth-actions .button{width:100%;white-space:normal}
+.rede-form[hidden]{display:none!important}
+@media(max-width:520px){.auth-actions{grid-template-columns:1fr}}
