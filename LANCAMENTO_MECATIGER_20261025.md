@@ -1,31 +1,39 @@
-# Estado de lançamento — Meca Tiger Hub (25/10/2026)
+# Estado de lançamento — Meca Tiger Hub
 
-Site publicado: https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/
+Atualizado em 25/10/2026. Site: https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/
 
-## Estado confirmado
+## Estado operacional
 
-| Área | Status |
+| Área | Estado |
 |---|---|
-| Hub institucional e Meca Sim demonstrativo | Publicados |
-| Feed público | Consulta o Supabase; exibe somente posts aprovados; vazio neste momento |
-| Banco da Rede/CMS/Meca Sim | Migrações aditivas aplicadas; novas tabelas com RLS |
-| Ajuda, conexão e denúncias pelo site | Código e tabelas prontos, envio ainda bloqueado sem Auth e responsável moderador |
-| Login público | Bloqueado: SMTP externo não homologado |
-| Administração/upload | Código e bucket prontos; nenhum editor autenticado provisionado |
-| Moderação | Nenhuma conta moderadora provisionada |
+| Home, navegação e onboarding de cadastro | Publicados; continuar explorando é opcional |
+| Cadastro de métricas | Mantido como fluxo separado de conta Auth |
+| Comunidade/feed | Leitura pública ativa; pedidos, publicações e denúncias usam backend privado |
+| Administração | Migração/RLS aplicadas; conta administradora existente reconhecida pelo banco |
+| CMS de textos, páginas, fotos e perfis | Interface e políticas implementadas; upload visual real ainda não foi homologado |
+| Meca Sim demonstrativo | Público e funcional como demonstração limitada |
+| Biblioteca privada de trajetórias | Edge Function ativa com JWT obrigatório; gravação ligada à conta confirmada |
+| Login e cadastro por e-mail | Ainda bloqueados para lançamento público pelo SMTP padrão/redirects do Supabase |
 
 ## Links
 
 - [Home](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/)
 - [Comunidade](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/rede.html)
+- [Login](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html)
 - [Conteúdo](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/conteudo.html)
-- [Administração](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/admin.html)
+- [Sou administrador](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/admin.html)
+- [Meca Sim demo](https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/mecasim-demo.html)
 
-## Para liberar escrita e administração
+## Para liberar o acesso real
 
-1. Configurar SMTP externo autorizado e validar links Magic Link/PKCE; autenticação por e-mail serve somente para login, os pedidos ficam no site.
-2. Confirmar a conta individual da pessoa responsável e conceder separadamente os papéis de editor/moderador.
-3. Testar publicação, comentário, ajuda, conexão, denúncia e upload WebP em navegador real; acompanhar solicitações dentro do painel.
-4. Definir operação de moderação, privacidade e recuperação antes de anunciar a Rede como aberta.
+No Supabase Dashboard → Authentication → URL Configuration, ajuste o Site URL para o GitHub Pages e permita redirects em `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/**`. Configure SMTP externo autorizado em Authentication → SMTP Settings. Sem isso, Auth já retornou 429 por limite de envio e links para localhost.
 
-**Veredito: GO parcial.** Feed somente leitura está ativo. Cadastro/login comunitário, escrita e upload ainda não estão operacionais.
+Depois, faça login com a conta individual já confirmada, abra **Sou administrador**, confira a aba Segurança e cadastre outros editores/moderadores usando e-mails que já criaram e confirmaram conta. Não existe senha administrativa para compartilhar.
+
+## Evidências e limitações
+
+Migrações aditivas e correção da RPC estão registradas no baseline hospedado. O teste real confirmou que a conta elegível é administradora, a função lista um único acesso e anon não pode ler a tabela de admins. Testes automatizados de RLS/Storage não substituem upload com uma foto aprovada no domínio público.
+
+O Advisor alerta a função legada de cadastro público `register_community_member` SECURITY DEFINER; não foi revogada para preservar o formulário e as métricas antigas. Auth leaked-password protection continua desligada. Fotos publicadas são públicas no bucket; moderação, consentimento e regras para dados de menores precisam de responsáveis da equipe.
+
+**Veredito: GO parcial.** Site público, banco de pedidos/administração e biblioteca privada do simulador estão preparados; o acesso real por e-mail e o upload público ainda exigem configuração e teste da equipe.
