@@ -121,8 +121,11 @@ document.getElementById("password-signup").addEventListener("click", async () =>
     if (error) throw error;
     if (data.session && isVerifiedMember(data.user)) await finishLogin(true);
     else tell("Se o endereço puder ser cadastrado, enviaremos a confirmação por e-mail. Depois de confirmar, você poderá definir ou usar sua senha.");
-  } catch {
-    tell("Não foi possível criar a conta. Verifique os dados e tente novamente mais tarde.", true);
+  } catch (error) {
+    const limited = error?.status === 429 || error?.code === "over_email_send_rate_limit";
+    tell(limited
+      ? "O Supabase limitou o envio de confirmações. Aguarde e configure um SMTP próprio para liberar envios confiáveis."
+      : "Não foi possível criar a conta. Verifique os dados e tente novamente mais tarde.", true);
   } finally { button.disabled = false; }
 });
 
