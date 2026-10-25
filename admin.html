@@ -168,6 +168,14 @@
       <div id="admin-request-dialog-body"></div>
       <h4>Histórico de status</h4>
       <div id="admin-request-history"></div>
+      <h4>Conversa privada do pedido</h4>
+      <div id="admin-request-messages" aria-live="polite"></div>
+      <form id="admin-request-message-form" class="rede-form">
+        <label for="admin-request-message-body">Resposta ou encaminhamento (visível somente ao solicitante e à equipe)</label>
+        <textarea id="admin-request-message-body" minlength="1" maxlength="3000" required></textarea>
+        <button type="submit" class="button">Enviar resposta no site</button>
+        <p id="admin-request-message-status" role="status" aria-live="polite" class="rede-status"></p>
+      </form>
     </dialog>
   </div>
 </main>
