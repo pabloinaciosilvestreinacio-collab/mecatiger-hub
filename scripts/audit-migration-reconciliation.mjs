@@ -13,9 +13,10 @@ export const EXPECTED_FILES=Object.freeze([
   "20261025032028_mecasim_private_trajectories.sql",
   "20261025032035_mecatiger_site_cms.sql",
   "20261025140000_rede_request_messages.sql",
-  "20261025160000_admin_access_and_team_members.sql"
+  "20261025160000_admin_access_and_team_members.sql",
+  "20261025170000_fix_admin_access_email_return_type.sql"
 ]);
-export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES.slice(0,5));
+export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES.slice(0,7));
 export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
   ["20261013171020","create_community_registration_metrics"],
   ["20261013173230","count_competitors_as_students"],
@@ -25,7 +26,9 @@ export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
   ["20261025032022","require_nonanonymous_identity"],
   ["20261025032028","mecasim_private_trajectories"],
   ["20261025032035","mecatiger_site_cms"],
-  ["20261025140659","rede_request_messages"]
+  ["20261025140659","rede_request_messages"],
+  ["20261025153851","admin_access_and_team_members"],
+  ["20261025153927","fix_admin_access_email_return_type"]
 ]);
 export const PROTECTED_LEGACY_OBJECTS=Object.freeze([
   "community_registrations","community_metrics","register_community_member"
@@ -94,14 +97,16 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Tabela antiga sem RLS ou não encontrada na fotografia hospedada");
   if(remote.legacy_rpc?.name!=="register_community_member"||remote.legacy_rpc?.security_definer!==true)
     issues.push("RPC de cadastro hospedado mudou desde a inspeção");
-  // Five product migrations are confirmed applied. The admin/team migration is
-  // allowlisted for review and remains pending until its reviewed production apply.
+  // All seven repository product migrations are confirmed applied; two hosted timestamps
+  // are mapped explicitly because Supabase registered them during reviewed application.
   const expectedVersions=EXPECTED_HOSTED_MIGRATIONS.map(x=>x[0]);
   const expectedNames=new Map(EXPECTED_HOSTED_MIGRATIONS);
   const remoteByVersion=new Map(remote.hosted_migrations.map(x=>[x.version,x.name]));
   const inventoryAligned=JSON.stringify(versions)===JSON.stringify(expectedVersions);
   const hostedVersionByFile=new Map([
-    ["20261025140000_rede_request_messages.sql","20261025140659"]
+    ["20261025140000_rede_request_messages.sql","20261025140659"],
+    ["20261025160000_admin_access_and_team_members.sql","20261025153851"],
+    ["20261025170000_fix_admin_access_email_return_type.sql","20261025153927"]
   ]);
   const appliedAligned=EXPECTED_APPLIED_FILES.every(filename=>{
     const version=hostedVersionByFile.get(filename)||normalizeVersion(filename);
