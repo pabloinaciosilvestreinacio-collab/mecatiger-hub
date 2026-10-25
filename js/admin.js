@@ -774,35 +774,40 @@ async function refreshTeamPhotoOptions() {
     status("admin-status","Entre com um e-mail confirmado para solicitar acesso ao painel.");
     return;
   }
-  const [editorResult,moderatorResult]=await Promise.all([
+  const [editorResult,moderatorResult,adminResult]=await Promise.all([
     supabase.from("meca_site_editors").select("user_id").eq("user_id",data.user.id).maybeSingle(),
-    supabase.from("rede_moderators").select("user_id").eq("user_id",data.user.id).maybeSingle()
+    supabase.from("rede_moderators").select("user_id").eq("user_id",data.user.id).maybeSingle(),
+    supabase.rpc("meca_site_is_admin")
   ]);
-  if(editorResult.error||moderatorResult.error) {
+  if(editorResult.error||moderatorResult.error||adminResult.error) {
     locked.hidden=false;
-    status("admin-status","Não foi possível validar seus papéis no Supabase. Atualize e tente novamente.",true);
+    status("admin-status","Não foi possível validar seus papéis no Supabase. Confirme as migrations aplicadas e tente novamente.",true);
     return;
   }
-  if(!editorResult.data&&!moderatorResult.data) {
+  isSiteAdmin=Boolean(adminResult.data);
+  if(!editorResult.data&&!moderatorResult.data&&!isSiteAdmin) {
     locked.hidden=false;
-    status("admin-status","Esta conta ainda não tem papel de editor ou moderador. Peça à equipe responsável para autorizar o acesso.",true);
+    status("admin-status","Esta conta ainda não tem papel de editor, moderador ou administrador. Peça à equipe responsável para autorizar o acesso.",true);
     return;
   }
   adminUser=data.user;
-  editorUser=editorResult.data?data.user:null;
-  isModerator=Boolean(moderatorResult.data);
+  editorUser=editorResult.data||isSiteAdmin?data.user:null;
+  isModerator=Boolean(moderatorResult.data||isSiteAdmin);
   for(const element of document.querySelectorAll("[data-admin-role]")) {
     const role=element.dataset.adminRole;
     element.hidden=role==="editor"?!editorUser:!isModerator;
   }
-  status("admin-status",`Acesso confirmado: ${[editorUser?"editor":null,isModerator?"moderador":null].filter(Boolean).join(" e ")}.`);
+  for(const element of document.querySelectorAll("[data-admin-admin]")) element.hidden=!isSiteAdmin;
+  status("admin-status",`Acesso confirmado: ${[isSiteAdmin?"administrador":null,editorUser?"editor":null,isModerator?"moderador":null].filter(Boolean).join(" e ")}.`);
   contentSection.hidden=false;
   selectAdminTab("overview");
   await loadOverview();
   if(editorUser) {
     await Promise.all([loadTexts(),refreshGallery()]);
     await refreshPages();
+    await Promise.all([refreshTeamMembers(),refreshTeamPhotoOptions()]);
   }
+  if(isSiteAdmin) await loadAccessList();
 })().catch(()=>{
   contentSection.hidden=true;
   locked.hidden=false;
