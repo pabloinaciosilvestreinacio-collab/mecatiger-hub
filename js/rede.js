@@ -8,7 +8,7 @@ const CATEGORIES = {
   ajuda:"Dúvidas e ajuda", conhecimento:"Conhecimento compartilhado"
 };
 const PAGE_SIZE = 8;
-let currentUser = null, profileReady = false, isModerator = false;
+let currentUser = null, profileReady = false;
 // Increment on every identity change; stale asynchronous reads must never restore access.
 let identityEpoch = 0, identityLoading = true, identityResolved = false;
 let page = 0, requestKind = "ajuda";
@@ -30,7 +30,6 @@ function syncIdentityControls() {
   $("rede-signout").hidden = !authed;
   $("perfil").hidden = !authed;
   $("meus-conteudos").hidden = !authed;
-  $("moderacao").hidden = !usable || !isModerator;
   $("post-form").hidden = !usable || !profileReady;
   $("display-name").disabled = !usable;
   $("profile-form").querySelector('button[type="submit"]').disabled = !usable;
@@ -95,11 +94,6 @@ function renderPost(post, author) {
   const comments=el("div");
   buttons.append(control("Comentários",()=>toggleComments(post.id,comments)));
   if (currentUser) buttons.append(control("Denunciar",()=>reportContent({post_id:post.id})));
-  if (isModerator) buttons.append(control("Ocultar publicação",async()=>{
-    if(!window.confirm("Ocultar esta publicação aprovada?"))return;
-    const {error}=await supabase.from("rede_posts").update({status:"rejected"}).eq("id",post.id);
-    if(error) alert(readableError(error)); else {await loadFeed();await loadModeration();}
-  }));
   else buttons.append(loginLink());
   card.append(buttons,comments);
   return card;
@@ -126,11 +120,6 @@ async function toggleComments(postId,container) {
       if(item.author_id===currentUser.id) actions.append(control("Excluir comentário",async()=>{
         if(!window.confirm("Excluir seu comentário?"))return;
         const {error}=await supabase.from("rede_comments").delete().eq("id",item.id);
-        if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
-      }));
-      if(isModerator && item.status==="approved") actions.append(control("Ocultar comentário",async()=>{
-        if(!window.confirm("Ocultar comentário aprovado?"))return;
-        const {error}=await supabase.from("rede_comments").update({status:"rejected"}).eq("id",item.id);
         if(error) alert(readableError(error)); else {container.replaceChildren();await toggleComments(postId,container);}
       }));
       c.append(actions);
@@ -164,6 +153,66 @@ async function reportContent(target) {
     reporter_id:currentUser.id,...target,reason:reason.trim()
   });
   alert(error?readableError(error):"Denúncia enviada para análise.");
+}
+function attachRequestConversation(box,request,ownerId) {
+  const toggle=control("Ver conversa com a equipe",async()=>{
+    toggle.disabled=true;
+    if(thread.isConnected) {thread.remove();toggle.textContent="Ver conversa com a equipe";toggle.disabled=false;return;}
+    thread.replaceChildren(el("p","Carregando conversa..."));
+    box.append(thread);toggle.textContent="Ocultar conversa";
+    const {data,error}=await supabase.from("rede_request_messages")
+      .select("id,sender_id,body,created_at").eq("request_id",request.id)
+      .order("created_at",{ascending:true}).order("id",{ascending:true}).limit(100);
+    toggle.disabled=false;
+    if(currentUser?.id!==ownerId)return;
+    thread.replaceChildren();
+    if(error) {thread.append(el("p","A conversa não pôde ser carregada. Atualize ou tente novamente.", "rede-status"));return;}
+    if(!(data||[]).length)thread.append(el("p","Ainda não há mensagens neste pedido."));
+    for(const row of data||[]) {
+      const message=el("article",null,"rede-comment");
+      message.append(el("strong",row.sender_id===ownerId?"Você":"Equipe Meca Tiger"),
+        el("span",date(row.created_at),"rede-meta"),el("p",row.body));
+      thread.append(message);
+    }
+    if(["pending","em_analise"].includes(request.status)) {
+      const form=el("form",null,"rede-form");
+      const label=el("label","Responder à equipe");const input=el("textarea");
+      input.minLength=1;input.maxLength=3000;input.required=true;
+      input.placeholder="Envie uma resposta ou informação adicional (até 3000 caracteres).";
+      const send=el("button","Enviar mensagem","button");send.type="submit";
+      const statusNode=el("p",null,"rede-status");statusNode.setAttribute("role","status");statusNode.setAttribute("aria-live","polite");
+      form.append(label,input,send,statusNode);
+      form.addEventListener("submit",async event=>{
+        event.preventDefault();
+        const formNode=event.currentTarget, body=input.value.trim();
+        if(!currentUser||currentUser.id!==ownerId||body.length<1||body.length>3000)return;
+        send.disabled=true;statusNode.textContent="Enviando...";
+        const {error:sendError}=await supabase.from("rede_request_messages")
+          .insert({request_id:request.id,sender_id:ownerId,body});
+        send.disabled=false;
+        if(currentUser?.id!==ownerId)return;
+        if(sendError){statusNode.textContent=readableError(sendError);statusNode.dataset.error="true";}
+        else {formNode.reset();statusNode.textContent="Mensagem enviada para a equipe no site.";statusNode.dataset.error="false";
+          toggle.disabled=true;thread.replaceChildren(el("p","Carregando conversa..."));
+          const refreshed=await supabase.from("rede_request_messages")
+            .select("id,sender_id,body,created_at").eq("request_id",request.id)
+            .order("created_at",{ascending:true}).order("id",{ascending:true}).limit(100);
+          toggle.disabled=false;thread.replaceChildren();
+          if(refreshed.error)thread.append(el("p","Mensagem gravada, mas não foi possível atualizar a conversa. Atualize a página."));
+          else for(const row of refreshed.data||[]) {
+            const message=el("article",null,"rede-comment");
+            message.append(el("strong",row.sender_id===ownerId?"Você":"Equipe Meca Tiger"),
+              el("span",date(row.created_at),"rede-meta"),el("p",row.body));
+            thread.append(message);
+          }
+          thread.append(form);
+        }
+      });
+      thread.append(form);
+    }
+  });
+  const thread=el("section",null,"rede-request-thread");
+  box.append(toggle);
 }
 async function loadOwn() {
   if (!currentUser || !identityResolved) return;
@@ -207,41 +256,9 @@ async function loadOwn() {
       const {error}=await supabase.from("rede_posts").delete().eq("id",item.id);
       if (error) alert(readableError(error)); else {await loadOwn();await loadFeed();}
     }));
+    if(item.table==="rede_requests")attachRequestConversation(box,item,ownerId);
     items.append(box);
   }
-}
-async function loadModeration() {
-  if (!isModerator || !identityResolved) return;
-  const epoch = identityEpoch;
-  const root=$("mod-items");root.replaceChildren(el("p","Carregando fila..."));
-  const tables=[
-    {name:"rede_posts",label:"Publicação",states:["approved","rejected"]},
-    {name:"rede_comments",label:"Comentário",states:["approved","rejected"]},
-    {name:"rede_requests",label:"Solicitação",states:["em_analise","concluido","rejeitado"]},
-    {name:"rede_reports",label:"Denúncia",states:["reviewed","dismissed"]}
-  ];
-  const results=await Promise.all(tables.map(t=>supabase.from(t.name).select("*").eq("status","pending").order("created_at").limit(25)));
-  if (epoch !== identityEpoch || !isModerator) return;
-  root.replaceChildren();
-  tables.forEach((t,index)=>{
-    const result=results[index];
-    root.append(el("h3",t.label+"s"));
-    if (result.error) {root.append(el("p","Erro ao consultar fila de "+t.label.toLowerCase()+"s."));return;}
-    if (!result.data.length) {root.append(el("p","Sem pendências.","rede-muted"));return;}
-    for (const item of result.data) {
-      const card=el("div",null,"rede-mod-item");
-      card.append(el("strong",(item.title||item.content||item.reason||"Solicitação")+" · #"+item.id));
-      if (item.details) card.append(el("p",item.details));
-      if (item.post_id) card.append(el("p","Referente à publicação #"+item.post_id));
-      const buttons=el("div",null,"rede-controls");
-      for (const state of t.states) buttons.append(control(state,async()=>{
-        if (!window.confirm("Confirmar estado "+state+" para "+t.label.toLowerCase()+" #"+item.id+"?"))return;
-        const {error}=await supabase.from(t.name).update({status:state}).eq("id",item.id);
-        if (error) alert(readableError(error)); else {await loadModeration();await loadFeed();}
-      }));
-      card.append(buttons);root.append(card);
-    }
-  });
 }
 async function refreshIdentity() {
   const epoch = ++identityEpoch;
@@ -249,10 +266,8 @@ async function refreshIdentity() {
   identityResolved = false;
   currentUser = null;
   profileReady = false;
-  isModerator = false;
   syncIdentityControls();
   $("own-items").replaceChildren();
-  $("mod-items").replaceChildren();
   $("rede-identity").textContent = "Verificando sessão e permissões...";
   message("profile-status", "Verificando perfil...");
   message("post-status", "Aguarde a verificação da sua conta.");
@@ -269,17 +284,13 @@ async function refreshIdentity() {
       await loadFeed();
       return;
     }
-    const [profile,mod] = await Promise.all([
-      supabase.from("rede_profiles").select("display_name").eq("id",verified.id).maybeSingle(),
-      supabase.from("rede_moderators").select("user_id").eq("user_id",verified.id).maybeSingle()
-    ]);
+    const profile=await supabase.from("rede_profiles").select("display_name").eq("id",verified.id).maybeSingle();
     if (epoch !== identityEpoch) return;
     currentUser = verified;
     identityLoading = false;
-    identityResolved = !profile.error && !mod.error;
+    identityResolved = !profile.error;
     if (identityResolved) {
       profileReady = Boolean(profile.data);
-      isModerator = Boolean(mod.data);
       if (profileReady) $("display-name").value = profile.data.display_name;
       message("profile-status", profileReady ? "Perfil público ativo." : "Escolha um apelido público para participar.");
       message("post-status", profileReady ? "As publicações precisam ser aprovadas." : "Salve seu perfil público antes de publicar.");
@@ -292,7 +303,6 @@ async function refreshIdentity() {
       ? "Sessão autenticada. Suas ações serão vinculadas à sua conta."
       : "Sessão identificada, mas permissões indisponíveis.";
     if (identityResolved) {
-      if (isModerator) await loadModeration();
       if (epoch !== identityEpoch) return;
       await loadOwn();
     }
@@ -304,7 +314,6 @@ async function refreshIdentity() {
     identityResolved = false;
     currentUser = null;
     profileReady = false;
-    isModerator = false;
     syncIdentityControls();
     $("rede-identity").textContent = "Não foi possível verificar sua conta.";
     message("profile-status", "A verificação falhou. Atualize a página.", true);
@@ -378,13 +387,12 @@ $("request-form").addEventListener("submit",async event=>{
   if (!error) {form.reset();await loadOwn();}
 });
 $("rede-signout").addEventListener("click",async()=>{
-  // Invalidate in-flight profile/moderator queries BEFORE revoking the session.
+  // Invalidate in-flight identity checks BEFORE revoking the session.
   ++identityEpoch;
   identityLoading = true;
   identityResolved = false;
   currentUser = null;
   profileReady = false;
-  isModerator = false;
   syncIdentityControls();
   const {error}=await supabase.auth.signOut();
   if (error) alert("Não foi possível encerrar a sessão.");
@@ -392,6 +400,5 @@ $("rede-signout").addEventListener("click",async()=>{
 });
 $("feed-prev").addEventListener("click",()=>{if(page>0){page--;loadFeed();}});
 $("feed-next").addEventListener("click",()=>{page++;loadFeed();});
-$("mod-reload").addEventListener("click",loadModeration);
 fillCategories();
 refreshIdentity().catch(()=>message("feed-status","Não foi possível iniciar a comunidade.",true));

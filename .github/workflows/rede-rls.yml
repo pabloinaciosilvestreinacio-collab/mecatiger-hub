@@ -39,6 +39,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-before.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025032012_rede_mecatiger_mvp.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025032022_require_nonanonymous_identity.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025140000_rede_request_messages.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_smoke.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f supabase/migrations/20261025032028_mecasim_private_trajectories.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/mecasim_rls.sql

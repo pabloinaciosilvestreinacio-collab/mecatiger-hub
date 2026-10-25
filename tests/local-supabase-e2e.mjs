@@ -172,6 +172,44 @@ assert.equal(approved.response.status, 200, JSON.stringify(approved.data));
 const publicPost = await rest(`rede_posts?id=eq.${post.id}&select=id,status`, { token: anonKey });
 assert.equal(publicPost.data?.[0]?.status, "approved");
 
+console.log("[homologation] checking private request conversation and cross-user RLS");
+const createdRequest=await rest("rede_requests",{
+  method:"POST",token:sessions.a.access_token,
+  body:{author_id:sessions.a.user.id,kind:"ajuda",category:"programacao",
+    title:"Pedido privado de teste",details:"Solicitação fictícia para testar conversa privada com a equipe."},
+  headers:{Prefer:"return=representation"}
+});
+assert.equal(createdRequest.response.status,201,JSON.stringify(createdRequest.data));
+const requestId=createdRequest.data[0].id;
+const firstMessage=await rest("rede_request_messages",{
+  method:"POST",token:sessions.a.access_token,
+  body:{request_id:requestId,sender_id:sessions.a.user.id,body:"Olá equipe, esta é uma mensagem privada de teste."},
+  headers:{Prefer:"return=representation"}
+});
+assert.equal(firstMessage.response.status,201,JSON.stringify(firstMessage.data));
+const messagesFromB=await rest(`rede_request_messages?request_id=eq.${requestId}&select=id,body`,{token:sessions.b.access_token});
+assert(messagesFromB.response.ok);
+assert.deepEqual(messagesFromB.data,[]);
+const deniedMessage=await rest("rede_request_messages",{
+  method:"POST",token:sessions.b.access_token,
+  body:{request_id:requestId,sender_id:sessions.b.user.id,body:"Tentativa indevida de mensagem."},
+  headers:{Prefer:"return=representation"}
+});
+assert([401,403].includes(deniedMessage.response.status),JSON.stringify(deniedMessage.data));
+const messagesFromModerator=await rest(`rede_request_messages?request_id=eq.${requestId}&select=id,body`,{
+  token:sessions.moderator.access_token
+});
+assert.equal(messagesFromModerator.data?.length,1);
+const reply=await rest("rede_request_messages",{
+  method:"POST",token:sessions.moderator.access_token,
+  body:{request_id:requestId,sender_id:sessions.moderator.user.id,body:"Resposta privada da equipe para teste."},
+  headers:{Prefer:"return=representation"}
+});
+assert.equal(reply.response.status,201,JSON.stringify(reply.data));
+const messagesFromA=await rest(`rede_request_messages?request_id=eq.${requestId}&select=id,body`,{token:sessions.a.access_token});
+assert.equal(messagesFromA.data?.length,2);
+assert(messagesFromA.data.some(row=>row.body==="Resposta privada da equipe para teste."));
+
 console.log("[homologation] checking Edge Function CRUD and owner isolation");
 assert.equal((await edge(null, { action: "list" })).response.status, 401);
 assert.equal((await edge({ access_token: "forged" }, { action: "list" })).response.status, 401);

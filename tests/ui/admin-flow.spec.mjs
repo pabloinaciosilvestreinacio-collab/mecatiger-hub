@@ -18,7 +18,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.waitForURL(/\/admin\.html$/,{timeout:20000});
   await expect(page.locator("#admin-locked")).toBeVisible();
   await expect(page.locator("#admin-content")).toBeHidden();
-  await expect(page.locator("#admin-status")).toContainText("não possui autorização");
+  await expect(page.locator("#admin-status")).toContainText("não tem papel de editor ou moderador");
 
   const userId=await page.evaluate(async()=>{
     const {supabase}=await import("/js/rede-client.js");
@@ -37,9 +37,49 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
     signal:AbortSignal.timeout(12000)
   });
   expect(grant.status).toBe(201);
+  const moderatorGrant=await fetch(new URL("/rest/v1/rede_moderators",endpoint),{
+    method:"POST",
+    headers:{apikey:key,Authorization:"Bearer "+key,"Content-Type":"application/json"},
+    body:JSON.stringify({user_id:userId}),
+    signal:AbortSignal.timeout(12000)
+  });
+  expect(moderatorGrant.status).toBe(201);
 
   await page.reload();
   await expect(page.locator("#admin-content")).toBeVisible();
+  const requestTitle="Pedido privado de homologação "+Date.now();
+  const requestId=await page.evaluate(async title=>{
+    const {supabase}=await import("/js/rede-client.js");
+    const {data:{user}}=await supabase.auth.getUser();
+    const profile=await supabase.from("rede_profiles").upsert({id:user.id,display_name:"Editora de teste"},{onConflict:"id"});
+    if(profile.error)throw profile.error;
+    const result=await supabase.from("rede_requests").insert({
+      author_id:user.id,kind:"ajuda",category:"programacao",
+      title,details:"Pedido fictício para validar respostas privadas no painel e na Rede."
+    }).select("id").single();
+    if(result.error)throw result.error;
+    return result.data.id;
+  },requestTitle);
+  expect(requestId).toBeTruthy();
+  await page.locator("#admin-tab-requests").click();
+  await expect(page.locator("#admin-requests-list")).toContainText(requestTitle);
+  await page.locator(".admin-request-card").filter({hasText:requestTitle}).getByRole("button",{name:"Abrir detalhes e histórico"}).click();
+  await expect(page.locator("#admin-request-dialog")).toBeVisible();
+  const reply="Resposta privada gravada pela equipe no site.";
+  await page.locator("#admin-request-message-body").fill(reply);
+  await page.locator("#admin-request-message-form button[type=submit]").click();
+  await expect(page.locator("#admin-request-message-status")).toContainText("Resposta gravada");
+  await expect(page.locator("#admin-request-messages")).toContainText(reply);
+
+  await page.locator("#admin-request-dialog-close").click();
+  await page.goto("/rede.html");
+  await expect(page.locator("#own-items")).toContainText(requestTitle);
+  await page.getByRole("button",{name:"Ver conversa com a equipe"}).click();
+  await expect(page.locator(".rede-request-thread")).toContainText(reply);
+
+  await page.goto("/admin.html");
+  await expect(page.locator("#admin-content")).toBeVisible();
+  await page.locator("#admin-tab-copy").click();
   const editorText="Texto de integração publicado no site apenas pelo editor autorizado em teste local.";
   await page.locator("#cms-slot").selectOption("home-intro");
   await page.locator("#cms-body").fill(editorText);

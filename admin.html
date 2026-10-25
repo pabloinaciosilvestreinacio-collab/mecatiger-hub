@@ -15,10 +15,10 @@
 <main class="rede-page container admin-main">
   <span class="eyebrow">Meca Tiger · edição sem código</span>
   <h1 class="display">PAINEL DA <span class="accent">EQUIPE.</span></h1>
-  <p>Edite textos e publique fotos com autorização de administrador. As mudanças salvas aparecerão no site. Nunca compartilhe seu link de acesso.</p>
+  <p>As ferramentas aparecem conforme os papéis autorizados: edição do site, solicitações privadas e moderação. O Supabase verifica cada permissão no banco.</p>
   <p id="admin-status" role="status" aria-live="polite" class="rede-status">Verificando seu acesso...</p>
   <div id="admin-locked" class="rede-box" hidden>
-    <p>Somente integrantes autorizados podem editar. Se você já tem uma conta autorizada, entre com seu e-mail verificado.</p>
+    <p>Somente integrantes autorizados podem editar. Entre com GitHub ou e-mail verificado; a sessão só terá acesso se a equipe tiver concedido o papel de editor no Supabase.</p>
     <a class="button" href="entrar.html?next=admin.html">Entrar pelo e-mail</a>
     <button id="admin-exit-locked" class="button outline" type="button">Trocar de conta</button>
   </div>
@@ -29,12 +29,72 @@
       <button id="admin-exit" class="button outline" type="button">Sair do painel</button>
     </div>
     <div class="admin-tabs" role="tablist" aria-label="Ferramentas de administração">
-      <button class="button outline" id="admin-tab-copy" type="button" role="tab" aria-controls="admin-panel-copy" aria-selected="true" tabindex="0" data-admin-tab="copy">Textos</button>
-      <button class="button outline" id="admin-tab-pages" type="button" role="tab" aria-controls="admin-panel-pages" aria-selected="false" tabindex="-1" data-admin-tab="pages">Páginas e abas</button>
-      <button class="button outline" id="admin-tab-photos" type="button" role="tab" aria-controls="admin-panel-photos" aria-selected="false" tabindex="-1" data-admin-tab="photos">Fotos</button>
+      <button class="button outline" id="admin-tab-overview" type="button" role="tab" aria-controls="admin-panel-overview" aria-selected="true" tabindex="0" data-admin-tab="overview">Visão geral</button>
+      <button class="button outline" id="admin-tab-copy" type="button" role="tab" aria-controls="admin-panel-copy" aria-selected="false" tabindex="-1" data-admin-tab="copy" data-admin-role="editor">Textos</button>
+      <button class="button outline" id="admin-tab-pages" type="button" role="tab" aria-controls="admin-panel-pages" aria-selected="false" tabindex="-1" data-admin-tab="pages" data-admin-role="editor">Páginas e abas</button>
+      <button class="button outline" id="admin-tab-photos" type="button" role="tab" aria-controls="admin-panel-photos" aria-selected="false" tabindex="-1" data-admin-tab="photos" data-admin-role="editor">Fotos</button>
+      <button class="button outline" id="admin-tab-requests" type="button" role="tab" aria-controls="admin-panel-requests" aria-selected="false" tabindex="-1" data-admin-tab="requests" data-admin-role="moderator">Solicitações</button>
+      <button class="button outline" id="admin-tab-moderation" type="button" role="tab" aria-controls="admin-panel-moderation" aria-selected="false" tabindex="-1" data-admin-tab="moderation" data-admin-role="moderator">Moderação</button>
       <button class="button outline" id="admin-tab-security" type="button" role="tab" aria-controls="admin-panel-security" aria-selected="false" tabindex="-1" data-admin-tab="security">Segurança</button>
     </div>
-    <section class="rede-box admin-panel" id="admin-panel-copy" role="tabpanel" aria-labelledby="admin-tab-copy" data-admin-panel="copy">
+    <section class="rede-box admin-panel" id="admin-panel-overview" role="tabpanel" aria-labelledby="admin-tab-overview" data-admin-panel="overview">
+      <h2>Visão geral</h2>
+      <p class="rede-muted">Resumo atualizado diretamente do Supabase conforme os papéis autorizados nesta conta.</p>
+      <p id="admin-overview-status" role="status" aria-live="polite" class="rede-status">Carregando resumo...</p>
+      <div id="admin-overview-metrics" class="admin-overview-metrics"></div>
+      <h3 class="rede-section-title">Atividade recente</h3>
+      <div id="admin-overview-activity" class="admin-overview-activity"></div>
+    </section>
+    <section class="rede-box admin-panel" id="admin-panel-requests" role="tabpanel" aria-labelledby="admin-tab-requests" data-admin-panel="requests" data-admin-role="moderator" hidden>
+      <h2>Solicitações privadas</h2>
+      <p class="rede-muted">Pedidos de ajuda e conexão STEM são privados. Esta caixa usa a autorização de moderador do Supabase; uma conta editora sem esse papel não pode consultar pedidos.</p>
+      <div class="admin-request-filters">
+        <label for="admin-request-status-filter">Status</label>
+        <select id="admin-request-status-filter">
+          <option value="all">Todos</option>
+          <option value="pending">Pendente</option>
+          <option value="em_analise">Em análise</option>
+          <option value="concluido">Concluído</option>
+          <option value="rejeitado">Rejeitado</option>
+        </select>
+        <label for="admin-request-kind-filter">Tipo</label>
+        <select id="admin-request-kind-filter">
+          <option value="all">Todos</option>
+          <option value="ajuda">Pedido de ajuda</option>
+          <option value="conexao">Conexão STEM</option>
+        </select>
+        <button id="admin-requests-reload" type="button" class="button outline">Atualizar lista</button>
+      </div>
+      <p id="admin-requests-status" role="status" aria-live="polite" class="rede-status"></p>
+      <div id="admin-requests-list" class="admin-requests-list" aria-label="Solicitações recebidas"></div>
+      <p class="rede-muted">Respostas e encaminhamentos são registrados na conversa privada do pedido e ficam visíveis ao solicitante e à equipe. Isso funciona dentro do site, sem depender de e-mail. A migration dessa conversa precisa ser aplicada no Supabase antes da ativação em produção.</p>
+    </section>
+    <section class="rede-box admin-panel" id="admin-panel-moderation" role="tabpanel" aria-labelledby="admin-tab-moderation" data-admin-panel="moderation" data-admin-role="moderator" hidden>
+      <h2>Moderação de conteúdo e denúncias</h2>
+      <p class="rede-muted">Publicações, comentários e denúncias são revisados nesta fila. As decisões são gravadas no Supabase e registradas no histórico de moderação.</p>
+      <div class="admin-request-filters">
+        <label for="admin-mod-type-filter">Tipo</label>
+        <select id="admin-mod-type-filter">
+          <option value="all">Todos</option>
+          <option value="post">Publicações</option>
+          <option value="comment">Comentários</option>
+          <option value="report">Denúncias</option>
+        </select>
+        <label for="admin-mod-status-filter">Status</label>
+        <select id="admin-mod-status-filter">
+          <option value="pending">Pendente</option>
+          <option value="all">Todos</option>
+          <option value="approved">Aprovado</option>
+          <option value="rejected">Rejeitado</option>
+          <option value="reviewed">Analisado</option>
+          <option value="dismissed">Descartado</option>
+        </select>
+        <button id="admin-mod-reload" type="button" class="button outline">Atualizar fila</button>
+      </div>
+      <p id="admin-mod-status" role="status" aria-live="polite" class="rede-status"></p>
+      <div id="admin-mod-list" class="admin-requests-list" aria-label="Fila de moderação"></div>
+    </section>
+    <section class="rede-box admin-panel" id="admin-panel-copy" role="tabpanel" aria-labelledby="admin-tab-copy" data-admin-panel="copy" data-admin-role="editor">
       <h2 id="edit-copy-heading">Editar textos do site</h2>
       <p class="rede-muted">Selecione uma área, altere o texto e salve. Não é necessário editar HTML. O texto padrão permanece enquanto nenhuma alteração foi salva.</p>
       <form id="cms-copy-form" class="rede-form">
@@ -51,7 +111,7 @@
       </form>
       <p id="cms-copy-status" role="status" aria-live="polite" class="rede-status"></p>
     </section>
-    <section class="rede-box admin-panel" id="admin-panel-pages" role="tabpanel" aria-labelledby="admin-tab-pages" data-admin-panel="pages" hidden>
+    <section class="rede-box admin-panel" id="admin-panel-pages" role="tabpanel" aria-labelledby="admin-tab-pages" data-admin-panel="pages" data-admin-role="editor" hidden>
       <h2>Reescrever e criar páginas</h2>
       <p class="rede-muted">Crie uma nova página do Hub ou edite uma existente. O texto é puro e seguro; a página só aparece para visitantes depois de publicada. Páginas marcadas para navegação entram nos menus da Home.</p>
       <form id="cms-page-form" class="rede-form">
@@ -82,7 +142,7 @@
       <h3 class="rede-section-title">Páginas existentes</h3>
       <div id="cms-pages-list" class="admin-pages-list"></div>
     </section>
-    <section class="rede-box admin-panel" id="admin-panel-photos" role="tabpanel" aria-labelledby="admin-tab-photos" data-admin-panel="photos" hidden>
+    <section class="rede-box admin-panel" id="admin-panel-photos" role="tabpanel" aria-labelledby="admin-tab-photos" data-admin-panel="photos" data-admin-role="editor" hidden>
       <h2 id="gallery-heading">Adicionar fotos à galeria</h2>
       <p class="rede-muted">Escolha uma imagem PNG, JPEG ou WebP. Ela será convertida em WebP e reduzida para até 1600 px antes do envio. Fotos publicadas ficam visíveis para visitantes: use somente imagens autorizadas.</p>
       <form id="cms-photo-form" class="rede-form">
@@ -100,7 +160,24 @@
       <p>Somente contas explicitamente autorizadas no banco podem alterar conteúdo. Administradores não recebem acesso ao código, ao banco completo ou a segredos. Fotos e textos são publicados somente pelos recursos autorizados no banco.</p>
       <p class="rede-muted">O painel permite editar textos e páginas, publicar fotos WebP e retirar páginas do ar. Não há exclusão de imagens nem execução de HTML. Revise autorização e consentimento antes de publicar fotos.</p>
     </section>
+    <dialog id="admin-request-dialog" class="admin-request-dialog" aria-labelledby="admin-request-dialog-title">
+      <div class="admin-request-dialog-head">
+        <h3 id="admin-request-dialog-title">Detalhes do item</h3>
+        <button id="admin-request-dialog-close" type="button" class="button outline">Fechar</button>
+      </div>
+      <div id="admin-request-dialog-body"></div>
+      <h4>Histórico de status</h4>
+      <div id="admin-request-history"></div>
+      <h4>Conversa privada do pedido</h4>
+      <div id="admin-request-messages" aria-live="polite"></div>
+      <form id="admin-request-message-form" class="rede-form">
+        <label for="admin-request-message-body">Resposta ou encaminhamento (visível somente ao solicitante e à equipe)</label>
+        <textarea id="admin-request-message-body" minlength="1" maxlength="3000" required></textarea>
+        <button type="submit" class="button">Enviar resposta no site</button>
+        <p id="admin-request-message-status" role="status" aria-live="polite" class="rede-status"></p>
+      </form>
+    </dialog>
   </div>
 </main>
-<script type="module" src="js/admin.js?v=20261025d"></script>
+<script type="module" src="js/admin.js?v=20261025g"></script>
 </body></html>

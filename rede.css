@@ -53,3 +53,8 @@
   .rede-pager .button { width:100%; min-width:0; padding-inline:8px; white-space:normal; text-align:center; }
   .rede-pager > span { min-width:0; text-align:center; font-size:.8rem; }
 }
+
+.rede-request-thread{display:grid;gap:1rem;margin-top:1rem;padding:1rem;border:1px solid var(--rede-border,#444);border-radius:.75rem}
+.admin-request-message{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;padding:.75rem;border:1px solid var(--rede-border,#444);border-radius:.6rem}
+.admin-request-message p{grid-column:1/-1;margin:.25rem 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.admin-request-message time{font-size:.875rem;color:var(--rede-muted,#aaa)}
