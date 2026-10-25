@@ -4,7 +4,6 @@ import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 const status = document.getElementById("auth-status");
 const sendForm = document.getElementById("send-code");
 const emailInput = document.getElementById("auth-email");
-const githubButton = document.getElementById("github-login");
 const next = safeReturn(new URLSearchParams(location.search).get("next"));
 const savedNextKey = "mecatiger-auth-return";
 // Preserve only allowlisted routes; the link template must append token params with &.
@@ -54,23 +53,8 @@ sessionStorage.setItem(savedNextKey, next);
   }
   const { data } = await supabase.auth.getUser();
   if (isVerifiedMember(data.user)) await finishLogin();
-  else tell("Entre com GitHub ou informe seu e-mail para solicitar um link de acesso.");
+  else tell("Informe seu e-mail para solicitar um link de acesso.");
 })().catch(() => tell("Não foi possível verificar sua sessão. Tente novamente.", true));
-
-githubButton.addEventListener("click", async () => {
-  githubButton.disabled = true;
-  tell("Conectando ao GitHub...");
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: { redirectTo: redirectUrl }
-    });
-    if (error) throw error;
-  } catch {
-    githubButton.disabled = false;
-    tell("Não foi possível entrar com GitHub. A equipe precisa habilitar o provedor e conferir o endereço de retorno.", true);
-  }
-});
 
 sendForm.addEventListener("submit", async event => {
   event.preventDefault();
@@ -87,7 +71,7 @@ sendForm.addEventListener("submit", async event => {
     if (error) throw error;
     tell("Confira seu e-mail e abra o link de acesso. Ele é pessoal e expira; não o encaminhe a outras pessoas.");
   } catch (error) {
-    tell("Não foi possível solicitar o acesso. Confira o e-mail e tente novamente mais tarde.", true);
+    tell(error?.status === 429 || error?.code === "over_email_send_rate_limit" ? "Limite de envio de e-mails atingido (429). Aguarde antes de tentar novamente; a equipe precisa configurar SMTP próprio para envios confiáveis." : "Falha no acesso: " + (error?.message || "erro de autenticação") + ".", true);
   } finally {
     button.disabled = false;
   }

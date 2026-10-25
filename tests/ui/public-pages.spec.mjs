@@ -63,7 +63,7 @@ test("Home opens optional registration only after explicit choice", async ({ pag
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const panel = page.locator("#cadastro-panel");
   await expect(panel).toBeHidden();
-  const registrationButton = page.getByRole("button", { name: /cadastro opcional de participação/i });
+  const registrationButton = page.getByRole("button", { name: /cadastro para métricas/i });
   await expect(registrationButton).toBeVisible();
   await registrationButton.click();
   await expect(panel).toBeVisible();
@@ -75,7 +75,7 @@ test("Home opens optional registration only after explicit choice", async ({ pag
   await skipButton.click();
   await expect(panel).toBeHidden();
 
-  await expect(page.getByRole("button", { name: /cadastro opcional de participação/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /cadastro para métricas/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .include("#cadastro-panel")
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -129,10 +129,10 @@ test("Rede explica o processo completo e a separação dos cadastros", async ({ 
   await expect(section).toBeVisible();
   await expect(section.locator("ol > li")).toHaveCount(4);
   await expect(section).toContainText("Entre na Rede pelo site");
-  await expect(section).toContainText("Use o login GitHub ou por e-mail");
-  await expect(section).toContainText("não cria conta na Rede");
-  await expect(section).toContainText("publicações e conexões serão enviadas por formulários no site");
-  await expect(section).toContainText("A equipe acompanha solicitações e moderação no painel administrativo");
+  await expect(section).toContainText("Informe seu e-mail para receber um link de acesso");
+  await expect(section).toContainText("não cria essa conta");
+  await expect(section).toContainText("envie publicações e conexões pelos formulários do site");
+  await expect(section).toContainText("A equipe analisa os pedidos no painel administrativo");
   await expect(page.locator(".rede-banner")).toContainText("Os formulários ficam no site");
   await expect(page.locator("#ajuda button[data-request-kind=ajuda]")).toBeVisible();
   await expect(page.locator("#conexao button[data-request-kind=conexao]")).toBeVisible();

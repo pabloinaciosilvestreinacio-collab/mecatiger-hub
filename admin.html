@@ -18,8 +18,8 @@
   <p>As ferramentas aparecem conforme os papéis autorizados: edição do site, solicitações privadas e moderação. O Supabase verifica cada permissão no banco.</p>
   <p id="admin-status" role="status" aria-live="polite" class="rede-status">Verificando seu acesso...</p>
   <div id="admin-locked" class="rede-box" hidden>
-    <p>Somente integrantes autorizados podem editar. Entre com GitHub ou e-mail verificado; a sessão só terá acesso se a equipe tiver concedido o papel de editor no Supabase.</p>
-    <a class="button" href="entrar.html?next=admin.html">Entrar pelo e-mail</a>
+    <p>Somente contas autorizadas podem editar. Entre com o e-mail confirmado que recebeu os papéis de editor e moderador. Informar um e-mail, por si só, não libera acesso.</p>
+    <a class="button" href="entrar.html?next=admin.html">Entrar com e-mail</a>
     <button id="admin-exit-locked" class="button outline" type="button">Trocar de conta</button>
   </div>
   <div id="admin-content" hidden>
@@ -67,7 +67,7 @@
       </div>
       <p id="admin-requests-status" role="status" aria-live="polite" class="rede-status"></p>
       <div id="admin-requests-list" class="admin-requests-list" aria-label="Solicitações recebidas"></div>
-      <p class="rede-muted">Respostas e encaminhamentos são registrados na conversa privada do pedido e ficam visíveis ao solicitante e à equipe. Isso funciona dentro do site, sem depender de e-mail. A migration dessa conversa precisa ser aplicada no Supabase antes da ativação em produção.</p>
+      <p class="rede-muted">Respostas e encaminhamentos são registrados na conversa privada do pedido e ficam visíveis ao solicitante e à equipe. Isso funciona dentro do site, sem depender de e-mail. As mensagens são gravadas com acesso restrito ao solicitante e à equipe autorizada.</p>
     </section>
     <section class="rede-box admin-panel" id="admin-panel-moderation" role="tabpanel" aria-labelledby="admin-tab-moderation" data-admin-panel="moderation" data-admin-role="moderator" hidden>
       <h2>Moderação de conteúdo e denúncias</h2>
