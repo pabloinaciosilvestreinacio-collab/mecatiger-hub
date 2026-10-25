@@ -95,6 +95,40 @@ const published=await send(site+"meca_site_copy?slot=eq.home-intro&select=slot,b
 assert.equal(published.json?.[0]?.body,text,"Public must read only approved fixed slots");
 console.log("[CMS] authorized edit, public read and unauthorized update checked");
 
+const pageSlug="equipe-"+rand;
+const pageData={
+  slug:pageSlug,title:"Página de teste",nav_label:"Teste",
+  summary:"Resumo de teste",body:"Conteúdo de página criado pelo editor autorizado.",
+  cover_path:null,cover_alt:"",show_in_nav:true,nav_order:15,published:false,updated_by:a.id
+};
+mustDeny(await send(site+"meca_site_pages",{
+  method:"POST",token:b.jwt,headers:jsonHeaders,
+  body:{...pageData,slug:"negado-"+rand,updated_by:b.id}
+}),"non-editor page creation");
+result=await send(site+"meca_site_pages",{
+  method:"POST",token:a.jwt,headers:jsonHeaders,body:pageData
+});
+assert.equal(result.status,201,"Authorized editor should create a page draft");
+let publicDraft=await send(site+"meca_site_pages?slug=eq."+pageSlug+"&select=slug");
+assert.ok(publicDraft.ok && publicDraft.json?.length===0,"Draft pages must remain private");
+result=await send(site+"meca_site_pages?slug=eq."+pageSlug,{
+  method:"PATCH",token:a.jwt,headers:jsonHeaders,
+  body:{published:true,updated_by:a.id}
+});
+assert.ok(result.ok,"Authorized editor should publish the page");
+const publicPage=await send(site+"meca_site_pages?slug=eq."+pageSlug+"&select=slug,title,body,published");
+assert.equal(publicPage.json?.[0]?.published,true,"Published page must be readable publicly");
+assert.equal(publicPage.json?.[0]?.body,pageData.body);
+const unauthorizedPageEdit=await send(site+"meca_site_pages?slug=eq."+pageSlug,{
+  method:"PATCH",token:b.jwt,headers:jsonHeaders,
+  body:{title:"Alteração indevida",updated_by:b.id}
+});
+assert.ok(!unauthorizedPageEdit.ok ||
+  (Array.isArray(unauthorizedPageEdit.json)&&unauthorizedPageEdit.json.length===0),
+  "A non-editor cannot change a site page");
+console.log("[CMS] page draft, publication visibility and editor-only writes checked");
+
+
 const name=a.id+"/"+crypto.randomUUID()+".webp";
 const uploadPath="/storage/v1/object/meca-site-gallery/"+name;
 result=await send(uploadPath,{

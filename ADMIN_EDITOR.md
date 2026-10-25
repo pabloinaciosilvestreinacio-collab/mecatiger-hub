@@ -7,8 +7,9 @@
 1. Acessar `admin.html` pelo link **Painel da equipe** no rodapé.
 2. Escolher **Entrar pelo e-mail**, solicitar Magic Link e confirmar o e-mail pessoal de cada integrante.
 3. O painel verifica no servidor se o usuário está presente em `meca_site_editors`. Quem não estiver recebe acesso negado.
-4. Após aprovação de acesso por operador autorizado, o integrante pode atualizar quatro textos existentes da Home/Rede sem editar HTML.
-5. O formulário de imagens recebe PNG/JPEG/WebP, converte para WebP, reduz o tamanho e publica uma foto com legenda na nova galeria da Home. O arquivo final não excede **2 MiB**.
+4. Após aprovação de acesso por operador autorizado, o integrante pode atualizar quatro textos da Home/Rede, criar páginas, definir o nome da aba, resumo, ordem e publicar ou retirar do ar sem editar HTML.
+5. O formulário de imagens recebe PNG/JPEG/WebP, converte para WebP, reduz o tamanho e publica uma foto com legenda na galeria. Uma foto da galeria pode ser escolhida como capa de página. O arquivo final não excede **2 MiB**.
+6. Páginas usam URL curta (`pagina.html?slug=...`), texto simples e descrição alternativa da foto. As páginas publicadas aparecem na página **Conteúdo**; cada página marcada também ganha uma aba interna de navegação.
 
 **Nenhuma senha fixa é criada ou enviada pelo chat.** O login é individual por Magic Link (senha descartável de uso único); um usuário só vira editor depois que o acesso é concedido explicitamente no banco. Nunca disponibilizar `service_role`, chaves secretas ou tokens no código estático nem compartilhá-los com participantes. Não implementar senha hardcoded ou permitir criar editor por formulário público.
 
@@ -20,7 +21,7 @@
 - Rede — texto de abertura (texto).
 - Home — galeria: adicionar imagens aprovadas e legenda.
 
-**Não é um construtor livre do site:** mover seções, editar programas/HTML, criar rotas, alterar banco, excluir imagens e editar todos os parágrafos ainda dependem de desenvolvimento futuro. Não confundir administração de conteúdo com permissões de moderação da comunidade.
+**Limites:** o painel não edita HTML/CSS/JavaScript, não move as seções fixas da Home e não apaga imagens ou páginas. Para corrigir uma página publicada, edite seu conteúdo; para retirá-la do ar, desmarque Publicar. Não confundir editor de conteúdo com permissões de moderação da comunidade.
 
 Quando a tabela CMS não está presente ou ainda não tem conteúdo, as páginas mantêm os textos HTML originais. A galeria só aparece com fotos reais. O CMS é aplicado por `textContent`, evitando injeção de HTML.
 
@@ -48,6 +49,7 @@ where email = '<email-verificado-da-equipe>'
 - `meca_site_editors`: tabela separada de `rede_moderators`, com SELECT do próprio cadastro para o usuário e **sem INSERT/UPDATE/DELETE** em clientes públicos.
 - `meca_site_copy`: quatro slots permitidos, texto de 8 a 700 caracteres, RLS para alterar apenas por editores autenticados não anônimos; qualquer visitante lê o conteúdo editado.
 - `meca_site_gallery`: publicação de foto associada ao usuário editor, RLS para INSERT e leitura pública; navegador sem permissão não grava.
+- `meca_site_pages`: páginas em texto simples, rascunhos visíveis apenas a editores, leitura pública somente após publicação e gravação restrita a editores não anônimos.
 - `meca-site-gallery`: bucket público somente para imagens destinadas ao site, upload WebP até 2 MiB com RLS no `storage.objects`, caminho limitado a pasta UUID do editor e nome UUID aleatório.
 - No navegador, cada imagem é reprocessada num canvas e convertida para WebP, descartando metadados embutidos. SVG e arquivos executáveis não são aceitos.
 - Clientes públicos nunca recebem chave administrativa; o dashboard e a UI não substituem as políticas RLS.

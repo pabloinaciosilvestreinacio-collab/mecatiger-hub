@@ -85,3 +85,52 @@ create policy "Verified editors add gallery photos"
     and exists (select 1 from public.meca_site_editors e where e.user_id = (select auth.uid()))
   );
 -- No UPDATE/DELETE grants or policies on editors, gallery or storage objects for browser users.
+
+-- Dynamic text pages and navigation tabs. Text is rendered only through textContent.
+create table public.meca_site_pages (
+  slug text primary key check (char_length(slug) between 2 and 64 and slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  title text not null check (char_length(btrim(title)) between 2 and 100),
+  nav_label text not null check (char_length(btrim(nav_label)) between 2 and 28),
+  summary text not null default '' check (char_length(btrim(summary)) <= 180),
+  body text not null check (char_length(btrim(body)) between 8 and 20000),
+  cover_path text check (cover_path is null or cover_path ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}[.]webp$'),
+  cover_alt text not null default '' check (
+    (cover_path is null and cover_alt = '')
+    or (cover_path is not null and char_length(btrim(cover_alt)) between 3 and 160)
+  ),
+  show_in_nav boolean not null default true,
+  nav_order integer not null default 100 check (nav_order between 0 and 9999),
+  published boolean not null default false,
+  updated_by uuid not null references auth.users(id),
+  updated_at timestamptz not null default now()
+);
+create index meca_site_pages_public_nav_idx
+  on public.meca_site_pages(nav_order, nav_label) where published and show_in_nav;
+alter table public.meca_site_pages enable row level security;
+revoke all on public.meca_site_pages from public, anon, authenticated;
+grant select on public.meca_site_pages to anon, authenticated;
+grant insert, update on public.meca_site_pages to authenticated;
+create policy "Public reads published site pages"
+  on public.meca_site_pages for select to anon, authenticated using (published = true);
+create policy "Editors read all site pages"
+  on public.meca_site_pages for select to authenticated using (
+    (auth.jwt()->>'is_anonymous') = 'false'
+    and exists (select 1 from public.meca_site_editors e where e.user_id = (select auth.uid()))
+  );
+create policy "Editors create site pages"
+  on public.meca_site_pages for insert to authenticated with check (
+    updated_by = (select auth.uid())
+    and (auth.jwt()->>'is_anonymous') = 'false'
+    and exists (select 1 from public.meca_site_editors e where e.user_id = (select auth.uid()))
+  );
+create policy "Editors update site pages"
+  on public.meca_site_pages for update to authenticated
+  using (
+    (auth.jwt()->>'is_anonymous') = 'false'
+    and exists (select 1 from public.meca_site_editors e where e.user_id = (select auth.uid()))
+  )
+  with check (
+    updated_by = (select auth.uid())
+    and (auth.jwt()->>'is_anonymous') = 'false'
+    and exists (select 1 from public.meca_site_editors e where e.user_id = (select auth.uid()))
+  );

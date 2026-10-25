@@ -7,7 +7,9 @@ const pages = [
   ["/rede.html", "Rede Meca Tiger"],
   ["/entrar.html?next=rede.html", "Acesso à Rede Meca Tiger"],
   ["/mecasim.html", "Meca Sim · MECATIGER FTC #32578"],
-  ["/admin.html", "Painel da equipe — Meca Tiger"]
+  ["/admin.html", "Painel da equipe — Meca Tiger"],
+  ["/conteudo.html", "Conteúdo do Hub"],
+  ["/pagina.html?slug=teste", "Página do Hub"]
 ];
 
 const responsiveWidths = [320, 360, 390, 768, 1440];
@@ -56,11 +58,14 @@ for (const [path, title] of pages) {
 }
 
 
-test("Home opens optional registration for first-time visitors and allows skipping", async ({ page }) => {
+test("Home opens optional registration only after explicit choice", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1_100);
   const panel = page.locator("#cadastro-panel");
+  await expect(panel).toBeHidden();
+  const registrationButton = page.getByRole("button", { name: /cadastro opcional de participação/i });
+  await expect(registrationButton).toBeVisible();
+  await registrationButton.click();
   await expect(panel).toBeVisible();
   await expect(panel).toHaveAttribute("role", "dialog");
   await expect(panel).toHaveAttribute("aria-modal", "true");
@@ -70,12 +75,6 @@ test("Home opens optional registration for first-time visitors and allows skippi
   await skipButton.click();
   await expect(panel).toBeHidden();
 
-  const registrationButton = page.getByRole("button", {
-    name: /cadastro opcional de participação/i
-  });
-  await expect(registrationButton).toBeVisible();
-  await registrationButton.click();
-  await expect(panel).toBeVisible();
   await expect(page.getByRole("button", { name: /continuar sem cadastro/i })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .include("#cadastro-panel")
@@ -133,10 +132,10 @@ test("Rede explica o processo completo e a separação dos cadastros", async ({ 
   await expect(section).toContainText("O login autenticado ainda aguarda ativação do backend");
   await expect(section).toContainText("não use e-mail para publicar ou pedir conexão");
   await expect(section).toContainText("Quando o feed estiver ativo");
-  await expect(page.locator("#ajuda a[href^='mailto:']")).toBeVisible();
-  await expect(page.locator("#conexao button[disabled]")).toBeVisible();
+  await expect(page.locator("#ajuda button[data-request-kind=ajuda]")).toBeVisible();
+  await expect(page.locator("#conexao button[data-request-kind=conexao]")).toBeVisible();
   await expect(page.locator("#compartilhar a[href^='mailto:']")).toHaveCount(0);
-  await expect(page.locator("a[href^='mailto:'][href*='Den%C3%BAncia']")).toBeVisible();
+  await expect(page.locator("#compartilhar")).not.toContainText("e-mail");
   await expect(page.locator(".rede-banner")).toContainText("não cria uma conta");
   await expect(page.locator("#feed-status")).not.toContainText("5 publicações");
 });

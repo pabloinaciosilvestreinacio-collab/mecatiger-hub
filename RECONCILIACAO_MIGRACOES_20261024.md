@@ -1,10 +1,10 @@
 # Auditoria e reconciliação de migrações — Meca Tiger
 
-**Data:** 24/10/2026. **Decisão:** NO-GO para execução de migrations em produção. Este documento não é autorização, procedimento automatizado de reparo nem promessa de equivalência entre o banco local e o remoto.
+**Data:** 25/10/2026. **Decisão:** NO-GO para execução de migrations em produção. Este documento não é autorização, procedimento automatizado de reparo nem promessa de equivalência entre o banco local e o remoto.
 
 ## 1. Investigação com fonte da verdade
 
-Repositório: `pabloinaciosilvestreinacio-collab/mecatiger-hub`, sobre o PR #16. Projeto Supabase conectado: `rnnzumzqilkuecvgsjnv`.
+Repositório: `pabloinaciosilvestreinacio-collab/mecatiger-hub`, sobre a `main` SHA `3782fd9195c4b2b614ec586a2f54b4799fb210c8`. Projeto Supabase conectado: `rnnzumzqilkuecvgsjnv`.
 
 Consultas **somente leitura** realizadas nesta auditoria: `list_migrations`, `list_tables`, e `SELECT` nos catálogos `supabase_migrations.schema_migrations`, `pg_class`, `pg_policies` e `pg_proc`. **Não houve** `INSERT`, `UPDATE`, `DELETE`, DDL, deploy, Supabase CLI com credenciais hospedadas nem consulta ao conteúdo pessoal de cadastros.
 
@@ -34,7 +34,7 @@ A branch contém **somente as versões 5–8**. Portanto, a cadeia de migrations
 
 Os arquivos novos foram inspecionados por nome, operação e objetos alterados. **Não contêm migrações que apaguem ou atualizem diretamente `community_registrations`, `community_metrics` ou substituam `register_community_member`.** As novas migrações criam tabelas de Rede/CMS e serviços próprios; algumas têm `ON DELETE CASCADE` em **novas relações de usuários**, o que não é uma exclusão imediata de usuários, mas precisa de avaliação sobre retenção e exclusão futura.
 
-**Limite da garantia:** inspeção automática de sintaxe e padrões não substitui revisão semântica do SQL, do estado atual do Postgres, das dependências de `auth.users` e `storage.objects` ou das permissões globais. Os testes RLS/Postgres e Supabase local são evidências independentes. A auditoria offline **não lê o banco remoto durante o CI**; a fotografia `release/hosted-baseline-20261024.json` é histórica e deve ser atualizada por leitura autorizada antes da implantação.
+**Limite da garantia:** inspeção automática de sintaxe e padrões não substitui revisão semântica do SQL, do estado atual do Postgres, das dependências de `auth.users` e `storage.objects` ou das permissões globais. Os testes RLS/Postgres e Supabase local são evidências independentes. A auditoria offline **não lê o banco remoto durante o CI**; a fotografia `release/hosted-baseline-20261025.json` é catálogo sanitizado capturado nesta data; atualize-a após qualquer mudança.
 
 ### Conformidade do código e bloqueios
 
@@ -63,9 +63,9 @@ Referência oficial: https://supabase.com/docs/guides/database/database-linter?l
 
 ## 4. Reconciliação correta — sequência para uma decisão posterior
 
-**Etapa A (sem escrita, já feita):** exportar **somente metadados** do histórico e dos objetos públicos; guardar a fotografia sem dados pessoais. Confirmar `main` e PRs, e não alterar o banco.
+**Etapa A (somente leitura, concluída em 25/10):** guardar histórico, tabelas, políticas, grants, função, trigger, buckets e avisos do Advisor no arquivo `release/hosted-baseline-20261025.json`, sem consultar linhas pessoais. Foi preservado o estado de zero usuários Auth e zero registros individuais.
 
-**Etapa B (não concluída):** localizar a **fonte original exata** dos quatro scripts de migração antigos (histórico do projeto, arquivos do time ou backups válidos). Se não existirem, derivar um baseline da estrutura real com ferramenta apropriada, revisão humana de funções, políticas e triggers, e registrar explicitamente o procedimento. **Não fabricar conteúdo de migrations aplicadas apenas porque seus nomes são conhecidos.** Se o histórico e o SQL original não coincidirem, parar e decidir estratégia com operador autorizado.
+**Etapa B (parcialmente concluída):** a fonte dos quatro SQLs históricos originais continua ausente. Foi criado um inventário de catálogo somente leitura com metadados reais das tabelas, constraints, função, permissões e trigger; não é um arquivo de migration histórico e não foi marcado como aplicado. **Não fabricar conteúdo de migrations aplicadas apenas porque seus nomes são conhecidos.** Se o histórico e o SQL original não coincidirem, parar e decidir estratégia com operador autorizado.
 
 **Etapa C (isolada, após obtenção de fonte):** montar novo ambiente Supabase **local** com as migrations antigas autenticamente reconstruídas e, depois, as quatro novas na ordem. Executar integralmente integração Postgres RLS, Auth, CMS Storage, Edge Function, API e navegador. Verificar que o cadastro/métricas funciona sem regressão. Não usar dados da produção como fixtures.
 

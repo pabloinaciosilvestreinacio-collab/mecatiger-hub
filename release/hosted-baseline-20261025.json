@@ -1,0 +1,106 @@
+{
+  "snapshot_type": "read_only_catalog_inventory",
+  "captured_at": "2026-10-25",
+  "project_id": "rnnzumzqilkuecvgsjnv",
+  "project_status": "ACTIVE_HEALTHY",
+  "plan": "FREE",
+  "write_operations_performed": false,
+  "hosted_migrations": [
+    {
+      "version": "20261013171020",
+      "name": "create_community_registration_metrics"
+    },
+    {
+      "version": "20261013173230",
+      "name": "count_competitors_as_students"
+    },
+    {
+      "version": "20261013174946",
+      "name": "add_brazilian_state_metrics"
+    },
+    {
+      "version": "20261019231824",
+      "name": "secure_public_registration_rpc_v2"
+    }
+  ],
+  "hosted_public_tables": [
+    {
+      "name": "community_registrations",
+      "rls_enabled": true,
+      "row_count": 0,
+      "policy_count": 0,
+      "columns": [
+        "id bigint identity primary key",
+        "email text unique, lowercase/trimmed, 3..320 chars",
+        "profile_role constrained text",
+        "team_or_school 2..160 chars",
+        "state 2..80 chars",
+        "country default Brasil, 2..80 chars",
+        "consent=true",
+        "created_at timestamptz"
+      ]
+    },
+    {
+      "name": "community_metrics",
+      "rls_enabled": true,
+      "row_count": 1,
+      "policy_count": 1,
+      "policy": "Visitors can read aggregate metrics",
+      "aggregate_counts": {
+        "people_count": 0,
+        "states_count": 0,
+        "mentors_count": 0,
+        "students_count": 0,
+        "countries_count": 0
+      }
+    }
+  ],
+  "legacy_rpc": {
+    "name": "register_community_member",
+    "signature": "(p_email text,p_profile_role text,p_team_or_school text,p_state text,p_country text,p_consent boolean)",
+    "security_definer": true,
+    "search_path": "empty",
+    "execute_roles": [
+      "anon",
+      "authenticated",
+      "service_role",
+      "postgres"
+    ],
+    "direct_table_write": false,
+    "requires_consent": true,
+    "normalizes_email": true,
+    "ignores_duplicate_email": true
+  },
+  "legacy_trigger": {
+    "name": "refresh_community_metrics_trigger",
+    "timing": "AFTER INSERT OR DELETE OR UPDATE, statement-level",
+    "function": "refresh_community_metrics()",
+    "execute_roles": [
+      "service_role",
+      "postgres"
+    ]
+  },
+  "auth": {
+    "user_count": 0,
+    "anonymous_sign_ins_enabled": false
+  },
+  "storage": {
+    "custom_buckets": [],
+    "community_registrations_preserved": true
+  },
+  "edge_functions": [],
+  "development_branches": [],
+  "new_product_objects_present": false,
+  "security_advisories": [
+    {
+      "level": "INFO",
+      "finding": "community_registrations RLS enabled with no direct policies; direct access is denied, RPC is the public registration path."
+    },
+    {
+      "level": "WARN",
+      "finding": "SECURITY DEFINER register_community_member callable by anon/authenticated; review abuse controls without breaking legacy registration."
+    }
+  ],
+  "performance_advisories": [],
+  "note": "Metadata-only catalog snapshot, not original historical migrations and not a backup. No personal registration values, email addresses, tokens or secrets."
+}

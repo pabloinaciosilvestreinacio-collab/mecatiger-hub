@@ -19,7 +19,7 @@ export const PROTECTED_LEGACY_OBJECTS=Object.freeze([
 const NEW_OBJECTS=new Set([
  "rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests",
  "rede_reports","rede_moderation_log","mecasim_trajectories",
- "meca_site_editors","meca_site_copy","meca_site_gallery"
+ "meca_site_editors","meca_site_copy","meca_site_gallery","meca_site_pages"
 ]);
 export const normalizeVersion = filename => {
   const m=/^([0-9]{14})_[a-z0-9_]+\.sql$/.exec(filename);
@@ -90,14 +90,14 @@ export function reconcile(remote, filenames, sqlByFile) {
     requiresManualReconciliation:!historyAligned,
     productionReady:false,
     issues,
-    snapshotAgeWarning:"Manifesto estático de 24/10/2026; deve ser conferido novamente contra o remoto antes de qualquer implantação.",
+    snapshotAgeWarning:"Inventário de catálogo somente leitura capturado em 25/10/2026; confira novamente contra o remoto antes de qualquer implantação.",
     recommendation:!safeSql?"STOP: corrigir risco estrutural ou alteração de objeto legado.":
       !historyAligned?"STOP: histórico remoto anterior ausente nos arquivos locais; preparar baseline verdadeiro, revisar antes de qualquer db push.":
       "STOP: mesmo com histórico alinhado, não existe autorização de produção."
   };
 }
 export function inspectCheckout(root=projectRoot){
-  const snapshot=JSON.parse(readFileSync(resolve(root,"release/hosted-baseline-20261024.json"),"utf8"));
+  const snapshot=JSON.parse(readFileSync(resolve(root,"release/hosted-baseline-20261025.json"),"utf8"));
   const dir=resolve(root,"supabase/migrations");
   const files=readdirSync(dir).filter(x=>x.endsWith(".sql")).sort();
   const sqlByFile=Object.fromEntries(files.map(x=>[x,readFileSync(resolve(dir,x),"utf8")]));
