@@ -34,7 +34,7 @@ set local request.jwt.claim.is_anonymous='false';
 set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 select public.meca_site_set_access('test-b@example.invalid',true,false,false);
 select public.rede_assert(
-  exists(select 1 from public.meca_site_editors where user_id='00000000-0000-0000-0000-000000000002'),
+  exists(select 1 from public.meca_site_list_access() where user_id='00000000-0000-0000-0000-000000000002' and is_editor),
   'administrator can grant editor role to confirmed user');
 select public.rede_assert(
   (select count(*) from public.meca_site_list_access())=2,
