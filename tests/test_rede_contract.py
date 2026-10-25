@@ -57,6 +57,17 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("new.created_at := now()",sql)
         self.assertIn("create schema if not exists app_private",sql)
         self.assertNotIn("grant insert on public.rede_moderators",sql)
+        thread=(ROOT/"supabase/migrations/20261025140000_rede_request_messages.sql").read_text(encoding="utf-8").lower()
+        self.assertIn("alter table public.rede_request_messages enable row level security",thread)
+        self.assertIn("grant select, insert on public.rede_request_messages to authenticated",thread)
+        self.assertIn("request authors and moderators read request messages",thread)
+        self.assertIn("authors and moderators add request messages",thread)
+        self.assertNotIn("grant update",thread)
+        self.assertNotIn("grant delete",thread)
+        self.assertIn("char_length(btrim(body)) between 1 and 3000",thread)
+        smoke=(ROOT/"tests/rls_smoke.sql").read_text(encoding="utf-8")
+        self.assertIn("other member cannot read request messages",smoke)
+        self.assertIn("moderator can read private request messages",smoke)
 
     def test_simulator_limitation(self):
         gate=(ROOT/"js/sim-gate.js").read_text(encoding="utf-8")
