@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT/"supabase/migrations/20261024160000_rede_mecatiger_mvp.sql"
+MIGRATION = ROOT/"supabase/migrations/20261025032012_rede_mecatiger_mvp.sql"
 
 class LocalRefs(HTMLParser):
     def __init__(self):
@@ -153,7 +153,7 @@ class RedeContracts(unittest.TestCase):
         logic=(ROOT/"js/admin.js").read_text(encoding="utf-8")
         model=(ROOT/"js/cms-model.mjs").read_text(encoding="utf-8")
         cms=(ROOT/"js/cms-public.js").read_text(encoding="utf-8")
-        migration=(ROOT/"supabase/migrations/20261024190000_mecatiger_site_cms.sql").read_text(encoding="utf-8").lower()
+        migration=(ROOT/"supabase/migrations/20261025032035_mecatiger_site_cms.sql").read_text(encoding="utf-8").lower()
         home=(ROOT/"index.html").read_text(encoding="utf-8")
         for path in ("admin.css","js/admin.js","js/cms-model.mjs","js/cms-public.js","ADMIN_EDITOR.md"):
             self.assertTrue((ROOT/path).is_file(),path)
