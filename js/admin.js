@@ -218,10 +218,40 @@ async function updateRequestStatus(request,nextStatus,button) {
     message.dataset.error="true";
   } finally {button.disabled=false;}
 }
+let selectedRequestId=null;
+async function loadRequestMessages(requestId,requestAuthorName) {
+  const root=byId("admin-request-messages");
+  root.replaceChildren();
+  const loading=document.createElement("p");loading.textContent="Carregando conversa...";root.append(loading);
+  const {data,error}=await supabase.from("rede_request_messages")
+    .select("id,sender_id,body,created_at").eq("request_id",requestId)
+    .order("created_at",{ascending:true}).order("id",{ascending:true}).limit(100);
+  if(selectedRequestId!==requestId)return;
+  root.replaceChildren();
+  if(error) {
+    const failure=document.createElement("p");failure.textContent="Não foi possível carregar a conversa. Confirme a migration da conversa privada e a autorização.";root.append(failure);return;
+  }
+  if(!data?.length) {
+    const empty=document.createElement("p");empty.textContent="Ainda não há mensagens neste pedido.";root.append(empty);return;
+  }
+  for(const row of data) {
+    const item=document.createElement("article");item.className="admin-request-message";
+    const sender=document.createElement("strong");
+    sender.textContent=row.sender_id===adminUser?.id?"Você (equipe)":row.sender_id===requestAuthorIdForMessages?requestAuthorName:"Equipe Meca Tiger";
+    const date=document.createElement("time");date.dateTime=row.created_at;date.textContent=localDate(row.created_at);
+    const content=document.createElement("p");content.textContent=row.body;
+    item.append(sender,date,content);root.append(item);
+  }
+}
+let requestAuthorIdForMessages=null;
 async function openRequestDetails(request,displayName) {
   const dialog=byId("admin-request-dialog");
   const body=byId("admin-request-dialog-body");
   const history=byId("admin-request-history");
+  selectedRequestId=request.id;
+  requestAuthorIdForMessages=request.author_id;
+  byId("admin-request-message-form").reset();
+  status("admin-request-message-status","");
   body.replaceChildren(
     requestField("Tipo",REQUEST_KIND_LABELS[request.kind]||request.kind),
     requestField("Status",REQUEST_STATUS_LABELS[request.status]||request.status),
@@ -234,22 +264,40 @@ async function openRequestDetails(request,displayName) {
   history.replaceChildren();
   const loading=document.createElement("p");loading.textContent="Carregando histórico...";history.append(loading);
   if(!dialog.open) dialog.showModal();
-  const {data,error}=await supabase.from("rede_moderation_log")
+  const historyResult=await supabase.from("rede_moderation_log")
     .select("previous_status,new_status,logged_at").eq("entity","request").eq("entity_id",request.id)
     .order("logged_at",{ascending:false}).limit(50);
+  if(selectedRequestId!==request.id)return;
   history.replaceChildren();
-  if(error) {
-    const failure=document.createElement("p");failure.textContent="Não foi possível carregar o histórico.";history.append(failure);return;
+  if(historyResult.error) {
+    const failure=document.createElement("p");failure.textContent="Não foi possível carregar o histórico.";history.append(failure);
+  } else if(!historyResult.data?.length) {
+    const empty=document.createElement("p");empty.textContent="Ainda não há alterações de status registradas.";history.append(empty);
+  } else {
+    for(const row of historyResult.data) {
+      const item=document.createElement("p");
+      item.textContent=`${REQUEST_STATUS_LABELS[row.previous_status]||row.previous_status||"Criado"} → ${REQUEST_STATUS_LABELS[row.new_status]||row.new_status} · ${localDate(row.logged_at)}`;
+      history.append(item);
+    }
   }
-  if(!data?.length) {
-    const empty=document.createElement("p");empty.textContent="Ainda não há alterações de status registradas.";history.append(empty);return;
-  }
-  for(const row of data) {
-    const item=document.createElement("p");
-    item.textContent=`${REQUEST_STATUS_LABELS[row.previous_status]||row.previous_status||"Criado"} → ${REQUEST_STATUS_LABELS[row.new_status]||row.new_status} · ${localDate(row.logged_at)}`;
-    history.append(item);
-  }
+  await loadRequestMessages(request.id,displayName);
 }
+byId("admin-request-message-form").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const requestId=selectedRequestId;
+  const body=byId("admin-request-message-body").value.trim();
+  if(!adminUser||!isModerator||!requestId||body.length<1||body.length>3000)return;
+  const button=event.currentTarget.querySelector('button[type="submit"]');
+  button.disabled=true;status("admin-request-message-status","Enviando resposta...");
+  const {error}=await supabase.from("rede_request_messages").insert({
+    request_id:requestId,sender_id:adminUser.id,body
+  });
+  if(selectedRequestId===requestId) {
+    if(error)status("admin-request-message-status","A resposta não foi gravada. Verifique a migration e as permissões.",true);
+    else {event.currentTarget.reset();status("admin-request-message-status","Resposta gravada e visível no site ao solicitante.");await loadRequestMessages(requestId,"Solicitante");}
+  }
+  button.disabled=false;
+});
 byId("admin-request-dialog-close").addEventListener("click",()=>byId("admin-request-dialog").close());
 byId("admin-tab-overview").addEventListener("click",loadOverview);
 byId("admin-requests-reload").addEventListener("click",loadRequests);
