@@ -130,7 +130,7 @@ export function reconcile(remote, filenames, sqlByFile) {
     requiresManualReconciliation:!historyAligned,
     productionReady:false,
     issues,
-    snapshotAgeWarning:"Inventário pós-implantação capturado em 25/10/2026; confira novamente contra o remoto antes de novas alterações.",
+    snapshotAgeWarning:"Inventário atualizado em 25/10/2026 após as migrações de administração e equipe; confira novamente contra o remoto antes de novas alterações.",
     recommendation:!safeSql?"STOP: corrigir risco estrutural ou alteração de objeto legado.":
       !historyAligned?"STOP: histórico remoto diverge do inventário pós-implantação.":
       "STOP: schema alinhado; Auth, SMTP, contas editor/moderador e homologação ponta a ponta seguem pendentes."
