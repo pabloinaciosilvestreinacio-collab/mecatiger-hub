@@ -67,7 +67,7 @@ test("Home opens the metrics and account-access notice in one first-visit panel"
   await expect(panel).toHaveAttribute("aria-modal", "true");
   await expect(panel).toContainText("PARTICIPE COM SUA CONTA");
   await expect(panel).toContainText("não cria uma conta autenticada");
-  await expect(panel.getByRole("link", { name: /Criar conta \/ entrar/i })).toHaveAttribute("href", "entrar.html?next=rede.html");
+  await expect(page.locator(".registration-account-callout a")).toHaveAttribute("href", "entrar.html?next=rede.html");
   const skipButton = page.getByRole("button", { name: /continuar explorando o site/i });
   await expect(skipButton).toBeVisible();
   await skipButton.click();
