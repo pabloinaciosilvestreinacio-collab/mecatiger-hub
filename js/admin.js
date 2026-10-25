@@ -218,7 +218,7 @@ async function updateRequestStatus(request,nextStatus,button) {
     message.dataset.error="true";
   } finally {button.disabled=false;}
 }
-let selectedRequestId=null;
+let selectedRequestId=null, selectedRequestAuthorName="Solicitante";
 async function loadRequestMessages(requestId,requestAuthorName) {
   const root=byId("admin-request-messages");
   root.replaceChildren();
@@ -249,6 +249,7 @@ async function openRequestDetails(request,displayName) {
   const body=byId("admin-request-dialog-body");
   const history=byId("admin-request-history");
   selectedRequestId=request.id;
+  selectedRequestAuthorName=displayName;
   requestAuthorIdForMessages=request.author_id;
   byId("admin-request-message-form").reset();
   status("admin-request-message-status","");
@@ -284,6 +285,7 @@ async function openRequestDetails(request,displayName) {
 }
 byId("admin-request-message-form").addEventListener("submit",async event=>{
   event.preventDefault();
+  const form=event.currentTarget;
   const requestId=selectedRequestId;
   const body=byId("admin-request-message-body").value.trim();
   if(!adminUser||!isModerator||!requestId||body.length<1||body.length>3000)return;
@@ -294,7 +296,7 @@ byId("admin-request-message-form").addEventListener("submit",async event=>{
   });
   if(selectedRequestId===requestId) {
     if(error)status("admin-request-message-status","A resposta não foi gravada. Verifique a migration e as permissões.",true);
-    else {event.currentTarget.reset();status("admin-request-message-status","Resposta gravada e visível no site ao solicitante.");await loadRequestMessages(requestId,"Solicitante");}
+    else {form.reset();status("admin-request-message-status","Resposta gravada e visível no site ao solicitante.");await loadRequestMessages(requestId,selectedRequestAuthorName);}
   }
   button.disabled=false;
 });
