@@ -4,19 +4,19 @@ import { isVerifiedMember } from "./rede-identity.mjs";
 // Public GitHub Pages launch: informational Rede only until hosted Auth/DB approval.
 if (location.hostname === "pabloinaciosilvestreinacio-collab.github.io") {
   const byId = id => document.getElementById(id);
-  byId("rede-identity").textContent = "Prévia pública: leitura disponível. Login e publicações ainda não estão liberados.";
-  byId("feed-status").textContent = "A Rede ainda não possui um feed público habilitado. As publicações serão liberadas após homologação.";
+  byId("rede-identity").textContent = "Prévia pública: login e feed em preparação; contato com a equipe disponível por e-mail.";
+  byId("feed-status").textContent = "O feed e as publicações no site aguardam ativação do backend. Use o botão de compartilhamento por e-mail para enviar conteúdo à equipe.";
   byId("rede-signin").hidden = true;
   byId("rede-signout").hidden = true;
   for (const btn of document.querySelectorAll("[data-request-kind]")) {
     btn.disabled = true;
     btn.title = "Solicitações em preparação";
   }
-  byId("post-status").textContent = "Envio de publicações em preparação.";
+  byId("post-status").textContent = "Publicações no feed aguardam ativação. O envio por e-mail será revisado pela equipe.";
   const banner = document.createElement("p");
   banner.className = "rede-banner";
   banner.setAttribute("role", "status");
-  banner.textContent = "Versão pública de apresentação: a autenticação, os pedidos privados e a moderação não estão ativos. Não envie dados pessoais.";
+  banner.textContent = "Login e publicações no feed ainda não estão ativos. Para pedir ajuda, solicitar conexão STEM ou compartilhar conhecimento, use os botões de e-mail abaixo; o envio só acontece quando você confirma no aplicativo.",
   document.querySelector(".rede-page").insertBefore(banner, document.querySelector(".rede-toolbar"));
 } else {
 const $ = id => document.getElementById(id);
