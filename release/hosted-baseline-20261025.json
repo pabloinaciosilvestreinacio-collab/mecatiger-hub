@@ -37,6 +37,10 @@
     {
       "version": "20261025032035",
       "name": "mecatiger_site_cms"
+    },
+    {
+      "version": "20261025140659",
+      "name": "rede_request_messages"
     }
   ],
   "hosted_public_tables": [
@@ -141,6 +145,10 @@
       "rls_enabled": true,
       "rows": 0,
       "policy_count": 4
+    },
+    {
+      "name": "rede_request_messages",
+      "rls_enabled": true
     }
   ],
   "legacy_rpc": {
@@ -201,7 +209,7 @@
     }
   ],
   "performance_advisories": [],
-  "note": "Inventário pós-implantação, somente metadados e contagens. Migrações novas são aditivas; nenhuma inscrição ou métrica existente foi alterada. Não é backup, e a restauração de backup não foi testada.",
+  "note": "Inventário pós-implantação, somente metadados e contagens. Migrações novas são aditivas; nenhuma inscrição ou métrica existente foi alterada. Não é backup, e a restauração de backup não foi testada. Updated on 2026-10-25 after applying rede_request_messages; now used as the reviewed pre-admin migration baseline.",
   "migration_application": {
     "applied_at_utc": "2026-10-25T03:20:12Z",
     "tracked_versions": [
