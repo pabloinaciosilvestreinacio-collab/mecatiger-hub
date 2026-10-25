@@ -13,12 +13,16 @@ const copyForm=byId("cms-copy-form");
 const photoForm=byId("cms-photo-form");
 const pageForm=byId("cms-page-form");
 let editorUser=null;
+let adminUser=null;
+let isModerator=false;
 let storedCopy = new Map();
 let storedPages = new Map();
 let editingPageSlug = null;
 
 async function closeSession() {
   editorUser = null;
+  adminUser = null;
+  isModerator = false;
   contentSection.hidden = true;
   await supabase.auth.signOut();
   location.replace("entrar.html?next=admin.html");
@@ -46,7 +50,7 @@ function showCurrentText() {
 byId("cms-slot").addEventListener("change",showCurrentText);
 
 function selectAdminTab(name,focus=false) {
-  for(const tab of document.querySelectorAll("[data-admin-tab]")) {
+  for(const tab of document.querySelectorAll("[data-admin-tab]:not([hidden])")) {
     const selected=tab.dataset.adminTab===name;
     tab.setAttribute("aria-selected",String(selected));
     tab.tabIndex=selected?0:-1;
@@ -55,14 +59,15 @@ function selectAdminTab(name,focus=false) {
     if(selected && focus) tab.focus();
   }
 }
-const adminTabs=[...document.querySelectorAll("[data-admin-tab]")];
-for(const tab of adminTabs) {
+for(const tab of document.querySelectorAll("[data-admin-tab]")) {
   tab.addEventListener("click",()=>selectAdminTab(tab.dataset.adminTab));
   tab.addEventListener("keydown",event=>{
     const direction=event.key==="ArrowRight"?1:event.key==="ArrowLeft"?-1:0;
     if(!direction)return;
     event.preventDefault();
+    const adminTabs=[...document.querySelectorAll("[data-admin-tab]:not([hidden])")];
     const index=adminTabs.indexOf(tab);
+    if(index<0||!adminTabs.length)return;
     const next=adminTabs[(index+direction+adminTabs.length)%adminTabs.length];
     selectAdminTab(next.dataset.adminTab,true);
   });
@@ -76,6 +81,45 @@ let requestsLoaded=false;
 function localDate(value) {
   const date=new Date(value);
   return Number.isNaN(date.getTime())?"Data indisponível":date.toLocaleString("pt-BR");
+}
+async function loadOverview() {
+  if(!adminUser) return;
+  const statusNode=byId("admin-overview-status"),root=byId("admin-overview-metrics"),activity=byId("admin-overview-activity");
+  statusNode.textContent="Atualizando resumo...";statusNode.dataset.error="false";root.replaceChildren();activity.replaceChildren();
+  const tasks=[];
+  if(isModerator) tasks.push(
+    ["Solicitações pendentes",()=>supabase.from("rede_requests").select("id",{count:"exact",head:true}).eq("status","pending")],
+    ["Publicações pendentes",()=>supabase.from("rede_posts").select("id",{count:"exact",head:true}).eq("status","pending")],
+    ["Comentários pendentes",()=>supabase.from("rede_comments").select("id",{count:"exact",head:true}).eq("status","pending")],
+    ["Denúncias pendentes",()=>supabase.from("rede_reports").select("id",{count:"exact",head:true}).eq("status","pending")]
+  );
+  if(editorUser) tasks.push(
+    ["Páginas publicadas",()=>supabase.from("meca_site_pages").select("slug",{count:"exact",head:true}).eq("published",true)],
+    ["Fotos na galeria",()=>supabase.from("meca_site_gallery").select("id",{count:"exact",head:true})]
+  );
+  const results=await Promise.all(tasks.map(([,run])=>run()));
+  let failed=results.some(result=>result.error);
+  results.forEach((result,index)=>{
+    const card=document.createElement("article");card.className="admin-overview-card";
+    const value=document.createElement("strong");value.textContent=result.error?"—":String(result.count??0);
+    const label=document.createElement("span");label.textContent=tasks[index][0];card.append(value,label);root.append(card);
+  });
+  if(isModerator) {
+    const {data,error}=await supabase.from("rede_moderation_log").select("entity,entity_id,previous_status,new_status,logged_at")
+      .order("logged_at",{ascending:false}).limit(10);
+    if(error) failed=true;
+    if(error||!data?.length) {
+      const note=document.createElement("p");note.className="rede-muted";note.textContent=error?"Atividade indisponível para esta sessão.":"Ainda não há decisões registradas.";activity.append(note);
+    } else for(const row of data) {
+      const line=document.createElement("p");
+      line.textContent=`${row.entity} #${row.entity_id}: ${MODERATION_STATUS_LABELS[row.previous_status]||row.previous_status||"Criado"} → ${MODERATION_STATUS_LABELS[row.new_status]||row.new_status} · ${localDate(row.logged_at)}`;
+      activity.append(line);
+    }
+  } else {
+    const note=document.createElement("p");note.className="rede-muted";note.textContent="O histórico de moderação aparece para contas com papel de moderador.";activity.append(note);
+  }
+  statusNode.textContent=failed?"Resumo parcial: não foi possível consultar todos os dados.":"Resumo atualizado.";
+  statusNode.dataset.error=String(failed);
 }
 function requestField(label,value) {
   const p=document.createElement("p");
@@ -118,13 +162,13 @@ function renderRequestCards(rows,names) {
   }
 }
 async function loadRequests() {
-  if(!editorUser) return;
+  if(!adminUser||!isModerator) return;
   const message=byId("admin-requests-status");
   message.textContent="Verificando autorização e carregando solicitações...";message.dataset.error="false";
   requestList.replaceChildren();
   try {
     const {data:moderator,error:roleError}=await supabase.from("rede_moderators")
-      .select("user_id").eq("user_id",editorUser.id).maybeSingle();
+      .select("user_id").eq("user_id",adminUser.id).maybeSingle();
     if(roleError) throw roleError;
     if(!moderator) {
       requestsLoaded=false;
@@ -159,7 +203,7 @@ async function loadRequests() {
   }
 }
 async function updateRequestStatus(request,nextStatus,button) {
-  if(!editorUser||!Object.hasOwn(REQUEST_STATUS_LABELS,nextStatus)) return;
+  if(!adminUser||!isModerator||!Object.hasOwn(REQUEST_STATUS_LABELS,nextStatus)) return;
   button.disabled=true;
   const message=byId("admin-requests-status");message.textContent="Salvando status...";message.dataset.error="false";
   try {
@@ -207,10 +251,129 @@ async function openRequestDetails(request,displayName) {
   }
 }
 byId("admin-request-dialog-close").addEventListener("click",()=>byId("admin-request-dialog").close());
+byId("admin-tab-overview").addEventListener("click",loadOverview);
 byId("admin-requests-reload").addEventListener("click",loadRequests);
 byId("admin-request-status-filter").addEventListener("change",()=>{if(requestsLoaded)loadRequests();});
 byId("admin-request-kind-filter").addEventListener("change",()=>{if(requestsLoaded)loadRequests();});
 byId("admin-tab-requests").addEventListener("click",loadRequests);
+
+const MODERATION_TYPES={
+  rede_posts:{entity:"post",label:"Publicação",states:["approved","rejected"],columns:"id,author_id,kind,category,title,content,status,created_at"},
+  rede_comments:{entity:"comment",label:"Comentário",states:["approved","rejected"],columns:"id,post_id,author_id,content,status,created_at"},
+  rede_reports:{entity:"report",label:"Denúncia",states:["reviewed","dismissed"],columns:"id,reporter_id,post_id,comment_id,reason,status,created_at"}
+};
+const MODERATION_STATUS_LABELS={pending:"Pendente",approved:"Aprovado",rejected:"Rejeitado",reviewed:"Analisado",dismissed:"Descartado"};
+let moderationLoaded=false;
+const modList=byId("admin-mod-list");
+function renderModerationCards(items) {
+  modList.replaceChildren();
+  if(!items.length) {
+    const empty=document.createElement("p");empty.textContent="Não há itens que correspondam aos filtros.";modList.append(empty);return;
+  }
+  for(const item of items) {
+    const card=document.createElement("article");card.className="admin-request-card";
+    const heading=document.createElement("h3");heading.textContent=item.title;
+    const meta=document.createElement("div");meta.className="admin-request-meta";
+    for(const text of [item.label,MODERATION_STATUS_LABELS[item.status]||item.status,item.author,localDate(item.created_at)]) {
+      const span=document.createElement("span");span.textContent=text;meta.append(span);
+    }
+    const detail=document.createElement("p");detail.className="admin-request-detail";detail.textContent=item.details;
+    const actions=document.createElement("div");actions.className="admin-request-actions";
+    const stateLabel=document.createElement("label");stateLabel.textContent="Decisão";
+    const select=document.createElement("select");
+    for(const value of MODERATION_TYPES[item.table].states) {
+      const option=document.createElement("option");option.value=value;option.textContent=MODERATION_STATUS_LABELS[value];select.append(option);
+    }
+    select.value=item.status;stateLabel.append(select);
+    const save=document.createElement("button");save.type="button";save.className="button";save.textContent="Salvar decisão";save.disabled=true;
+    select.addEventListener("change",()=>{save.disabled=select.value===item.status;});
+    save.addEventListener("click",()=>updateModerationStatus(item,select.value,save));
+    const detailButton=document.createElement("button");detailButton.type="button";detailButton.className="button outline";detailButton.textContent="Detalhes e histórico";
+    detailButton.addEventListener("click",()=>openModerationDetails(item));
+    actions.append(stateLabel,save,detailButton);card.append(heading,meta,detail,actions);modList.append(card);
+  }
+}
+async function loadModeration() {
+  const statusNode=byId("admin-mod-status");
+  if(!adminUser||!isModerator) return;
+  statusNode.textContent="Verificando acesso e carregando a fila...";statusNode.dataset.error="false";
+  modList.replaceChildren();
+  try {
+    const {data:grant,error:grantError}=await supabase.from("rede_moderators").select("user_id")
+      .eq("user_id",adminUser.id).maybeSingle();
+    if(grantError) throw grantError;
+    if(!grant) throw new Error("Moderator permission is required.");
+    const entries=Object.entries(MODERATION_TYPES);
+    const results=await Promise.all(entries.map(([table,spec])=>supabase.from(table)
+      .select(spec.columns).order("created_at",{ascending:false}).limit(100)));
+    for(const result of results) if(result.error) throw result.error;
+    const rows=entries.flatMap(([table,spec],index)=>(results[index].data||[]).map(row=>({...row,table,entity:spec.entity,label:spec.label})));
+    const authorIds=[...new Set(rows.map(row=>row.author_id||row.reporter_id).filter(Boolean))];
+    const profileResult=authorIds.length?await supabase.from("rede_profiles").select("id,display_name").in("id",authorIds):{data:[],error:null};
+    if(profileResult.error) throw profileResult.error;
+    const names=new Map((profileResult.data||[]).map(row=>[row.id,row.display_name]));
+    const postIds=[...new Set(rows.filter(row=>row.table==="rede_reports"&&row.post_id).map(row=>row.post_id))];
+    const commentIds=[...new Set(rows.filter(row=>row.table==="rede_reports"&&row.comment_id).map(row=>row.comment_id))];
+    const [postTargets,commentTargets]=await Promise.all([
+      postIds.length?supabase.from("rede_posts").select("id,title,content").in("id",postIds):{data:[],error:null},
+      commentIds.length?supabase.from("rede_comments").select("id,content,post_id").in("id",commentIds):{data:[],error:null}
+    ]);
+    if(postTargets.error||commentTargets.error) throw postTargets.error||commentTargets.error;
+    const posts=new Map((postTargets.data||[]).map(row=>[row.id,row]));
+    const comments=new Map((commentTargets.data||[]).map(row=>[row.id,row]));
+    const normalized=rows.map(row=>{
+      const authorId=row.author_id||row.reporter_id;
+      let title=row.title||`Comentário #${row.id}`;
+      let details=row.content||row.reason||"";
+      if(row.table==="rede_reports") {
+        const target=row.post_id?posts.get(row.post_id):comments.get(row.comment_id);
+        const targetLabel=row.post_id?`Publicação #${row.post_id}`:`Comentário #${row.comment_id}`;
+        const targetText=target?(target.title?`${target.title}: ${target.content}`:target.content):"Conteúdo alvo indisponível";
+        title=`Denúncia #${row.id}`;
+        details=`Motivo: ${row.reason}\n${targetLabel}: ${targetText}`;
+      }
+      return {...row,title,details,author:names.get(authorId)||"Participante sem apelido"};
+    });
+    const typeFilter=byId("admin-mod-type-filter").value,statusFilter=byId("admin-mod-status-filter").value;
+    const filtered=normalized.filter(row=>(typeFilter==="all"||row.entity===typeFilter)&&(statusFilter==="all"||row.status===statusFilter))
+      .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    renderModerationCards(filtered);moderationLoaded=true;
+    statusNode.textContent=`${filtered.length} item(ns) exibido(s), de ${rows.length} carregado(s).`;statusNode.dataset.error="false";
+  } catch {
+    moderationLoaded=false;statusNode.textContent="Não foi possível carregar a moderação. Confirme o papel de moderador, a sessão e as políticas RLS.";statusNode.dataset.error="true";
+  }
+}
+async function updateModerationStatus(item,nextStatus,button) {
+  if(!adminUser||!isModerator||!MODERATION_TYPES[item.table]?.states.includes(nextStatus)) return;
+  button.disabled=true;const statusNode=byId("admin-mod-status");
+  statusNode.textContent="Gravando decisão...";statusNode.dataset.error="false";
+  try {
+    const {data,error}=await supabase.from(item.table).update({status:nextStatus}).eq("id",item.id).select("id,status").maybeSingle();
+    if(error) throw error;
+    if(!data) throw new Error("No moderation row was updated.");
+    statusNode.textContent="Decisão gravada no Supabase; atualizando o histórico...";
+    await loadModeration();
+  } catch {
+    statusNode.textContent="Falha ao gravar a decisão. Nenhuma confirmação foi registrada.";statusNode.dataset.error="true";
+  } finally {button.disabled=false;}
+}
+async function openModerationDetails(item) {
+  const dialog=byId("admin-request-dialog"),body=byId("admin-request-dialog-body"),history=byId("admin-request-history");
+  body.replaceChildren(requestField("Tipo",item.label),requestField("Status",MODERATION_STATUS_LABELS[item.status]||item.status),
+    requestField("Assunto",item.title),requestField("Remetente",item.author),requestField("Recebido em",localDate(item.created_at)),requestField("Conteúdo",item.details));
+  history.replaceChildren();const loading=document.createElement("p");loading.textContent="Carregando histórico...";history.append(loading);
+  if(!dialog.open) dialog.showModal();
+  const {data,error}=await supabase.from("rede_moderation_log").select("previous_status,new_status,logged_at")
+    .eq("entity",item.entity).eq("entity_id",item.id).order("logged_at",{ascending:false}).limit(50);
+  history.replaceChildren();
+  if(error) {const failure=document.createElement("p");failure.textContent="Não foi possível carregar o histórico.";history.append(failure);return;}
+  if(!data?.length) {const empty=document.createElement("p");empty.textContent="Ainda não há decisões registradas.";history.append(empty);return;}
+  for(const row of data) {const line=document.createElement("p");line.textContent=`${MODERATION_STATUS_LABELS[row.previous_status]||row.previous_status||"Criado"} → ${MODERATION_STATUS_LABELS[row.new_status]||row.new_status} · ${localDate(row.logged_at)}`;history.append(line);}
+}
+byId("admin-mod-reload").addEventListener("click",loadModeration);
+byId("admin-mod-type-filter").addEventListener("change",()=>{if(moderationLoaded)loadModeration();});
+byId("admin-mod-status-filter").addEventListener("change",()=>{if(moderationLoaded)loadModeration();});
+byId("admin-tab-moderation").addEventListener("click",loadModeration);
 
 function resetPageForm() {
   pageForm.reset();
@@ -431,18 +594,35 @@ photoForm.addEventListener("submit",async event=>{
     status("admin-status","Entre com um e-mail confirmado para solicitar acesso ao painel.");
     return;
   }
-  const {data:grant,error:grantError}=await supabase.from("meca_site_editors")
-    .select("user_id").eq("user_id",data.user.id).maybeSingle();
-  if(grantError || !grant) {
+  const [editorResult,moderatorResult]=await Promise.all([
+    supabase.from("meca_site_editors").select("user_id").eq("user_id",data.user.id).maybeSingle(),
+    supabase.from("rede_moderators").select("user_id").eq("user_id",data.user.id).maybeSingle()
+  ]);
+  if(editorResult.error||moderatorResult.error) {
     locked.hidden=false;
-    status("admin-status","Esta conta não possui autorização de edição. Peça ao responsável da equipe para liberar seu usuário.",true);
+    status("admin-status","Não foi possível validar seus papéis no Supabase. Atualize e tente novamente.",true);
     return;
   }
-  editorUser=data.user;
-  status("admin-status","Acesso de edição confirmado.");
+  if(!editorResult.data&&!moderatorResult.data) {
+    locked.hidden=false;
+    status("admin-status","Esta conta ainda não tem papel de editor ou moderador. Peça à equipe responsável para autorizar o acesso.",true);
+    return;
+  }
+  adminUser=data.user;
+  editorUser=editorResult.data?data.user:null;
+  isModerator=Boolean(moderatorResult.data);
+  for(const element of document.querySelectorAll("[data-admin-role]")) {
+    const role=element.dataset.adminRole;
+    element.hidden=role==="editor"?!editorUser:!isModerator;
+  }
+  status("admin-status",`Acesso confirmado: ${[editorUser?"editor":null,isModerator?"moderador":null].filter(Boolean).join(" e ")}.`);
   contentSection.hidden=false;
-  await Promise.all([loadTexts(),refreshGallery()]);
-  await refreshPages();
+  selectAdminTab("overview");
+  await loadOverview();
+  if(editorUser) {
+    await Promise.all([loadTexts(),refreshGallery()]);
+    await refreshPages();
+  }
 })().catch(()=>{
   contentSection.hidden=true;
   locked.hidden=false;
