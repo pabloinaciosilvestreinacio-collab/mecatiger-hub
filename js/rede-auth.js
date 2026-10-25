@@ -88,8 +88,8 @@ sendForm.addEventListener("submit", async event => {
 document.getElementById("password-login").addEventListener("click", async () => {
   const email = emailInput.value.trim().toLowerCase();
   const password = passwordInput.value;
-  if (!emailInput.checkValidity() || password.length < 12) {
-    tell("Informe um e-mail válido e uma senha com pelo menos 12 caracteres.", true);
+  if (!emailInput.checkValidity() || !password) {
+    tell("Informe um e-mail válido e sua senha.", true);
     return;
   }
   const button = document.getElementById("password-login");
