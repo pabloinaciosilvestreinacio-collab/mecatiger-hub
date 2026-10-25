@@ -10,12 +10,21 @@ create policy "Direct access to administrator grants is disabled"
   on public.meca_site_admins for all to anon, authenticated
   using (false) with check (false);
 
--- Bootstrap the already verified owner account identified during production audit.
--- The initial administrator also receives editor and moderator roles so the panel works immediately.
+-- Bootstrap only if the current database has exactly one confirmed account that
+-- already holds both editor and moderator roles; never embed an Auth UUID in source.
 insert into public.meca_site_admins (user_id)
-select u.id from auth.users u
-where u.id='bc7eac84-0c89-460e-b9a9-e55a4be08d1d'
-  and u.email_confirmed_at is not null
+select e.user_id
+from public.meca_site_editors e
+join public.rede_moderators m on m.user_id=e.user_id
+join auth.users u on u.id=e.user_id
+where u.email_confirmed_at is not null
+  and (
+    select count(*)
+    from public.meca_site_editors e2
+    join public.rede_moderators m2 on m2.user_id=e2.user_id
+    join auth.users u2 on u2.id=e2.user_id
+    where u2.email_confirmed_at is not null
+  )=1
 on conflict (user_id) do nothing;
 insert into public.meca_site_editors (user_id)
 select user_id from public.meca_site_admins
