@@ -8,10 +8,20 @@ import {fileURLToPath} from "node:url";
 
 const projectRoot=resolve(fileURLToPath(new URL("..",import.meta.url)));
 export const EXPECTED_FILES=Object.freeze([
-  "20261024160000_rede_mecatiger_mvp.sql",
-  "20261024163000_require_nonanonymous_identity.sql",
-  "20261024170000_mecasim_private_trajectories.sql",
-  "20261024190000_mecatiger_site_cms.sql"
+  "20261025032012_rede_mecatiger_mvp.sql",
+  "20261025032022_require_nonanonymous_identity.sql",
+  "20261025032028_mecasim_private_trajectories.sql",
+  "20261025032035_mecatiger_site_cms.sql"
+]);
+export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
+  ["20261013171020","create_community_registration_metrics"],
+  ["20261013173230","count_competitors_as_students"],
+  ["20261013174946","add_brazilian_state_metrics"],
+  ["20261019231824","secure_public_registration_rpc_v2"],
+  ["20261025032012","rede_mecatiger_mvp"],
+  ["20261025032022","require_nonanonymous_identity"],
+  ["20261025032028","mecasim_private_trajectories"],
+  ["20261025032035","mecatiger_site_cms"]
 ]);
 export const PROTECTED_LEGACY_OBJECTS=Object.freeze([
   "community_registrations","community_metrics","register_community_member"
@@ -64,12 +74,8 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Versões duplicadas no checkout");
   if(JSON.stringify([...filenames].sort())!==JSON.stringify([...EXPECTED_FILES].sort()))
     issues.push("Conjunto de novas migrações fora da lista aprovada");
-  if(versions.some(x=>localVersions.includes(x)))
-    issues.push("Versão aplicada no remoto também presente entre as novas migrações");
   if(filenames.some((x,i)=>i>0&&x<=filenames[i-1]))
     issues.push("Sequência local desordenada");
-  if(versions.length && localVersions.length && localVersions[0]<=versions[versions.length-1])
-    issues.push("Primeira nova migração não é posterior ao histórico existente");
   for(const f of filenames) {
     if(typeof sqlByFile?.[f]!=="string") {issues.push("SQL ausente: "+f);continue;}
     for(const danger of auditSqlText(sqlByFile[f]))
@@ -80,9 +86,20 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Tabela antiga sem RLS ou não encontrada na fotografia hospedada");
   if(remote.legacy_rpc?.name!=="register_community_member"||remote.legacy_rpc?.security_definer!==true)
     issues.push("RPC de cadastro hospedado mudou desde a inspeção");
-  // Purposefully independent from syntactic safety: before release, preserve history and
-  // obtain fresh read-only comparison / a reviewed baseline instead of automatic repair.
-  const historyAligned=versions.every(x=>localVersions.includes(x));
+  // The four historical source files are unavailable in this checkout; align the
+  // four tracked product migrations by exact version and name against the hosted catalog.
+  const expectedVersions=EXPECTED_HOSTED_MIGRATIONS.map(x=>x[0]);
+  const expectedNames=new Map(EXPECTED_HOSTED_MIGRATIONS);
+  const remoteByVersion=new Map(remote.hosted_migrations.map(x=>[x.version,x.name]));
+  const inventoryAligned=JSON.stringify(versions)===JSON.stringify(expectedVersions);
+  const appliedAligned=EXPECTED_FILES.every(filename=>{
+    const version=normalizeVersion(filename);
+    const name=basename(filename,".sql").slice(15);
+    return remoteByVersion.get(version)===name && expectedNames.get(version)===name;
+  });
+  if(!inventoryAligned)issues.push("Histórico hospedado difere do inventário verificado após implantação");
+  if(!appliedAligned)issues.push("Versão/nome local das migrations não corresponde ao histórico hospedado");
+  const historyAligned=inventoryAligned&&appliedAligned;
   const safeSql=issues.length===0;
   return {
     valid:safeSql,
@@ -90,10 +107,10 @@ export function reconcile(remote, filenames, sqlByFile) {
     requiresManualReconciliation:!historyAligned,
     productionReady:false,
     issues,
-    snapshotAgeWarning:"Inventário de catálogo somente leitura capturado em 25/10/2026; confira novamente contra o remoto antes de qualquer implantação.",
+    snapshotAgeWarning:"Inventário pós-implantação capturado em 25/10/2026; confira novamente contra o remoto antes de novas alterações.",
     recommendation:!safeSql?"STOP: corrigir risco estrutural ou alteração de objeto legado.":
-      !historyAligned?"STOP: histórico remoto anterior ausente nos arquivos locais; preparar baseline verdadeiro, revisar antes de qualquer db push.":
-      "STOP: mesmo com histórico alinhado, não existe autorização de produção."
+      !historyAligned?"STOP: histórico remoto diverge do inventário pós-implantação.":
+      "STOP: schema alinhado; Auth, SMTP, contas editor/moderador e homologação ponta a ponta seguem pendentes."
   };
 }
 export function inspectCheckout(root=projectRoot){

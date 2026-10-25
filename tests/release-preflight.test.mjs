@@ -9,10 +9,10 @@ const base=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 
 test("exact migration order and additive launch artifact inventory",()=>{
   assert.deepEqual(REQUIRED_MIGRATIONS,[
-    "20261024160000_rede_mecatiger_mvp.sql",
-    "20261024163000_require_nonanonymous_identity.sql",
-    "20261024170000_mecasim_private_trajectories.sql",
-    "20261024190000_mecatiger_site_cms.sql"
+    "20261025032012_rede_mecatiger_mvp.sql",
+    "20261025032022_require_nonanonymous_identity.sql",
+    "20261025032028_mecasim_private_trajectories.sql",
+    "20261025032035_mecatiger_site_cms.sql"
   ]);
   const actual=inspectRepository(base);
   assert.equal(actual.codeReady,true,JSON.stringify(actual.codeChecks.filter(c=>!c.ok)));

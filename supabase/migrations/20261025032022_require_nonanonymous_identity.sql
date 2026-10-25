@@ -1,7 +1,7 @@
 -- Defense-in-depth for Supabase Auth anonymous identities.
 -- Anonymous Auth users assume the authenticated Postgres role; simple TO authenticated is not enough.
 -- Permissive ownership/moderation policies exist in the preceding Rede MVP migration.
--- This migration is additive and has not been applied to production.
+-- This migration was applied to the hosted project on 2026-10-25.
 begin;
 
 -- Fail closed: missing is_anonymous claim must not grant write permission.

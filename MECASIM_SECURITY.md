@@ -1,6 +1,6 @@
 # Meca Sim — biblioteca privada de trajetórias (Alternativa 2)
 
-**Status em 24/10/2026:** implementado na branch de desenvolvimento e sujeito a validação; **NÃO publicado nem aplicado ao Supabase de produção**. Este arquivo não substitui o documento `REDE_MVP.md` da branch de origem.
+**Status em 25/10/2026:** schema e RLS da biblioteca foram aplicados ao Supabase hospedado. A Edge Function ainda não foi implantada e não há usuários Auth; salvar trajetórias continua indisponível. Este arquivo registra o modelo de segurança, não a ativação completa.
 
 ## Objetivo e escopo
 
@@ -10,7 +10,7 @@ Os dados privados são apenas um **nome de até 70 caracteres e 1–16 pontos {x
 
 ## Arquivos criados ou modificados
 
-- `supabase/migrations/20261024170000_mecasim_private_trajectories.sql`: tabela privada por usuário, RLS, checagem de pontos no banco, limite de 30 rotas armazenadas e 10 criações por hora/identidade.
+- `supabase/migrations/20261025032028_mecasim_private_trajectories.sql`: tabela privada por usuário, RLS, checagem de pontos no banco, limite de 30 rotas armazenadas e 10 criações por hora/identidade.
 - `supabase/functions/mecasim-trajectories/index.ts`: ponto de entrada Deno usando cliente Supabase com chave **publishable**, sem `service_role`, e autorização por JWT.
 - `supabase/functions/mecasim-trajectories/handler.mjs`: endpoint POST com ações `list`, `save`, `load` e `remove` e validação de token via `auth.getUser(token)`.
 - `supabase/functions/mecasim-trajectories/trajectory-validation.mjs`: saneamento e validação de coordenadas e nomes.
@@ -45,10 +45,10 @@ Os dados privados são apenas um **nome de até 70 caracteres e 1–16 pontos {x
 
 ## Para validar antes de publicar
 
-1. Preparar Supabase **de teste** (instância local, branch Supabase ou projeto separado conforme escolha), sem copiar dados privados da produção.
-2. Aplicar migrações da Rede em ordem e depois `supabase/migrations/20261024170000_mecasim_private_trajectories.sql`.
+1. Schema aplicado em produção; validar a Edge Function em Supabase local descartável antes de implantá-la no projeto hospedado.
+2. Não reaplicar migrations: as versões 20261025032012, 20261025032022, 20261025032028 e 20261025032035 já estão no histórico hospedado.
 3. Configurar Supabase Auth com redirect URL de teste, envio de e-mail e login real. Desativar Anonymous Sign-Ins e manter as políticas defensivas.
-4. Implantar `mecasim-trajectories` **apenas no ambiente de teste** com `verify_jwt=true`; o deploy em produção **não está autorizado** neste ciclo.
+4. Implantar `mecasim-trajectories` somente depois de Auth e JWT verificados; o endpoint deve manter `verify_jwt=true`.
 5. Usar duas identidades reais A e B: A salva rota; A lista e carrega a sua; B não lista/abre/exclui a rota de A (inclusive por API direta).
 6. Executar: token ausente → 401; JWT inválido/expirado → bloqueio; anônimo → 403; origem hostil → 403; corpo excessivo → 400; nome/pontos inválidos → 422; quota → 429.
 7. Conferir rollback: excluir a função do ambiente e deixar a interface desabilitada ou retornar à branch anterior. Retenção/exclusão de registros requer consentimento e plano específico; **não executar DROP TABLE em produção**.

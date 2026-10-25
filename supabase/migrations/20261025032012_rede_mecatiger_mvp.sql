@@ -1,4 +1,4 @@
--- Meca Tiger Rede MVP. REVIEW BEFORE APPLYING IN PRODUCTION.
+-- Meca Tiger Rede MVP. APPLIED TO HOSTED PROJECT ON 2026-10-25; version matches Supabase migration history.
 -- This migration is additive. It does not alter existing registrations or metrics.
 -- A moderator must be provisioned by a trusted database operator, never by client code.
 begin;

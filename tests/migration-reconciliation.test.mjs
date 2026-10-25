@@ -9,15 +9,16 @@ const snap=JSON.parse(readFileSync("release/hosted-baseline-20261025.json","utf8
 const safeSql=Object.fromEntries(EXPECTED_FILES.map(n=>[n,
   "create table if not exists public.rede_profiles(id uuid primary key); alter table public.rede_profiles enable row level security;"]));
 
-test("hosted legacy history and branch migrations are distinct and ordered, not deploy-ready",()=>{
+test("hosted history matches the four applied migrations; no production write authorization is inferred",()=>{
   const v=inspectCheckout();
   assert.equal(v.valid,true,JSON.stringify(v.issues));
-  assert.equal(v.historyAligned,false);
-  assert.equal(v.requiresManualReconciliation,true);
+  assert.equal(v.historyAligned,true);
+  assert.equal(v.requiresManualReconciliation,false);
   assert.equal(v.productionReady,false);
-  assert.match(v.recommendation,/histórico remoto anterior/);
+  assert.match(v.recommendation,/Auth, SMTP/);
   assert.deepEqual(snap.hosted_migrations.map(x=>x.version),[
-    "20261013171020","20261013173230","20261013174946","20261019231824"
+    "20261013171020","20261013173230","20261013174946","20261019231824",
+    "20261025032012","20261025032022","20261025032028","20261025032035"
   ]);
 });
 
@@ -37,7 +38,7 @@ test("SQL inspector rejects changes to legacy table, RPC, privileges and destruc
 
 test("duplicate version, overlapping remote history or extra migration forces fail closed",()=>{
   const collision={...snap,hosted_migrations:[...snap.hosted_migrations,
-    {version:"20261024160000",name:"unexpected"}]};
+    {version:"20261025032012",name:"unexpected"}]};
   assert.equal(reconcile(collision,EXPECTED_FILES,safeSql).valid,false);
   assert.equal(reconcile(snap,[...EXPECTED_FILES,EXPECTED_FILES[0]],safeSql).valid,false);
   assert.equal(reconcile(snap,[...EXPECTED_FILES,"20261025235959_unreviewed.sql"],safeSql).valid,false);
@@ -47,7 +48,7 @@ test("duplicate version, overlapping remote history or extra migration forces fa
 });
 
 test("CLI explicitly blocks falsely claiming aligned history or authorized production",()=>{
-  for(const [flag,status] of [["",0],["--require-aligned",3],["--authorize-production",4]]){
+  for(const [flag,status] of [["",0],["--require-aligned",0],["--authorize-production",4]]){
     const p=spawnSync(process.execPath,["scripts/audit-migration-reconciliation.mjs",...(flag?[flag]:[])],{
       cwd:resolve("."),encoding:"utf8",timeout:10000
     });
