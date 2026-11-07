@@ -116,6 +116,18 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
   await page.getByRole("button", { name: "Sair da conta" }).click();
   await expect(page.locator("#rede-identity")).toContainText("Modo visitante");
+  // The recovery token is single-use; a replay must not reopen password reset.
+  await page.goto(recoveryLink);
+  await expect(page.locator("#password-reset")).toBeHidden();
+  await expect(page.locator("#auth-status")).toContainText("Link expirado ou inválido");
+
+  // The original password must no longer authenticate after a successful reset.
+  await page.goto("/entrar.html?next=rede.html");
+  await page.locator("#auth-email").fill(email);
+  await page.locator("#auth-password").fill("Senha-de-teste-local-2026!");
+  await page.getByRole("button", { name: "Entrar com senha" }).click();
+  await expect(page.locator("#auth-status")).toContainText("Não foi possível entrar com esses dados");
+
   await page.goto("/entrar.html?next=rede.html");
   await page.locator("#auth-email").fill(email);
   await page.locator("#auth-password").fill("Senha-redefinida-local-2026!");
