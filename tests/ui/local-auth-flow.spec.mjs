@@ -67,6 +67,43 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await page.locator("#post-form").getByRole("button", { name: "Enviar para aprovação" }).click();
   await expect(page.locator("#post-status")).toContainText("Publicação recebida");
   await expect(page.locator("#own-items")).toContainText(postTitle);
+  const postCard=page.locator("#own-items .rede-comment").filter({hasText:postTitle});
+  await postCard.getByRole("button",{name:"Editar publicação pendente"}).click();
+  const editedBody="Conteúdo fictício atualizado antes da aprovação no banco descartável.";
+  await postCard.locator("textarea").fill(editedBody);
+  await postCard.getByRole("button",{name:"Salvar alterações"}).click();
+  await expect(postCard.locator("textarea")).toHaveCount(0);
+
+  // Real RLS race: the post is approved while the author still has the old edit form.
+  await postCard.getByRole("button",{name:"Editar publicação pendente"}).click();
+  await postCard.locator("textarea").fill("Edição desatualizada que não deve ser gravada.");
+  const local=new URL(process.env.SUPABASE_URL||"");
+  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if(local.protocol!=="http:" || !["127.0.0.1","localhost"].includes(local.hostname) ||
+     local.port!=="54321" || !key) throw Error("Refusing remote moderation fixture");
+  const postId=await page.evaluate(async title=>{
+    const {supabase}=await import("/js/rede-client.js");
+    const {data,error}=await supabase.from("rede_posts").select("id").eq("title",title).single();
+    if(error)throw error;
+    return data.id;
+  },postTitle);
+  const response=await fetch(new URL("/rest/v1/rede_posts?id=eq."+postId+"&select=id,status",local),{
+    method:"PATCH",
+    headers:{apikey:key,Authorization:"Bearer "+key,"Content-Type":"application/json",Prefer:"return=representation"},
+    body:JSON.stringify({status:"approved"}),
+    signal:AbortSignal.timeout(15000)
+  });
+  expect(response.status).toBe(200);
+  expect((await response.json())[0]?.status).toBe("approved");
+  await postCard.getByRole("button",{name:"Salvar alterações"}).click();
+  await expect(postCard.locator(".rede-status")).toContainText("Não foi possível confirmar a edição");
+  const current=await page.evaluate(async id=>{
+    const {supabase}=await import("/js/rede-client.js");
+    const {data,error}=await supabase.from("rede_posts").select("content,status").eq("id",id).single();
+    if(error)throw error;
+    return data;
+  },postId);
+  expect(current).toMatchObject({content:editedBody,status:"approved"});
 
   await page.goto("/mecasim-demo.html");
   await expect(page.locator("#route-private-status")).toContainText("Biblioteca vazia");
