@@ -81,7 +81,8 @@ export async function waitForAuthLink(email, acceptedTypes) {
 }
 
 export function waitForConfirmationLink(email) {
-  return waitForAuthLink(email, ["email", "magiclink"]);
+  // Hosted GoTrue confirmation links use type=signup; client-side OTP links use type=email.
+  return waitForAuthLink(email, ["signup", "email", "magiclink"]);
 }
 
 export function waitForRecoveryLink(email) {
