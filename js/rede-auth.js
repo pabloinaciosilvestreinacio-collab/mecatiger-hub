@@ -56,6 +56,15 @@ async function openPasswordReset() {
 
 sessionStorage.setItem(savedNextKey, next);
 (async () => {
+  // GoTrue can redirect an expired/reused link with error details in query or hash.
+  // Do not echo those untrusted details or keep them in browser history.
+  const fragment = new URLSearchParams(location.hash.startsWith("#") ? location.hash.slice(1) : "");
+  if (params.has("error") || params.has("error_code") ||
+      fragment.has("error") || fragment.has("error_code")) {
+    history.replaceState({}, "", location.pathname);
+    tell("Link expirado ou inválido. Solicite outro e-mail.", true);
+    return;
+  }
   const code = params.get("code");
   if (code) {
     history.replaceState({}, "", location.pathname);
