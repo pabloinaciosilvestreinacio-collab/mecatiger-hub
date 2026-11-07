@@ -1,5 +1,8 @@
 # Publicação e operação — Meca Tiger Hub
 
+> **Atualização 07/11/2026:** o responsável informou o registro de `mecatiger.com.br`. Isto **não** comprova DNS/HTTPS/SMTP operacionais. A Edge Function do Meca Sim foi atualizada para v2 com CORS explícito para o novo domínio, preservando o antigo (PR #40). O fluxo de recuperação passou por hardening na PR #41. Consulte `DOMINIO_MECATIGER_20261107.md` para a sequência de migração, DNS oficial, URL Configuration, Resend e critérios de teste. As cinco URLs antigas abaixo continuam válidas para transição; não configurar redirecionamentos novos antes de verificar TLS.
+
+
 ## Estado atual — 25/10/2026
 
 - O site está publicado no GitHub Pages: https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/
