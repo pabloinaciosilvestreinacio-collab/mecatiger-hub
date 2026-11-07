@@ -48,3 +48,4 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/admin-cms-rls.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/mecasim_rls.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-after.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_pk_probe.sql
