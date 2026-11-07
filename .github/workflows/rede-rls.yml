@@ -49,3 +49,6 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/mecasim_rls.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/legacy-schema-after.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d mecatiger_test -f tests/rls_pk_probe.sql
+
+      - name: Generate migration filename for security audit (CI only)
+        run: npx --yes supabase@2.122.0 migration new restrict_rede_mutable_columns
