@@ -109,6 +109,30 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.locator("#cms-team-form button[type=submit]").click();
   const teamCard=page.locator("#cms-team-list .admin-page-card").filter({hasText:teamName});
   await expect(teamCard).toHaveCount(1);
+
+  // An authorized editor can edit an existing row; verify persisted storage.
+  await teamCard.getByRole("button",{name:"Editar"}).click();
+  await page.locator("#cms-team-role").selectOption("tecnico");
+  await page.locator("#cms-team-form button[type=submit]").click();
+  await expect(page.locator("#cms-team-status")).toContainText("Perfil salvo e confirmado");
+  await expect(teamCard).toContainText("tecnico");
+  const savedRole=await page.evaluate(async slug=>{
+    const {supabase}=await import("/js/rede-client.js");
+    const {data,error}=await supabase.from("meca_site_team_members")
+      .select("team_role").eq("slug",slug).single();
+    if(error)throw error;
+    return data.team_role;
+  },teamSlug);
+  expect(savedRole).toBe("tecnico");
+
+  // RLS/PostgREST can return HTTP 204 for zero updated rows: never claim success.
+  await teamCard.getByRole("button",{name:"Editar"}).click();
+  await page.locator("#cms-team-id").evaluate(el=>{el.value="999999999";});
+  await page.locator("#cms-team-form button[type=submit]").click();
+  await expect(page.locator("#cms-team-status")).toContainText("Não foi possível confirmar a gravação");
+  await expect(page.locator("#cms-team-form button[type=submit]")).toBeEnabled();
+  await expect(teamCard).toContainText("tecnico");
+
   page.once("dialog",dialog=>dialog.dismiss());
   await teamCard.getByRole("button",{name:"Excluir perfil"}).click();
   await expect(teamCard).toHaveCount(1);
