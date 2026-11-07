@@ -722,10 +722,22 @@ async function refreshTeamMembers() {
     });
     const remove=document.createElement("button");remove.type="button";remove.className="button outline";remove.textContent="Excluir perfil";
     remove.addEventListener("click",async()=>{
-      if(!editorUser)return;
-      const {error:deleteError}=await supabase.from("meca_site_team_members").delete().eq("id",member.id);
-      if(deleteError) teamStatus("Não foi possível excluir este perfil.",true);
-      else {teamStatus("Perfil removido.");await refreshTeamMembers();}
+      if(!editorUser || remove.disabled) return;
+      if(!window.confirm("Excluir permanentemente o perfil de “"+member.full_name+"”?")) return;
+      remove.disabled=true;
+      teamStatus("Excluindo perfil...");
+      try {
+        const {data,error}=await supabase.from("meca_site_team_members")
+          .delete().eq("id",member.id).select("id");
+        if(error || !Array.isArray(data) || data.length!==1)
+          throw new Error("Profile deletion was not confirmed by the database.");
+        await refreshTeamMembers();
+        teamStatus("Perfil excluído. A lista foi atualizada.");
+      } catch {
+        teamStatus("Não foi possível confirmar a exclusão deste perfil. Atualize a lista e tente novamente.",true);
+      } finally {
+        remove.disabled=false;
+      }
     });
     card.append(title,summary,edit,remove);root.append(card);
   }
