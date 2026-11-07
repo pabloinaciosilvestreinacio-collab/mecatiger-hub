@@ -14,7 +14,8 @@ export const EXPECTED_FILES=Object.freeze([
   "20261025032035_mecatiger_site_cms.sql",
   "20261025140000_rede_request_messages.sql",
   "20261025160000_admin_access_and_team_members.sql",
-  "20261025170000_fix_admin_access_email_return_type.sql"
+  "20261025170000_fix_admin_access_email_return_type.sql",
+  "20261107163418_restrict_rede_mutable_columns.sql"
 ]);
 export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES.slice(0,7));
 export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
