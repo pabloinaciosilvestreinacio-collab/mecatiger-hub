@@ -47,6 +47,18 @@ class RedeContracts(unittest.TestCase):
         self.assertIn("flowType: \"pkce\"",code)
         self.assertIn("safeReturn",code)
 
+    def test_password_recovery_requires_a_verified_auth_session(self):
+        auth=(ROOT/"js/rede-auth.js").read_text(encoding="utf-8")
+        page=(ROOT/"entrar.html").read_text(encoding="utf-8")
+        routing=(ROOT/"js/auth-routing.mjs").read_text(encoding="utf-8")
+        self.assertIn("resetPasswordForEmail",auth)
+        self.assertIn("recoveryRedirectUrl",auth)
+        self.assertIn("openPasswordReset",auth)
+        self.assertIn("isVerifiedMember(data.user)",auth)
+        self.assertIn('id="password-reset"',page)
+        self.assertIn('id="password-recovery"',page)
+        self.assertIn("authAllowedRedirects",routing)
+
     def test_rls_contract(self):
         sql=MIGRATION.read_text(encoding="utf-8").lower()
         for table in ("rede_profiles","rede_moderators","rede_posts","rede_comments",

@@ -1,6 +1,7 @@
 // Public-only browser client. Never place service-role or private keys here.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.2?bundle";
 import { resolveSupabaseConfig } from "./rede-runtime-config.mjs";
+import { safeReturn } from "./auth-routing.mjs";
 
 const defaults = {
   url: "https://rnnzumzqilkuecvgsjnv.supabase.co",
@@ -14,7 +15,4 @@ export const supabase = createClient(config.url, config.key, {
 });
 
 // This is a navigation allowlist, not a server access-control boundary.
-export function safeReturn(value) {
-  const allowed = new Set(["rede.html", "mecasim-demo.html", "mecasim.html", "admin.html"]);
-  return allowed.has(value) ? value : "rede.html";
-}
+export { safeReturn };

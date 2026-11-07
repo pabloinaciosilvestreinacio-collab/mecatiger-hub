@@ -4,8 +4,8 @@ import {spawnSync} from "node:child_process";
 import {inspectAuth,validateRedirect,assertNoUnsafeRedirect,HOSTED_REDIRECTS,
   AUTH_ROUTES,SITE_BASE} from "../scripts/auth-smtp-preflight.mjs";
 
-test("four hosted redirects are exact and remain on the GitHub Pages origin",()=>{
-  assert.equal(HOSTED_REDIRECTS.length,4);
+test("five hosted redirects are exact and remain on the GitHub Pages origin",()=>{
+  assert.equal(HOSTED_REDIRECTS.length,5);
   assert.equal(AUTH_ROUTES.length,4);
   assert.ok(assertNoUnsafeRedirect(HOSTED_REDIRECTS));
   for(const x of HOSTED_REDIRECTS) assert.equal(validateRedirect(x),true,x);
@@ -17,6 +17,8 @@ test("redirects with wildcard, open redirect, altered origin or attacker query f
     SITE_BASE+"entrar.html?next=../../admin.html",
     SITE_BASE+"entrar.html?next=https://evil.example",
     SITE_BASE+"entrar.html?next=admin.html&more=1",
+    SITE_BASE+"entrar.html?next=rede.html&recovery=0",
+    SITE_BASE+"entrar.html?next=admin.html&recovery=1",
     SITE_BASE+"entrar.html?next=admin.html#token",
     SITE_BASE+"entrar.html?next=admin.html/../rede.html",
     SITE_BASE+"entrar.html?next=*",

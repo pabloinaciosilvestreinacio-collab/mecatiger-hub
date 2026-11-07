@@ -17,10 +17,10 @@ O frontend usa Magic Link por e-mail e não exibe login GitHub. A solicitação 
 Para liberar entrada pública, em Supabase Dashboard → **Authentication → URL Configuration**:
 
 1. Defina **Site URL** como `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/`.
-2. Adicione a allow-list de redirects para `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/**`.
-3. Em **Authentication → SMTP Settings**, configure SMTP externo com remetente/domínio que a equipe controla. Não compartilhe senha SMTP no chat nem no repositório.
+2. Adicione somente as cinco URLs exatas de retorno descritas em [`AUTH_SMTP_GRATUITO_20261024.md`](AUTH_SMTP_GRATUITO_20261024.md), inclusive a URL de recuperação; não use `/**`.
+3. Em **Authentication → SMTP Settings**, configure SMTP externo com remetente/domínio que a equipe controla e, em **Email Templates**, revise os rascunhos de confirmação, Magic Link e recuperação. Não compartilhe senha SMTP no chat nem no repositório.
 
-Depois, solicite um Magic Link em `entrar.html`, abra no mesmo navegador e confirme que retorna para o Hub. O Supabase padrão tem limites de entrega e não é suficiente para cadastro público confiável.
+Depois, teste confirmação, Magic Link e recuperação de senha em `entrar.html`, cada um no mesmo navegador e com conta de teste consentida. O Supabase padrão tem limites de entrega e não é suficiente para cadastro público confiável.
 
 ## O que editores e moderadores podem fazer
 

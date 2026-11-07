@@ -69,9 +69,12 @@ export function inspectRepository(root=process.cwd()) {
     config.includes("verify_jwt = true"),
     "Config CLI é local; NÃO valida as configurações do Supabase hospedado");
   const client=read("js/rede-client.js");
+  const routing=read("js/auth-routing.mjs");
+  const auth=read("js/rede-auth.js");
   const allowed=new Set(["rede.html","mecasim-demo.html","mecasim.html","admin.html"]);
-  check("auth-return-allowlist",Array.from(allowed).every(x=>client.includes('"'+x+'"')) &&
-    client.includes("safeReturn("),
+  check("auth-return-allowlist",Array.from(allowed).every(x=>routing.includes('"'+x+'"')) &&
+    client.includes('from "./auth-routing.mjs"') && client.includes("safeReturn") &&
+    auth.includes("resetPasswordForEmail(") && auth.includes("recoveryRedirectUrl"),
     "Retornos permitidos no navegador, mas redirects do servidor ainda precisam de aprovação");
   const home=read("index.html"),rede=read("rede.html"),entry=read("entrar.html");
   check("browser-routes",/src="js\/cms-public\.js\?v=[^"]+"/.test(home) &&

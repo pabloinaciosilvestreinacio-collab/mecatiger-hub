@@ -26,7 +26,7 @@ Atualizado em 25/10/2026. Site: https://pabloinaciosilvestreinacio-collab.github
 
 ## Para liberar o acesso real
 
-No Supabase Dashboard → Authentication → URL Configuration, ajuste o Site URL para o GitHub Pages e permita redirects em `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/**`. Configure SMTP externo autorizado em Authentication → SMTP Settings. Sem isso, Auth já retornou 429 por limite de envio e links para localhost.
+No Supabase Dashboard → Authentication → URL Configuration, ajuste o Site URL para o GitHub Pages e permita somente os redirects exatos documentados em [`AUTH_SMTP_GRATUITO_20261024.md`](AUTH_SMTP_GRATUITO_20261024.md), incluindo a URL específica de recuperação de senha. Não use `/**` ou outro coringa. Configure SMTP externo autorizado em Authentication → SMTP Settings. Sem isso, Auth já retornou 429 por limite de envio e links para localhost.
 
 Depois, faça login com a conta individual já confirmada, abra **Sou administrador**, confira a aba Segurança e cadastre outros editores/moderadores usando e-mails que já criaram e confirmaram conta. Não existe senha administrativa para compartilhar.
 

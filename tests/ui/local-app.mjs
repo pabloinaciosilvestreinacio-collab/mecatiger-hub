@@ -44,7 +44,15 @@ function strings(value, result = []) {
   return result;
 }
 
-export async function waitForConfirmationLink(email) {
+function authLinks(value) {
+  const links = [];
+  for (const match of String(value).matchAll(/href=["']([^"']*\/auth\/v1\/verify[^"']*)["']/gi)) {
+    links.push(match[1].replaceAll("&amp;", "&"));
+  }
+  return links;
+}
+
+export async function waitForAuthLink(email, acceptedTypes) {
   const { mailpit } = localEnvironment(true);
   const deadline = Date.now() + 20_000;
   while (Date.now() < deadline) {
@@ -59,12 +67,24 @@ export async function waitForConfirmationLink(email) {
         const fullResponse = await fetch(new URL(`/api/v1/message/${encodeURIComponent(id)}`, mailpit));
         if (!fullResponse.ok) continue;
         for (const value of strings(await fullResponse.json())) {
-          const match = value.match(/href=["']([^"']*\/auth\/v1\/verify[^"']*)["']/i);
-          if (match) return match[1].replaceAll("&amp;", "&");
+          for (const candidate of authLinks(value)) {
+            try {
+              if (acceptedTypes.includes(new URL(candidate).searchParams.get("type"))) return candidate;
+            } catch { /* Ignore malformed content captured by Mailpit. */ }
+          }
         }
       }
     }
     await new Promise(resolve => setTimeout(resolve, 500));
   }
-  throw new Error(`Local Mailpit did not capture a confirmation link for ${email}`);
+  throw new Error(`Local Mailpit did not capture ${acceptedTypes.join(", ")} link for ${email}`);
+}
+
+export function waitForConfirmationLink(email) {
+  // Hosted GoTrue confirmation links use type=signup; client-side OTP links use type=email.
+  return waitForAuthLink(email, ["signup", "email", "magiclink"]);
+}
+
+export function waitForRecoveryLink(email) {
+  return waitForAuthLink(email, ["recovery"]);
 }
