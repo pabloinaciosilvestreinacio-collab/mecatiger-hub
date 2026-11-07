@@ -761,14 +761,28 @@ teamForm.addEventListener("submit",async event=>{
     published:byId("cms-team-published").checked,updated_by:editorUser.id
   };
   const id=byId("cms-team-id").value;
-  const button=teamForm.querySelector('button[type="submit"]');button.disabled=true;
-  const query=id
-    ? supabase.from("meca_site_team_members").update(payload).eq("id",id)
-    : supabase.from("meca_site_team_members").insert(payload);
-  const {error}=await query;
-  if(error) teamStatus("Não foi possível salvar o perfil. Confira os campos e a permissão de editor.",true);
-  else {teamStatus("Perfil salvo.");resetTeamForm();await refreshTeamMembers();}
-  button.disabled=false;
+  const button=teamForm.querySelector('button[type="submit"]');
+  if(button.disabled) return;
+  button.disabled=true;
+  teamStatus("Gravando perfil...");
+  try {
+    const query=id
+      ? supabase.from("meca_site_team_members").update(payload).eq("id",id)
+      : supabase.from("meca_site_team_members").insert(payload);
+    // A successful HTTP response can still represent zero updated rows under RLS.
+    const {data,error}=await query.select("id").single();
+    if(error || !data?.id) throw new Error("Profile write not confirmed");
+    const {data:latest, error:readError}=await supabase.from("meca_site_team_members")
+      .select("id").eq("id",data.id).maybeSingle();
+    if(readError || !latest) throw new Error("Profile verification failed");
+    resetTeamForm();
+    await refreshTeamMembers();
+    teamStatus("Perfil salvo e confirmado no banco.");
+  } catch {
+    teamStatus("Não foi possível confirmar a gravação. Verifique o perfil e tente novamente.",true);
+  } finally {
+    button.disabled=false;
+  }
 });
 async function refreshTeamPhotoOptions() {
   const select=byId("cms-team-photo");
