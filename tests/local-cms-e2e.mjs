@@ -128,6 +128,31 @@ assert.ok(!unauthorizedPageEdit.ok ||
   "A non-editor cannot change a site page");
 console.log("[CMS] page draft, publication visibility and editor-only writes checked");
 
+const projectSlug="projeto-"+rand;
+const projectData={
+  slug:projectSlug,title:"Projeto de teste",category:"Teste seguro",status_label:"EM PLANEJAMENTO",
+  summary:"Projeto fictício criado exclusivamente para validar o editor de projetos local.",detail:"",
+  evidence_note:"Evidências fictícias para o teste local.",sort_order:910,published:false,updated_by:a.id
+};
+mustDeny(await send(site+"meca_site_projects",{
+  method:"POST",token:b.jwt,headers:jsonHeaders,body:{...projectData,slug:"negado-projeto-"+rand,updated_by:b.id}
+}),"non-editor project creation");
+result=await send(site+"meca_site_projects",{method:"POST",token:a.jwt,headers:jsonHeaders,body:projectData});
+assert.equal(result.status,201,"Authorized editor should create a project draft");
+let publicProjectDraft=await send(site+"meca_site_projects?slug=eq."+projectSlug+"&select=slug");
+assert.ok(publicProjectDraft.ok&&publicProjectDraft.json?.length===0,"Draft projects must remain private");
+result=await send(site+"meca_site_projects?slug=eq."+projectSlug,{method:"PATCH",token:a.jwt,headers:jsonHeaders,
+  body:{published:true,updated_by:a.id}});
+assert.ok(result.ok,"Authorized editor should publish the project");
+const publicProject=await send(site+"meca_site_projects?slug=eq."+projectSlug+"&select=slug,title,published");
+assert.equal(publicProject.json?.[0]?.published,true,"Published projects must be readable publicly");
+const unauthorizedProjectEdit=await send(site+"meca_site_projects?slug=eq."+projectSlug,{
+  method:"PATCH",token:b.jwt,headers:jsonHeaders,body:{title:"Alteração indevida",updated_by:b.id}
+});
+assert.ok(!unauthorizedProjectEdit.ok||(Array.isArray(unauthorizedProjectEdit.json)&&unauthorizedProjectEdit.json.length===0),
+  "A non-editor cannot change a project");
+console.log("[CMS] project draft, publication visibility and editor-only writes checked");
+
 
 const name=a.id+"/"+crypto.randomUUID()+".webp";
 const uploadPath="/storage/v1/object/meca-site-gallery/"+name;

@@ -31,6 +31,7 @@
     <div class="admin-tabs" role="tablist" aria-label="Ferramentas de administração">
       <button class="button outline" id="admin-tab-overview" type="button" role="tab" aria-controls="admin-panel-overview" aria-selected="true" tabindex="0" data-admin-tab="overview">Visão geral</button>
       <button class="button outline" id="admin-tab-copy" type="button" role="tab" aria-controls="admin-panel-copy" aria-selected="false" tabindex="-1" data-admin-tab="copy" data-admin-role="editor">Textos</button>
+      <button class="button outline" id="admin-tab-projects" type="button" role="tab" aria-controls="admin-panel-projects" aria-selected="false" tabindex="-1" data-admin-tab="projects" data-admin-role="editor">Projetos</button>
       <button class="button outline" id="admin-tab-pages" type="button" role="tab" aria-controls="admin-panel-pages" aria-selected="false" tabindex="-1" data-admin-tab="pages" data-admin-role="editor">Páginas e abas</button>
       <button class="button outline" id="admin-tab-photos" type="button" role="tab" aria-controls="admin-panel-photos" aria-selected="false" tabindex="-1" data-admin-tab="photos" data-admin-role="editor">Fotos</button>
       <button class="button outline" id="admin-tab-team" type="button" role="tab" aria-controls="admin-panel-team" aria-selected="false" tabindex="-1" data-admin-tab="team" data-admin-role="editor">Integrantes</button>
@@ -111,6 +112,45 @@
         <button type="submit" class="button">Salvar texto</button>
       </form>
       <p id="cms-copy-status" role="status" aria-live="polite" class="rede-status"></p>
+    </section>
+    <section class="rede-box admin-panel" id="admin-panel-projects" role="tabpanel" aria-labelledby="admin-tab-projects" data-admin-panel="projects" data-admin-role="editor" hidden>
+      <h2>Editor visual de projetos</h2>
+      <p class="rede-muted">Aqui você altera os cards da Home e as evidências do projeto sem mexer no código. Salve primeiro como rascunho; marque “Publicar” somente quando o texto representar uma atividade real da equipe.</p>
+      <div class="admin-site-map" aria-label="Onde aparece cada edição">
+        <a href="index.html#projetos" target="_blank" rel="noopener noreferrer">Home · cards de projetos</a>
+        <a href="evidencias.html" target="_blank" rel="noopener noreferrer">Evidências · página pública</a>
+        <button id="cms-project-new" type="button" class="button outline">Novo projeto</button>
+      </div>
+      <form id="cms-project-form" class="rede-form">
+        <input id="cms-project-id" type="hidden">
+        <label for="cms-project-title">Nome do projeto</label>
+        <input id="cms-project-title" maxlength="100" minlength="2" required placeholder="Ex.: Meca Academy">
+        <label for="cms-project-slug">Identificador do link (minúsculas, números e hífens)</label>
+        <input id="cms-project-slug" maxlength="64" minlength="2" pattern="[a-z0-9]+(-[a-z0-9]+)*" required placeholder="meca-academy">
+        <label for="cms-project-category">Frase curta / tipo do projeto</label>
+        <input id="cms-project-category" maxlength="64" minlength="2" required placeholder="Formação interna">
+        <label for="cms-project-status">Status público</label>
+        <select id="cms-project-status" required>
+          <option value="EM PLANEJAMENTO">Em planejamento</option>
+          <option value="EM ESTRUTURAÇÃO">Em estruturação</option>
+          <option value="EM DESENVOLVIMENTO">Em desenvolvimento</option>
+          <option value="EM ANDAMENTO">Em andamento</option>
+          <option value="CONCLUÍDO">Concluído</option>
+        </select>
+        <label for="cms-project-summary">Descrição principal (16 a 600 caracteres)</label>
+        <textarea id="cms-project-summary" minlength="16" maxlength="600" rows="5" required></textarea>
+        <label for="cms-project-detail">Complemento opcional (até 600 caracteres)</label>
+        <textarea id="cms-project-detail" maxlength="600" rows="3" placeholder="Ex.: como surgiu, próximo passo ou público atendido."></textarea>
+        <label for="cms-project-evidence-note">Mensagem da área de evidências</label>
+        <textarea id="cms-project-evidence-note" minlength="5" maxlength="260" rows="3" required>Fotos, relatos e registros serão adicionados aqui.</textarea>
+        <label for="cms-project-order">Ordem de exibição</label>
+        <input id="cms-project-order" type="number" min="0" max="9999" value="100" required>
+        <label class="consent-line"><input id="cms-project-published" type="checkbox"> <span>Publicar este projeto no site</span></label>
+        <div class="rede-controls"><button type="submit" class="button">Salvar projeto</button><button id="cms-project-reset" type="button" class="button outline">Limpar</button></div>
+      </form>
+      <p id="cms-project-status-message" role="status" aria-live="polite" class="rede-status"></p>
+      <h3 class="rede-section-title">Projetos existentes</h3>
+      <div id="cms-project-list" class="admin-pages-list" aria-label="Projetos cadastrados"></div>
     </section>
     <section class="rede-box admin-panel" id="admin-panel-pages" role="tabpanel" aria-labelledby="admin-tab-pages" data-admin-panel="pages" data-admin-role="editor" hidden>
       <h2>Reescrever e criar páginas</h2>
@@ -212,5 +252,5 @@
     </dialog>
   </div>
 </main>
-<script type="module" src="js/admin.js?v=20261025i"></script>
+<script type="module" src="js/admin.js?v=20261107a"></script>
 </body></html>

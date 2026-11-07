@@ -1,7 +1,7 @@
 import { supabase } from "./rede-client.js?v=20261025d";
 import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
 import { CMS_SLOTS, CMS_BUCKET, MAX_INPUT_BYTES, MAX_PHOTO_BYTES,
-         validCopy, validCaption, validAssetPath, validPage } from "./cms-model.mjs?v=20261025d";
+         validCopy, validCaption, validAssetPath, validPage, validProject } from "./cms-model.mjs?v=20261107a";
 
 const byId = id => document.getElementById(id);
 const status = (id, text, error=false) => {
@@ -12,6 +12,7 @@ const locked=byId("admin-locked");
 const copyForm=byId("cms-copy-form");
 const photoForm=byId("cms-photo-form");
 const pageForm=byId("cms-page-form");
+const projectForm=byId("cms-project-form");
 let editorUser=null;
 let adminUser=null;
 let isModerator=false;
@@ -19,6 +20,8 @@ let isSiteAdmin=false;
 let storedCopy = new Map();
 let storedPages = new Map();
 let editingPageSlug = null;
+let storedProjects = new Map();
+let editingProjectId = null;
 
 async function closeSession() {
   editorUser = null;
@@ -529,6 +532,92 @@ pageForm.addEventListener("submit",async event=>{
   } finally {button.disabled=false;}
 });
 
+const projectStatus=(message,error=false)=>status("cms-project-status-message",message,error);
+function projectSlug(value) {
+  return String(value||"").trim().toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,64);
+}
+function resetProjectForm() {
+  projectForm.reset();editingProjectId=null;
+  byId("cms-project-id").value="";
+  byId("cms-project-order").value="100";
+  byId("cms-project-evidence-note").value="Fotos, relatos e registros serão adicionados aqui.";
+  byId("cms-project-status").value="EM PLANEJAMENTO";
+  projectStatus("Preencha os campos para criar um projeto em rascunho.");
+}
+function setProjectForm(project) {
+  editingProjectId=project.id;
+  byId("cms-project-id").value=String(project.id);
+  byId("cms-project-title").value=project.title;
+  byId("cms-project-slug").value=project.slug;
+  byId("cms-project-category").value=project.category;
+  byId("cms-project-status").value=project.status_label;
+  byId("cms-project-summary").value=project.summary;
+  byId("cms-project-detail").value=project.detail||"";
+  byId("cms-project-evidence-note").value=project.evidence_note;
+  byId("cms-project-order").value=String(project.sort_order);
+  byId("cms-project-published").checked=Boolean(project.published);
+  projectStatus("Editando “"+project.title+"”. Salve para atualizar a prévia pública.");
+  selectAdminTab("projects");byId("cms-project-title").focus();
+}
+function renderProjectList() {
+  const root=byId("cms-project-list");root.replaceChildren();
+  const rows=[...storedProjects.values()].sort((a,b)=>a.sort_order-b.sort_order||a.title.localeCompare(b.title,"pt-BR"));
+  for(const project of rows) {
+    const card=document.createElement("article");card.className="admin-page-card";
+    const title=document.createElement("h4");title.textContent=project.title;
+    const summary=document.createElement("p");summary.textContent=project.status_label+" · "+project.category+" · "+(project.published?"Publicado":"Rascunho");
+    const description=document.createElement("p");description.className="rede-muted";description.textContent=project.summary;
+    const actions=document.createElement("div");actions.className="admin-page-actions";
+    const edit=document.createElement("button");edit.type="button";edit.className="button outline";edit.textContent="Editar";
+    edit.addEventListener("click",()=>setProjectForm(project));actions.append(edit);
+    if(project.published) {
+      const preview=document.createElement("a");preview.className="button outline";preview.target="_blank";preview.rel="noopener noreferrer";
+      preview.href="evidencias.html#"+encodeURIComponent(project.slug);preview.textContent="Pré-visualizar";actions.append(preview);
+    }
+    card.append(title,summary,description,actions);root.append(card);
+  }
+  if(!rows.length) {const empty=document.createElement("p");empty.textContent="Nenhum projeto cadastrado ainda.";root.append(empty);}
+}
+async function refreshProjects() {
+  const {data,error}=await supabase.from("meca_site_projects")
+    .select("id,slug,title,category,status_label,summary,detail,evidence_note,sort_order,published")
+    .order("sort_order",{ascending:true}).order("title",{ascending:true}).limit(100);
+  if(error) {projectStatus("Não foi possível carregar os projetos. Confira a migration do editor.",true);return false;}
+  storedProjects=new Map((data||[]).map(project=>[project.id,project]));renderProjectList();return true;
+}
+byId("cms-project-new").addEventListener("click",resetProjectForm);
+byId("cms-project-reset").addEventListener("click",resetProjectForm);
+byId("cms-project-title").addEventListener("input",()=>{
+  if(editingProjectId===null) byId("cms-project-slug").value=projectSlug(byId("cms-project-title").value);
+});
+projectForm.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const payload={
+    slug:projectSlug(byId("cms-project-slug").value),title:byId("cms-project-title").value.trim(),
+    category:byId("cms-project-category").value.trim(),status_label:byId("cms-project-status").value,
+    summary:byId("cms-project-summary").value.trim(),detail:byId("cms-project-detail").value.trim(),
+    evidence_note:byId("cms-project-evidence-note").value.trim(),sort_order:Number(byId("cms-project-order").value),
+    published:byId("cms-project-published").checked,updated_by:editorUser?.id,updated_at:new Date().toISOString()
+  };
+  if(!editorUser||!validProject(payload)) {projectStatus("Projeto inválido. Confira nome, frase, status e limites de texto.",true);return;}
+  const duplicate=[...storedProjects.values()].find(project=>project.slug===payload.slug&&project.id!==editingProjectId);
+  if(duplicate) {projectStatus("Esse identificador já pertence a “"+duplicate.title+"”.",true);return;}
+  const button=projectForm.querySelector('button[type="submit"]');button.disabled=true;projectStatus("Salvando projeto...");
+  try {
+    const query=editingProjectId===null
+      ? supabase.from("meca_site_projects").insert(payload)
+      : supabase.from("meca_site_projects").update(payload).eq("id",editingProjectId);
+    const {data,error}=await query.select("id").single();
+    if(error||!data?.id) throw new Error("Project write not confirmed");
+    editingProjectId=data.id;byId("cms-project-id").value=String(data.id);
+    await refreshProjects();
+    projectStatus(payload.published?"Projeto publicado e confirmado no site.":"Rascunho salvo. Só editores conseguem vê-lo no painel.");
+  } catch {
+    projectStatus("Não foi possível confirmar a gravação. Atualize a lista e tente novamente.",true);
+  } finally {button.disabled=false;}
+});
+
 copyForm.addEventListener("submit",async event=>{
   event.preventDefault();
   const slot=byId("cms-slot").value;
@@ -831,7 +920,7 @@ async function refreshTeamPhotoOptions() {
   await loadOverview();
   if(editorUser) {
     await Promise.all([loadTexts(),refreshGallery()]);
-    await refreshPages();
+    await Promise.all([refreshPages(),refreshProjects()]);
     await Promise.all([refreshTeamMembers(),refreshTeamPhotoOptions()]);
   }
   if(isSiteAdmin) await loadAccessList();

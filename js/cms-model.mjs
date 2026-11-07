@@ -10,6 +10,9 @@ export const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 export const MAX_INPUT_BYTES = 10 * 1024 * 1024;
 export const CMS_ASSET_PATH = new RegExp("^[0-9a-f-]{36}/[0-9a-f-]{36}[.]webp$");
 export const CMS_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const PROJECT_STATUSES = Object.freeze([
+  "EM PLANEJAMENTO", "EM ESTRUTURAÇÃO", "EM DESENVOLVIMENTO", "EM ANDAMENTO", "CONCLUÍDO"
+]);
 
 export function validCopy(slot, body) {
   return Object.hasOwn(CMS_SLOTS, slot) && typeof body === "string" &&
@@ -35,4 +38,17 @@ export function validPage(page) {
       || (Boolean(cover_path) && cover_alt.trim().length>=3))
     && typeof show_in_nav==="boolean" && Number.isInteger(nav_order)
     && nav_order>=0 && nav_order<=9999 && typeof published==="boolean";
+}
+export function validProject(project) {
+  if (!project || typeof project!=="object") return false;
+  const {slug,title,category,status_label,summary,detail,evidence_note,sort_order,published}=project;
+  return typeof slug==="string" && slug.length>=2 && slug.length<=64 && CMS_SLUG.test(slug)
+    && typeof title==="string" && title.trim().length>=2 && title.trim().length<=100
+    && typeof category==="string" && category.trim().length>=2 && category.trim().length<=64
+    && typeof status_label==="string" && PROJECT_STATUSES.includes(status_label)
+    && typeof summary==="string" && summary.trim().length>=16 && summary.trim().length<=600
+    && typeof detail==="string" && detail.trim().length<=600
+    && typeof evidence_note==="string" && evidence_note.trim().length>=5 && evidence_note.trim().length<=260
+    && Number.isInteger(sort_order) && sort_order>=0 && sort_order<=9999
+    && typeof published==="boolean";
 }

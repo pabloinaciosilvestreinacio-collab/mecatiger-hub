@@ -90,6 +90,23 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.locator("#cms-copy-form button[type=submit]").click();
   await expect(page.locator("#cms-copy-status")).toContainText("Texto salvo");
 
+  await page.locator("#admin-tab-projects").click();
+  const projectName="Projeto visual "+Date.now();
+  await page.locator("#cms-project-title").fill(projectName);
+  await page.locator("#cms-project-category").fill("Teste de interface");
+  await page.locator("#cms-project-status").selectOption("EM PLANEJAMENTO");
+  await page.locator("#cms-project-summary").fill("Projeto descartável criado para validar o editor visual de projetos no navegador local.");
+  await page.locator("#cms-project-evidence-note").fill("Registros de teste serão removidos junto com a base local.");
+  await page.locator("#cms-project-form button[type=submit]").click();
+  await expect(page.locator("#cms-project-status-message")).toContainText("Rascunho salvo");
+  const projectCard=page.locator("#cms-project-list .admin-page-card").filter({hasText:projectName});
+  await expect(projectCard).toHaveCount(1);
+  await expect(projectCard).toContainText("Rascunho");
+  await projectCard.getByRole("button",{name:"Editar"}).click();
+  await page.locator("#cms-project-published").check();
+  await page.locator("#cms-project-form button[type=submit]").click();
+  await expect(page.locator("#cms-project-status-message")).toContainText("Projeto publicado e confirmado");
+
   await page.locator("#admin-tab-photos").click();
   const webp=Buffer.from("UklGRjoAAABXRUJQVlA4IC4AAAAQAgCdASoCAAIAAkA4JaACdLoB+AH4AAPIAP7n5L/6nAk8B/Br/9JoQ9W/KwAA","base64");
   await page.locator("#cms-photo").setInputFiles({name:"foto.webp",mimeType:"image/webp",buffer:webp});
@@ -147,6 +164,7 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
 
   await page.goto("/index.html");
   await expect(page.locator('[data-cms-text="home-intro"]')).toHaveText(editorText,{timeout:10000});
+  await expect(page.locator("[data-cms-project-list=home]")).toContainText(projectName,{timeout:10000});
   await expect(page.locator("#meca-gallery")).toBeVisible();
   // A separate local CMS security suite also uploads a legitimate fixture.
   // Verify THIS browser upload is rendered, not the global gallery count.

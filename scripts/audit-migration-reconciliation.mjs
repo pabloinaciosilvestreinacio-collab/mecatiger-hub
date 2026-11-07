@@ -15,9 +15,10 @@ export const EXPECTED_FILES=Object.freeze([
   "20261025140000_rede_request_messages.sql",
   "20261025160000_admin_access_and_team_members.sql",
   "20261025170000_fix_admin_access_email_return_type.sql",
-  "20261107163418_restrict_rede_mutable_columns.sql"
+  "20261107163418_restrict_rede_mutable_columns.sql",
+  "20261107181606_site_projects_editor.sql"
 ]);
-export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES.slice(0,7));
+export const EXPECTED_APPLIED_FILES=Object.freeze(EXPECTED_FILES);
 export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
   ["20261013171020","create_community_registration_metrics"],
   ["20261013173230","count_competitors_as_students"],
@@ -29,7 +30,9 @@ export const EXPECTED_HOSTED_MIGRATIONS=Object.freeze([
   ["20261025032035","mecatiger_site_cms"],
   ["20261025140659","rede_request_messages"],
   ["20261025153851","admin_access_and_team_members"],
-  ["20261025153927","fix_admin_access_email_return_type"]
+  ["20261025153927","fix_admin_access_email_return_type"],
+  ["20261107163418","restrict_rede_mutable_columns"],
+  ["20261107181606","site_projects_editor"]
 ]);
 export const PROTECTED_LEGACY_OBJECTS=Object.freeze([
   "community_registrations","community_metrics","register_community_member"
@@ -38,7 +41,7 @@ const NEW_OBJECTS=new Set([
  "rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests",
  "rede_reports","rede_moderation_log","rede_request_messages","mecasim_trajectories",
  "meca_site_editors","meca_site_copy","meca_site_gallery","meca_site_pages",
- "meca_site_admins","meca_site_team_members"
+ "meca_site_admins","meca_site_team_members","meca_site_projects"
 ]);
 export const normalizeVersion = filename => {
   const m=/^([0-9]{14})_[a-z0-9_]+\.sql$/.exec(filename);
@@ -98,7 +101,7 @@ export function reconcile(remote, filenames, sqlByFile) {
     issues.push("Tabela antiga sem RLS ou não encontrada na fotografia hospedada");
   if(remote.legacy_rpc?.name!=="register_community_member"||remote.legacy_rpc?.security_definer!==true)
     issues.push("RPC de cadastro hospedado mudou desde a inspeção");
-  // All seven repository product migrations are confirmed applied; two hosted timestamps
+  // All repository product migrations are confirmed applied; three hosted timestamps
   // are mapped explicitly because Supabase registered them during reviewed application.
   const expectedVersions=EXPECTED_HOSTED_MIGRATIONS.map(x=>x[0]);
   const expectedNames=new Map(EXPECTED_HOSTED_MIGRATIONS);

@@ -9,6 +9,7 @@ const pages = [
   ["/mecasim.html", "Meca Sim · MECATIGER FTC #32578"],
   ["/admin.html", "Painel da equipe — Meca Tiger"],
   ["/conteudo.html", "Conteúdo do Hub"],
+  ["/evidencias.html", "Evidências dos projetos · MECATIGER"],
   ["/pagina.html?slug=teste", "Página do Hub"]
 ];
 

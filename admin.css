@@ -83,6 +83,9 @@
 }
 .admin-page-card h4,.cms-page-card h2 { margin:0 0 8px; }
 .admin-page-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.admin-site-map { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:18px 0; }
+.admin-site-map a { border:1px solid #51565b; border-radius:999px; padding:8px 14px; color:#dedede; }
+.admin-site-map a:hover { border-color:#f05a28; color:#ff7a45; }
 .cms-page-nav {
   display:flex;
   gap:10px;

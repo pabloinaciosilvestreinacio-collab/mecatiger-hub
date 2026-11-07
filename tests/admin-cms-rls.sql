@@ -114,3 +114,37 @@ begin
   end;
 end $$;
 commit;
+
+-- A project draft is private, while a published project is visible to visitors.
+begin;
+set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+insert into public.meca_site_projects
+  (slug,title,category,status_label,summary,detail,evidence_note,sort_order,published,updated_by)
+values
+  ('project-test','Projeto Teste','Teste','EM PLANEJAMENTO','Projeto de teste para a política RLS do editor de projetos.','',
+   'Evidências de teste serão registradas depois.',901,false,'00000000-0000-0000-0000-000000000002');
+select public.rede_assert((select count(*) from public.meca_site_projects where slug='project-test')=1,
+  'editor can read their unpublished project');
+commit;
+
+begin;
+set local role anon;
+select public.rede_assert((select count(*) from public.meca_site_projects where slug='project-test')=0,
+  'project draft is hidden from visitors');
+commit;
+
+begin;
+set local role authenticated;
+set local request.jwt.claim.is_anonymous='false';
+set local request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+update public.meca_site_projects set published=true,updated_by='00000000-0000-0000-0000-000000000002'
+where slug='project-test';
+commit;
+
+begin;
+set local role anon;
+select public.rede_assert((select count(*) from public.meca_site_projects where slug='project-test')=1,
+  'published project is public');
+commit;

@@ -1,5 +1,5 @@
 import { supabase } from "./rede-client.js?v=20261025d";
-import { CMS_SLOTS, CMS_BUCKET, validAssetPath, CMS_SLUG } from "./cms-model.mjs?v=20261025d";
+import { CMS_SLOTS, CMS_BUCKET, validAssetPath, CMS_SLUG, PROJECT_STATUSES } from "./cms-model.mjs?v=20261107a";
 
 async function loadPublicCopy() {
   const slots=[...document.querySelectorAll("[data-cms-text]")]
@@ -110,6 +110,69 @@ async function loadPublicGallery() {
   }
   if(cards.length) {root.replaceChildren(...cards);section.hidden=false;}
 }
+async function publicProjects() {
+  const {data,error}=await supabase.from("meca_site_projects")
+    .select("slug,title,category,status_label,summary,detail,evidence_note,sort_order")
+    .eq("published",true).order("sort_order",{ascending:true}).order("title",{ascending:true}).limit(100);
+  if(error) return [];
+  return (data||[]).filter(project=>typeof project.slug==="string" && CMS_SLUG.test(project.slug)
+    && typeof project.title==="string" && typeof project.category==="string"
+    && PROJECT_STATUSES.includes(project.status_label) && typeof project.summary==="string"
+    && typeof project.detail==="string" && typeof project.evidence_note==="string");
+}
+function projectTitle(tagName,project) {
+  const title=document.createElement(tagName);
+  title.className="display";title.textContent=project.title;
+  return title;
+}
+function projectEvidenceCard(project,index) {
+  const card=document.createElement("article");card.className="evidence-card";card.id="evidence-"+project.slug;
+  const eyebrow=document.createElement("span");eyebrow.className="eyebrow";
+  eyebrow.textContent=String(index+1).padStart(2,"0")+" / "+project.category;
+  const summary=document.createElement("p");summary.textContent=project.summary;
+  const facts=document.createElement("div");facts.className="evidence-facts";
+  for(const item of [project.category,project.status_label]) {const fact=document.createElement("span");fact.textContent=item;facts.append(fact);}
+  const note=document.createElement("div");note.className="evidence-placeholder progress-card";
+  const kicker=document.createElement("span");kicker.className="progress-kicker";kicker.textContent=project.status_label;
+  const strong=document.createElement("strong");strong.textContent="Evidências em organização.";
+  const noteText=document.createElement("span");noteText.textContent=project.evidence_note;
+  note.append(kicker,strong,noteText);card.append(eyebrow,projectTitle("h2",project),summary);
+  if(project.detail) {const detail=document.createElement("p");detail.textContent=project.detail;card.append(detail);}
+  card.append(facts,note);return card;
+}
+function projectHomeCard(project,index) {
+  const card=document.createElement("article");card.className="project-card";
+  if(index===0)card.classList.add("project-card-featured");
+  const meta=document.createElement("div");meta.className="project-meta";
+  const state=document.createElement("span");state.className="project-progress";state.textContent=project.status_label;
+  const tag=document.createElement("span");tag.className="project-tag";tag.textContent=project.category;
+  const position=document.createElement("span");position.className="project-index display";position.textContent=String(index+1).padStart(2,"0");
+  meta.append(state,tag,position);
+  const summary=document.createElement("p");summary.textContent=project.summary;
+  const footer=document.createElement("div");footer.className="project-footer";
+  const category=document.createElement("span");category.textContent=project.category+" · "+project.status_label;
+  const evidence=document.createElement("a");evidence.className="text-action";
+  evidence.href="evidencias.html#"+encodeURIComponent(project.slug);evidence.dataset.panelTarget="evidence-"+project.slug;evidence.textContent="Ver evidências ↗";
+  footer.append(category,evidence);card.append(meta,projectTitle("h3",project),summary);
+  if(project.detail) {const detail=document.createElement("p");detail.textContent=project.detail;card.append(detail);}
+  card.append(footer);return card;
+}
+async function renderProjects() {
+  const projects=await publicProjects();
+  for(const root of document.querySelectorAll("[data-cms-project-list]")) {
+    root.replaceChildren();
+    const evidence=root.dataset.cmsProjectList==="evidence";
+    if(!projects.length) {
+      const note=document.createElement("p");note.className="rede-muted";
+      note.textContent="Os projetos serão publicados pela equipe em breve.";root.append(note);continue;
+    }
+    projects.forEach((project,index)=>root.append(evidence?projectEvidenceCard(project,index):projectHomeCard(project,index)));
+    if(evidence && location.hash) {
+      const target=document.getElementById("evidence-"+location.hash.slice(1));
+      if(target) requestAnimationFrame(()=>target.scrollIntoView({block:"start"}));
+    }
+  }
+}
 async function renderPageDirectory(pages) {
   const root=document.getElementById("cms-page-list");
   const status=document.getElementById("cms-page-status");
@@ -164,7 +227,7 @@ function setupAccountOnboarding() {
 }
 
 async function bootCms() {
-  const [,pages]=await Promise.all([loadPublicCopy(),publicPages(),loadPublicGallery(),loadPublicTeamMembers()]);
+  const [,pages]=await Promise.all([loadPublicCopy(),publicPages(),loadPublicGallery(),loadPublicTeamMembers(),renderProjects()]);
   await loadPageTabs(pages);
   await Promise.all([renderPageDirectory(pages),renderCurrentPage()]);
 }

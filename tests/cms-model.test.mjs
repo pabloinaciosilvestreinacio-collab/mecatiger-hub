@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { CMS_SLOTS, CMS_ASSET_PATH, MAX_PHOTO_BYTES,
-  validCopy, validCaption, validAssetPath, validPage } from "../js/cms-model.mjs";
+  validCopy, validCaption, validAssetPath, validPage, validProject } from "../js/cms-model.mjs";
 
 test("CMS only edits explicitly approved copy fields",()=>{
   assert.equal(Object.keys(CMS_SLOTS).length,4);
@@ -46,4 +46,19 @@ test("Pages use a safe slug and bounded plain-text fields",()=>{
   assert.equal(validPage({...page,cover_path:"https://evil.example/a.webp"}),false);
   assert.equal(validPage({...page,cover_path:"550e8400-e29b-41d4-a716-446655440000/aa0eb400-e29b-41d4-a716-446655440111.webp",cover_alt:""}),false);
   assert.equal(validPage({...page,nav_order:10000}),false);
+});
+
+test("Projects use bounded copy, an approved status and a safe stable link",()=>{
+  const project={
+    slug:"meca-academy",title:"Meca Academy",category:"Formação interna",
+    status_label:"EM ESTRUTURAÇÃO",summary:"Formação contínua em programação, mecânica e eletrônica para integrantes da equipe.",
+    detail:"Trilhas internas preservam conhecimento entre temporadas.",
+    evidence_note:"Materiais e registros serão adicionados após a organização.",sort_order:30,published:false
+  };
+  assert.equal(validProject(project),true);
+  assert.equal(validProject({...project,slug:"../admin"}),false);
+  assert.equal(validProject({...project,status_label:"LANÇAR AGORA"}),false);
+  assert.equal(validProject({...project,summary:"curta"}),false);
+  assert.equal(validProject({...project,evidence_note:"x".repeat(261)}),false);
+  assert.equal(validProject({...project,sort_order:-1}),false);
 });
