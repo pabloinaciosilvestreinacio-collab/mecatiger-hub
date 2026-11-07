@@ -33,16 +33,16 @@ sender_name = "Meca Tiger Homologação"
 enabled = true
 site_url = "http://127.0.0.1:8000"
 additional_redirect_urls = [
-  "http://127.0.0.1:8000/entrar.html",
   "http://127.0.0.1:8000/entrar.html?next=rede.html",
   "http://127.0.0.1:8000/entrar.html?next=mecasim-demo.html",
   "http://127.0.0.1:8000/entrar.html?next=mecasim.html",
   "http://127.0.0.1:8000/entrar.html?next=admin.html",
-  "http://localhost:8000/entrar.html",
+  "http://127.0.0.1:8000/entrar.html?next=rede.html&recovery=1",
   "http://localhost:8000/entrar.html?next=rede.html",
   "http://localhost:8000/entrar.html?next=mecasim-demo.html",
   "http://localhost:8000/entrar.html?next=mecasim.html",
-  "http://localhost:8000/entrar.html?next=admin.html"
+  "http://localhost:8000/entrar.html?next=admin.html",
+  "http://localhost:8000/entrar.html?next=rede.html&recovery=1"
 ]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
@@ -74,6 +74,10 @@ content_path = "./supabase/templates/local-access.html"
 [auth.email.template.magic_link]
 subject = "Código de acesso de homologação à Meca Tiger"
 content_path = "./supabase/templates/local-access.html"
+
+[auth.email.template.recovery]
+subject = "Recupere sua senha de homologação da Meca Tiger"
+content_path = "./supabase/templates/local-recovery.html"
 
 [functions.mecasim-trajectories]
 verify_jwt = true

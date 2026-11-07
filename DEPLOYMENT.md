@@ -13,9 +13,17 @@
 
 ## Ação necessária no Supabase Dashboard
 
-Em **Authentication → URL Configuration**, defina o Site URL como `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/` e inclua `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/**` na allow-list de redirects. Em **Authentication → SMTP Settings**, configure remetente SMTP autorizado para envio público confiável. Não publique credenciais em código nem as envie no chat.
+Em **Authentication → URL Configuration**, defina o Site URL como `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/` e inclua somente estas URLs na allow-list de redirects, sem coringas:
 
-Depois dessa configuração, testar envio e retorno do Magic Link em `entrar.html`. Os links precisam abrir `entrar.html` no GitHub Pages, sem localhost. E-mails devem ser confirmados antes de acessar recursos privados.
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=rede.html`
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=mecasim-demo.html`
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=mecasim.html`
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=admin.html`
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=rede.html&recovery=1`
+
+Em **Authentication → SMTP Settings**, configure remetente SMTP autorizado para envio público confiável e, em **Email Templates**, revise e cole os três rascunhos versionados para confirmação, Magic Link e recuperação de senha. Não publique credenciais em código nem as envie no chat.
+
+Depois dessa configuração, testar envio e retorno de confirmação, Magic Link e recuperação de senha em `entrar.html`. Os links precisam abrir `entrar.html` no GitHub Pages, sem localhost. E-mails devem ser confirmados antes de acessar recursos privados.
 
 ## Testes e segurança
 

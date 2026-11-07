@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { installLocalApp, waitForConfirmationLink } from "./local-app.mjs";
+import { installLocalApp, waitForConfirmationLink, waitForRecoveryLink } from "./local-app.mjs";
 
 test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ context, page }) => {
   await installLocalApp(context, true);
@@ -98,4 +98,27 @@ test("OTP, Rede, Meca Sim e logout funcionam pelo navegador local", async ({ con
   await page.locator("#auth-password").fill("Senha-de-teste-local-2026!");
   await page.getByRole("button", { name: "Entrar com senha" }).click();
   await page.waitForURL(url => url.pathname.endsWith("/mecasim-demo.html"), { timeout: 20_000 });
+
+  // A password recovery must use its own token type and must replace the old password.
+  await page.goto("/rede.html");
+  await page.getByRole("button", { name: "Sair da conta" }).click();
+  await expect(page.locator("#rede-identity")).toContainText("Modo visitante");
+  await page.goto("/entrar.html?next=rede.html");
+  await page.locator("#auth-email").fill(email);
+  await page.getByRole("button", { name: "Esqueci minha senha" }).click();
+  await expect(page.locator("#auth-status")).toContainText("Se este endereço tiver uma conta");
+  const recoveryLink = await waitForRecoveryLink(email);
+  await page.goto(recoveryLink);
+  await expect(page.locator("#password-reset")).toBeVisible();
+  await page.locator("#reset-password").fill("Senha-redefinida-local-2026!");
+  await page.locator("#confirm-reset-password").fill("Senha-redefinida-local-2026!");
+  await page.getByRole("button", { name: "Salvar nova senha e entrar" }).click();
+  await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
+  await page.getByRole("button", { name: "Sair da conta" }).click();
+  await expect(page.locator("#rede-identity")).toContainText("Modo visitante");
+  await page.goto("/entrar.html?next=rede.html");
+  await page.locator("#auth-email").fill(email);
+  await page.locator("#auth-password").fill("Senha-redefinida-local-2026!");
+  await page.getByRole("button", { name: "Entrar com senha" }).click();
+  await page.waitForURL(/\/rede\.html$/, { timeout: 20_000 });
 });

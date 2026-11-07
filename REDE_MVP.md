@@ -7,7 +7,7 @@
 O site atualmente publicado usa HTML, CSS e JavaScript estáticos no GitHub Pages. Não usa React/Vite no ramo main.
 
 - rede.html: leitura pública, publicações, comentários, denúncias, pedidos privados e moderação.
-- entrar.html: solicitação de link por e-mail, sem senha. O envio/validação é feito no Supabase Auth.
+- entrar.html: e-mail e senha, Magic Link e recuperação de senha. O envio/validação é feito no Supabase Auth; a confirmação de e-mail continua obrigatória.
 - js/rede-client.js: Supabase JS versionado, chave somente publishable, cliente PKCE.
 - js/rede.js: operações reais com Supabase, sem conteúdo fictício; controle de acesso no banco.
 - supabase/migrations/20261025032012_rede_mecatiger_mvp.sql: schema ADITIVO, sem alterar community_registrations ou community_metrics.
@@ -17,8 +17,8 @@ O site atualmente publicado usa HTML, CSS e JavaScript estáticos no GitHub Page
 ## Configuração necessária para autenticação por e-mail
 
 1. O projeto Supabase precisa de Auth por e-mail habilitado e quotas/SMTP adequadas.
-2. Em Authentication > URL Configuration, configurar Site URL como https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/ e autorizar como redirect https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html.
-3. Para o fluxo PKCE por link, ajustar o template Magic Link para incluir o destino permitido e o hash: {{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email. Testar com link verdadeiro. O template padrão pode não funcionar com este fluxo.
+2. Em Authentication > URL Configuration, configurar Site URL como https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/ e autorizar apenas as cinco URLs exatas em [`AUTH_SMTP_GRATUITO_20261024.md`](AUTH_SMTP_GRATUITO_20261024.md); não usar coringas.
+3. Em Email Templates, revisar os rascunhos de confirmação, Magic Link e recuperação. Eles usam somente `{{ .ConfirmationURL }}`; não montar ou registrar manualmente token, hash ou URL de retorno.
 4. Ativar medidas anti-spam e analisar CAPTCHA e SMTP. Supabase Auth possui limites de solicitação de e-mail, mas isso não substitui controles de abuso de aplicação.
 5. O login atual oferece link de e-mail. A interface de digitação de OTP ficará para outra etapa. Nunca pedir que usuários compartilhem códigos.
 6. Após um login de teste e verificação do ID real do usuário, um administrador deve cadastrar o moderador no banco protegido, usando INSERT em public.rede_moderators via console administrativo. Não atribuir papeis por user_metadata nem no JavaScript.
@@ -61,11 +61,7 @@ Testes SQL feitos com o proprietário postgres NÃO representam testes de RLS. U
 
 ### Magic Link e retorno à página
 
-O link de e-mail deve preservar somente as rotas autorizadas (`rede.html`, `mecasim-demo.html`, `mecasim.html`). A tela `entrar.html` agora envia `emailRedirectTo` com o parâmetro seguro `?next=...`. Por isso, ao configurar o template PKCE do Magic Link, a sintaxe deve **acrescentar** parâmetros usando `&`:
-
-`{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email`
-
-Não duplicar `?` na URL. Configure redirects permitidos e teste em caixa de entrada real antes de publicar. O template e o SMTP de produção não foram alterados.
+O link de e-mail deve preservar somente as rotas autorizadas (`rede.html`, `mecasim-demo.html`, `mecasim.html`, `admin.html`). A recuperação sempre retorna à URL canônica `entrar.html?next=rede.html&recovery=1`. A tela `entrar.html` envia `emailRedirectTo` seguro e usa PKCE; os rascunhos de e-mail usam apenas `{{ .ConfirmationURL }}`. Não concatenar token, hash, `?` ou `&` manualmente no template. Configure os redirects permitidos e teste em caixa de entrada real antes de publicar. O template e o SMTP de produção não foram alterados.
 
 **Escopo de teste:** a suíte PostgreSQL usa simulação de claims fornecidos à conexão; não emite nem verifica a assinatura criptográfica de um JWT real. A autenticidade do JWT no Supabase é responsabilidade do Auth/PostgREST. Teste end-to-end com um usuário temporário ainda é exigido.
 

@@ -31,12 +31,12 @@ O diagnóstico mais recente de domínio e DNS está em [`DOMINIO_SMTP_SEM_CUSTO_
 
 ## 3. E-mails de autenticação preparados (sem implantação)
 
-Rascunhos versionados: `release/auth-email-templates/confirmation.html` e `magic_link.html`, usando variável oficial `{{ .ConfirmationURL }}`, **sem CPF, nomes, e-mails pessoais, chaves ou senha fixa**. Estes arquivos **NÃO** modificam os modelos do Supabase hospedado; deverão ser revistos e colados manualmente no dashboard quando autorizado.
+Rascunhos versionados: `release/auth-email-templates/confirmation.html`, `magic_link.html` e `recovery.html`, usando variável oficial `{{ .ConfirmationURL }}`, **sem CPF, nomes, e-mails pessoais, chaves ou senha fixa**. Estes arquivos **NÃO** modificam os modelos do Supabase hospedado; deverão ser revistos e colados manualmente no dashboard quando autorizado.
 
 - O fluxo local Mailpit, confirmação/OTP, login e logout já é coberto pelo GitHub Actions descartável; não usar evidência de Mailpit para afirmar entrega externa por SMTP.
 - A URL de confirmação é individual e temporária. Proteções de rastreamento automático: **desativar click tracking** no provedor para não quebrar o link. Alguns filtros de e-mail fazem *prefetch* e podem consumir links antes do usuário. Caso isso ocorra, considerar OTP digitado ou confirmação em duas etapas com nova rodada de testes antes de lançamento, sem desabilitar confirmação.
 - Não registrar `token_hash`, códigos OTP nem links completos em logs do GitHub, issues, prints públicos ou relatórios.
-- Conferir na prática ambos os templates (confirmação de conta nova e Magic Link em conta existente), erros de token expirado, uso repetido, login em outro dispositivo e finalização de sessão.
+- Conferir na prática os três templates (confirmação de conta nova, Magic Link em conta existente e recuperação de senha), erros de token expirado, uso repetido, login em outro dispositivo e finalização de sessão.
 - Fontes: https://supabase.com/docs/guides/auth/auth-email-templates e https://supabase.com/docs/guides/auth/redirect-urls .
 
 ## 4. URLs exatas para revisão no Supabase hospedado
@@ -49,8 +49,9 @@ Rascunhos versionados: `release/auth-email-templates/confirmation.html` e `magic
 - `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=mecasim-demo.html`
 - `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=mecasim.html`
 - `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=admin.html`
+- `https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/entrar.html?next=rede.html&recovery=1`
 
-A configuração publicada deve preservar retorno somente nessas rotas, rejeitar `next=https://outro-site` e não introduzir wildcard irrestrito. `scripts/auth-smtp-preflight.mjs` inspeciona código e recusa URLs modificadas. **Isso não valida a configuração real do painel hospedado**, que não foi alterada.
+A configuração publicada deve preservar retorno somente nessas rotas, rejeitar `next=https://outro-site` e não introduzir wildcard irrestrito. A recuperação sempre retorna à Rede com `recovery=1`; esse marcador faz o formulário solicitar uma nova senha somente após a validação do token. `scripts/auth-smtp-preflight.mjs` inspeciona código e recusa URLs modificadas. **Isso não valida a configuração real do painel hospedado**, que não foi alterada.
 
 ## 5. Como liberar o primeiro administrador de forma segura (etapa futura)
 

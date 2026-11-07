@@ -16,7 +16,7 @@
 <main class="rede-page"><section class="container rede-narrow" aria-labelledby="entry-heading">
 <span class="eyebrow">Participação na comunidade STEM</span>
 <h1 class="display" id="entry-heading">ACESSAR A <span class="accent">REDE.</span></h1>
-<p>Entre com e-mail e senha, crie uma conta ou solicite um link de acesso. O painel administrativo só funciona para contas autorizadas pela equipe.</p>
+<p>Entre com e-mail e senha, crie uma conta, recupere a senha ou solicite um link de acesso. O painel administrativo só funciona para contas autorizadas pela equipe.</p>
 <div class="rede-box">
 <p class="rede-muted">Se entrar por link, você poderá definir uma senha segura depois que o e-mail for confirmado. O envio de e-mails ainda depende dos limites e do SMTP configurado no Supabase.</p>
 <form id="send-code" class="rede-form">
@@ -27,6 +27,7 @@
 <div class="auth-actions">
 <button class="button" type="button" id="password-login">Entrar com senha</button>
 <button class="button outline" type="button" id="password-signup">Criar conta com senha</button>
+<button class="button outline" type="button" id="password-recovery">Esqueci minha senha</button>
 <button class="button outline" type="submit" id="send-link">Enviar link de acesso</button>
 </div>
 </form>
@@ -40,10 +41,20 @@
 <button class="button outline" type="button" id="skip-password-setup">Continuar sem criar senha</button>
 </div>
 </form>
+<form id="password-reset" class="rede-form" hidden>
+<p class="rede-muted">Crie uma nova senha para esta conta. O link de recuperação é pessoal e temporário.</p>
+<label for="reset-password">Nova senha</label>
+<input id="reset-password" type="password" autocomplete="new-password" minlength="12" required placeholder="Use ao menos 12 caracteres">
+<label for="confirm-reset-password">Confirmar nova senha</label>
+<input id="confirm-reset-password" type="password" autocomplete="new-password" minlength="12" required placeholder="Digite a senha novamente">
+<div class="auth-actions">
+<button class="button" type="submit">Salvar nova senha e entrar</button>
+</div>
+</form>
 <p id="auth-status" role="status" aria-live="polite" class="rede-status">Verificando sessão...</p>
 </div>
 <p class="rede-privacy">Não compartilhe documentos, senhas, códigos recebidos ou informações pessoais no feed. Caso precise de suporte, <a href="mailto:mecatiger6@gmail.com">contate a equipe</a>.</p>
 </section></main>
 <footer><div class="container footer-bottom"><span>© 2026 MECATIGER FTC #32578</span><a href="index.html">Voltar ao site</a></div></footer>
-<script type="module" src="js/rede-auth.js?v=20261025g"></script>
+<script type="module" src="js/rede-auth.js?v=20261107a"></script>
 </body></html>

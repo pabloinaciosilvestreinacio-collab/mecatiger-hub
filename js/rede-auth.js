@@ -1,15 +1,21 @@
-import { supabase, safeReturn } from "./rede-client.js?v=20261025d";
+import { supabase, safeReturn } from "./rede-client.js?v=20261107a";
 import { isVerifiedMember } from "./rede-identity.mjs?v=20261025d";
+import { buildAuthEntryUrl, isRecoveryRequest } from "./auth-routing.mjs?v=20261107a";
 
 const status = document.getElementById("auth-status");
 const sendForm = document.getElementById("send-code");
 const emailInput = document.getElementById("auth-email");
 const passwordInput = document.getElementById("auth-password");
 const setupForm = document.getElementById("password-setup");
-const next = safeReturn(new URLSearchParams(location.search).get("next"));
+const resetForm = document.getElementById("password-reset");
+const params = new URLSearchParams(location.search);
+const next = safeReturn(params.get("next"));
+const recoveryRequested = isRecoveryRequest(params.get("recovery"));
 const savedNextKey = "mecatiger-auth-return";
-// Preserve only allowlisted routes; the link template must append token params with &.
-const redirectUrl = new URL(`entrar.html?next=${encodeURIComponent(next)}`, location.href).href;
+// Preserve only allowlisted routes; Auth templates append token parameters with &.
+const redirectUrl = buildAuthEntryUrl(location.href, next);
+// Password recovery intentionally returns to one canonical page, not an arbitrary next value.
+const recoveryRedirectUrl = buildAuthEntryUrl(location.href, "rede.html", true);
 
 function tell(message, error = false) {
   status.textContent = message;
@@ -35,16 +41,29 @@ async function finishLogin(offerPasswordSetup = false) {
   return true;
 }
 
+async function openPasswordReset() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !isVerifiedMember(data.user)) {
+    tell("Não foi possível validar este link de recuperação. Solicite outro e-mail.", true);
+    return false;
+  }
+  sendForm.hidden = true;
+  setupForm.hidden = true;
+  resetForm.hidden = false;
+  tell("Link confirmado. Crie uma nova senha para continuar.");
+  return true;
+}
+
 sessionStorage.setItem(savedNextKey, next);
 (async () => {
-  const params = new URLSearchParams(location.search);
   const code = params.get("code");
   if (code) {
     history.replaceState({}, "", location.pathname);
     tell("Verificando link de entrada...");
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
-    await finishLogin(true);
+    if (recoveryRequested) await openPasswordReset();
+    else await finishLogin(true);
     return;
   }
   const tokenHash = params.get("token_hash");
@@ -52,15 +71,17 @@ sessionStorage.setItem(savedNextKey, next);
   if (tokenHash) {
     // Token hashes must never be kept in browser history after use.
     history.replaceState({}, "", location.pathname);
-    if (!["email", "magiclink"].includes(type)) { tell("Link inválido. Solicite outro e-mail.", true); return; }
+    if (!["email", "magiclink", "recovery"].includes(type)) { tell("Link inválido. Solicite outro e-mail.", true); return; }
     tell("Verificando link de entrada...");
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
-    await finishLogin(true);
+    if (type === "recovery" || recoveryRequested) await openPasswordReset();
+    else await finishLogin(true);
     return;
   }
   const { data } = await supabase.auth.getUser();
-  if (isVerifiedMember(data.user)) await finishLogin();
+  if (isVerifiedMember(data.user) && recoveryRequested) await openPasswordReset();
+  else if (isVerifiedMember(data.user)) await finishLogin();
   else tell("Informe seu e-mail para solicitar um link de acesso.");
 })().catch(() => tell("Não foi possível verificar sua sessão. Tente novamente.", true));
 
@@ -129,6 +150,30 @@ document.getElementById("password-signup").addEventListener("click", async () =>
   } finally { button.disabled = false; }
 });
 
+document.getElementById("password-recovery").addEventListener("click", async () => {
+  const email = emailInput.value.trim().toLowerCase();
+  if (!emailInput.checkValidity()) {
+    tell("Informe um e-mail válido para recuperar a senha.", true);
+    return;
+  }
+  const button = document.getElementById("password-recovery");
+  button.disabled = true;
+  tell("Solicitando recuperação de senha...");
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: recoveryRedirectUrl
+    });
+    if (error) throw error;
+    // This wording intentionally does not reveal whether the e-mail has an account.
+    tell("Se este endereço tiver uma conta, enviaremos um link para criar uma nova senha. Não encaminhe esse link.");
+  } catch (error) {
+    const limited = error?.status === 429 || error?.code === "over_email_send_rate_limit";
+    tell(limited
+      ? "Não foi possível enviar agora por limite de segurança. Aguarde antes de tentar novamente."
+      : "Não foi possível solicitar a recuperação agora. Tente novamente mais tarde.", true);
+  } finally { button.disabled = false; }
+});
+
 setupForm.addEventListener("submit", async event => {
   event.preventDefault();
   const password = document.getElementById("new-password").value;
@@ -150,3 +195,23 @@ setupForm.addEventListener("submit", async event => {
 });
 
 document.getElementById("skip-password-setup").addEventListener("click", () => finishLogin());
+
+resetForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const password = document.getElementById("reset-password").value;
+  const confirmation = document.getElementById("confirm-reset-password").value;
+  if (password.length < 12 || password !== confirmation) {
+    tell(password !== confirmation ? "As senhas não coincidem." : "Use uma senha com pelo menos 12 caracteres.", true);
+    return;
+  }
+  const button = resetForm.querySelector('[type="submit"]');
+  button.disabled = true;
+  tell("Salvando nova senha...");
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    await finishLogin();
+  } catch {
+    tell("Não foi possível salvar a nova senha. Solicite outro link de recuperação.", true);
+  } finally { button.disabled = false; }
+});
