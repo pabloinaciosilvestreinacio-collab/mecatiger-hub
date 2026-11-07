@@ -241,13 +241,27 @@ async function loadOwn() {
       const info=el("p",null,"rede-status");info.setAttribute("role","status");
       form.append(labelTitle,title,labelBody,body,save,info);
       form.addEventListener("submit",async event=>{
-        event.preventDefault();save.disabled=true;
-        const {error}=await supabase.from("rede_posts")
-          .update({title:title.value.trim(),content:body.value.trim()})
-          .eq("id",item.id).eq("author_id",currentUser.id);
-        save.disabled=false;
-        if(error) info.textContent=readableError(error);
-        else {info.textContent="Edição salva. Publicação continua pendente.";await loadOwn();}
+        event.preventDefault();
+        if(save.disabled || !identityResolved || !currentUser) return;
+        const epoch=identityEpoch, authorId=currentUser.id;
+        save.disabled=true;
+        info.textContent="Salvando edição...";
+        try {
+          const {data,error}=await supabase.from("rede_posts")
+            .update({title:title.value.trim(),content:body.value.trim()})
+            .eq("id",item.id).eq("author_id",authorId).eq("status","pending")
+            .select("id,status").maybeSingle();
+          if(epoch!==identityEpoch || currentUser?.id!==authorId) return;
+          if(error || !data || data.status!=="pending")
+            throw new Error("Post edit was not confirmed by the database.");
+          info.textContent="Edição salva. Publicação continua pendente.";
+          await loadOwn();
+        } catch {
+          if(epoch===identityEpoch && currentUser?.id===authorId)
+            info.textContent="Não foi possível confirmar a edição. A publicação pode ter sido moderada; atualize seus conteúdos.";
+        } finally {
+          save.disabled=false;
+        }
       });
       box.append(form);
     }));
