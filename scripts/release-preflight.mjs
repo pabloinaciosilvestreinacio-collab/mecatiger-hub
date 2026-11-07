@@ -14,7 +14,8 @@ export const REQUIRED_MIGRATIONS = Object.freeze([
   "20261025032035_mecatiger_site_cms.sql",
   "20261025140000_rede_request_messages.sql",
   "20261025160000_admin_access_and_team_members.sql",
-  "20261025170000_fix_admin_access_email_return_type.sql"
+  "20261025170000_fix_admin_access_email_return_type.sql",
+  "20261107163418_restrict_rede_mutable_columns.sql"
 ]);
 
 export const EXTERNAL_GATES = Object.freeze([
@@ -41,7 +42,7 @@ export function inspectRepository(root=process.cwd()) {
   check("migration-order",REQUIRED_MIGRATIONS.every(n=>existing.includes(n)) &&
     REQUIRED_MIGRATIONS.every((n,i)=>i===0||n>REQUIRED_MIGRATIONS[i-1]) &&
     existing.length===REQUIRED_MIGRATIONS.length,
-    "Sete migrations allowlisted, únicas e em ordem; conferência estrutural, não revisão SQL completa");
+    "Oito migrations allowlisted, únicas e em ordem; conferência estrutural, não revisão SQL completa");
   const community=read("supabase/migrations/20261025032012_rede_mecatiger_mvp.sql");
   const anon=read("supabase/migrations/20261025032022_require_nonanonymous_identity.sql");
   const sim=read("supabase/migrations/20261025032028_mecasim_private_trajectories.sql");
@@ -49,6 +50,12 @@ export function inspectRepository(root=process.cwd()) {
   const messages=read("supabase/migrations/20261025140000_rede_request_messages.sql");
   const team=read("supabase/migrations/20261025160000_admin_access_and_team_members.sql");
   const accessFix=read("supabase/migrations/20261025170000_fix_admin_access_email_return_type.sql");
+  const immutable=read("supabase/migrations/20261107163418_restrict_rede_mutable_columns.sql");
+  check("client-column-update-guard",
+    immutable.includes("revoke update on table public.rede_posts") &&
+    ["rede_posts", "rede_comments", "rede_requests", "rede_reports"].every(table =>
+      immutable.includes("public."+table)),
+    "Novas permissões de UPDATE por coluna limitam identidade e campos imutáveis");
   check("schema-rls",
     ["rede_profiles","rede_moderators","rede_posts","rede_comments","rede_requests","rede_reports"]
       .every(t=>community.includes("alter table public."+t+" enable row level security")) &&
