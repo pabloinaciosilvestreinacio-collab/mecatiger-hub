@@ -75,13 +75,18 @@ sessionStorage.setItem(savedNextKey, next);
     tell("Verificando link de entrada...");
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (error) { tell("Link expirado ou inválido. Solicite outro e-mail.", true); return; }
-    if (type === "recovery" || recoveryRequested) await openPasswordReset();
+    // Only a verified recovery OTP may open the reset form, never a URL marker on a Magic Link.
+    if (type === "recovery") await openPasswordReset();
     else await finishLogin(true);
     return;
   }
   const { data } = await supabase.auth.getUser();
-  if (isVerifiedMember(data.user) && recoveryRequested) await openPasswordReset();
-  else if (isVerifiedMember(data.user)) await finishLogin();
+  // The recovery=1 query parameter is only a routing hint, never proof of a valid link.
+  if (recoveryRequested) {
+    tell("Abra o link de recuperação enviado ao seu e-mail. Apenas esta URL não autoriza trocar a senha.");
+    return;
+  }
+  if (isVerifiedMember(data.user)) await finishLogin();
   else tell("Informe seu e-mail para solicitar um link de acesso.");
 })().catch(() => tell("Não foi possível verificar sua sessão. Tente novamente.", true));
 
