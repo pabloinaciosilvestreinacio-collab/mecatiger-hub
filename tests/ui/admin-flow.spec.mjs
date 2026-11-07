@@ -97,6 +97,30 @@ test("painel requer concessão e permite edição e foto por integrante autoriza
   await page.locator("#cms-photo-form button[type=submit]").click();
   await expect(page.locator("#cms-photo-status")).toContainText("Foto publicada",{timeout:15000});
 
+  // Real browser + disposable database: deleting a team member requires confirmation.
+  await page.locator("#admin-tab-team").click();
+  const teamName="Integrante descartável "+Date.now();
+  const teamSlug="integrante-ui-"+Date.now();
+  await page.locator("#cms-team-name").fill(teamName);
+  await page.locator("#cms-team-slug").fill(teamSlug);
+  await page.locator("#cms-team-role").selectOption("integrante");
+  await page.locator("#cms-team-bio").fill("Perfil criado exclusivamente para o teste local de exclusão segura.");
+  await page.locator("#cms-team-alt").fill("Integrante sem fotografia publicada");
+  await page.locator("#cms-team-form button[type=submit]").click();
+  const teamCard=page.locator("#cms-team-list .admin-page-card").filter({hasText:teamName});
+  await expect(teamCard).toHaveCount(1);
+  page.once("dialog",dialog=>dialog.dismiss());
+  await teamCard.getByRole("button",{name:"Excluir perfil"}).click();
+  await expect(teamCard).toHaveCount(1);
+  page.once("dialog",dialog=>dialog.accept());
+  await teamCard.getByRole("button",{name:"Excluir perfil"}).click();
+  await expect(page.locator("#cms-team-status")).toContainText("Perfil excluído");
+  await expect(teamCard).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("#admin-content")).toBeVisible();
+  await page.locator("#admin-tab-team").click();
+  await expect(page.locator("#cms-team-list")).not.toContainText(teamName);
+
   await page.goto("/index.html");
   await expect(page.locator('[data-cms-text="home-intro"]')).toHaveText(editorText,{timeout:10000});
   await expect(page.locator("#meca-gallery")).toBeVisible();
