@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { validateTrajectory } from "../supabase/functions/mecasim-trajectories/trajectory-validation.mjs";
 import { createTrajectoryHandler } from "../supabase/functions/mecasim-trajectories/handler.mjs";
 
@@ -60,6 +61,15 @@ const call=(token,body,origin=ORIGIN,method="POST")=>handler(new Request(
     "Content-Type":"application/json"},
    ...(method==="POST"?{body:JSON.stringify(body)}:{})}
 ));
+
+test("hosted Meca Sim preserves authenticated private-route controls", async()=>{
+  const html=await readFile(new URL("../mecasim-demo.html",import.meta.url),"utf8");
+  assert.match(html,/id="route-private-status"/);
+  assert.match(html,/id="route-save"/);
+  assert.match(html,/src="js\/mecasim-private\.js/);
+  assert.doesNotMatch(html,/Biblioteca privada em preparação/);
+  assert.doesNotMatch(html,/box\.replaceChildren\(heading, note\)/);
+});
 
 test("route validation accepts legal 1 to 16 waypoints",()=>{
   assert.deepEqual(validateTrajectory(" Start ",[{x:1.123456,y:3.21}]),
