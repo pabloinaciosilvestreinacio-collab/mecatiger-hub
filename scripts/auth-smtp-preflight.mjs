@@ -9,6 +9,25 @@ const ROOT=resolve(fileURLToPath(new URL("..",import.meta.url)));
 export const SITE_BASE="https://pabloinaciosilvestreinacio-collab.github.io/mecatiger-hub/";
 export const AUTH_ROUTES=AUTH_RETURN_ROUTES;
 export const HOSTED_REDIRECTS=authAllowedRedirects(SITE_BASE);
+export const CUSTOM_SITE_BASE="https://mecatiger.com.br/";
+export const WWW_SITE_BASE="https://www.mecatiger.com.br/";
+export const CUSTOM_DOMAIN_REDIRECTS=Object.freeze([
+  ...authAllowedRedirects(CUSTOM_SITE_BASE),
+  ...authAllowedRedirects(WWW_SITE_BASE)
+]);
+// For migration review only: NOT a statement about hosted Auth configuration.
+export const TRANSITION_REDIRECTS=Object.freeze([
+  ...HOSTED_REDIRECTS,
+  ...CUSTOM_DOMAIN_REDIRECTS
+]);
+export function validateTransitionRedirect(url) {
+  return typeof url==="string" && TRANSITION_REDIRECTS.includes(url);
+}
+export function assertSafeTransitionRedirects(urls) {
+  return Array.isArray(urls) && urls.length===TRANSITION_REDIRECTS.length &&
+    new Set(urls).size===TRANSITION_REDIRECTS.length &&
+    urls.every(validateTransitionRedirect);
+}
 export function validateRedirect(target,siteBase=SITE_BASE) {
   return typeof target==="string"&&authAllowedRedirects(siteBase).includes(target);
 }
@@ -35,8 +54,11 @@ export function inspectAuth(root=ROOT) {
   check("trusted-production-base",SITE_BASE.startsWith("https://")&&
     new URL(SITE_BASE).hostname==="pabloinaciosilvestreinacio-collab.github.io",
     "Site URL é uma referência para a configuração futura, não a configuração hospedada atual");
-  check("strict-redirects",assertNoUnsafeRedirect(HOSTED_REDIRECTS),
-    "Apenas URLs exatas de retorno, inclusive recuperação; sem wildcard, host estranho ou rota arbitrária");
+  check("strict-redirects",assertNoUnsafeRedirect(HOSTED_REDIRECTS)&&
+    assertNoUnsafeRedirect(authAllowedRedirects(CUSTOM_SITE_BASE),CUSTOM_SITE_BASE)&&
+    assertNoUnsafeRedirect(authAllowedRedirects(WWW_SITE_BASE),WWW_SITE_BASE)&&
+    assertSafeTransitionRedirects(TRANSITION_REDIRECTS),
+    "URLs exatas para Pages legado, domínio raiz e www, inclusive recuperação; sem wildcard ou redirecionamento externo");
   check("frontend-navigation-allowlist",AUTH_ROUTES.every(route=>routing.includes('"'+route+'"'))&&
     client.includes('from "./auth-routing.mjs"')&&auth.includes("safeReturn(")&&
     auth.includes("emailRedirectTo: redirectUrl")&&auth.includes("recoveryRedirectUrl"),
