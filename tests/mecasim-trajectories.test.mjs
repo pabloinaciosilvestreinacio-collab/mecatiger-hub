@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { validateTrajectory } from "../supabase/functions/mecasim-trajectories/trajectory-validation.mjs";
 import { createTrajectoryHandler } from "../supabase/functions/mecasim-trajectories/handler.mjs";
+import { ALLOWED_TRAJECTORY_ORIGINS, PUBLIC_TRAJECTORY_ORIGINS } from "../supabase/functions/mecasim-trajectories/origins.mjs";
 
 const ORIGIN = "https://pabloinaciosilvestreinacio-collab.github.io";
 const confirmed = id => ({id, email:"test@example.invalid",
@@ -53,7 +54,7 @@ const handler=createTrajectoryHandler({
   createClient:makeClient(),
   env:name=>name==="SUPABASE_URL"?"https://example.supabase.co":
     name==="SUPABASE_PUBLISHABLE_KEYS"?JSON.stringify({default:"public-key"}):undefined,
-  allowedOrigins:[ORIGIN]
+  allowedOrigins:ALLOWED_TRAJECTORY_ORIGINS
 });
 const call=(token,body,origin=ORIGIN,method="POST")=>handler(new Request(
   "https://example.invalid/functions/v1/mecasim-trajectories",
@@ -96,6 +97,34 @@ test("missing and forged sessions cannot read saved data",async()=>{
 test("unconfirmed and anonymous Auth identities are denied",async()=>{
   assert.equal((await call("anon",{action:"list"})).status,403);
   assert.equal((await call("unconfirmed",{action:"save",name:"Test",points:[{x:1,y:1}]})).status,403);
+});
+test("registered Meca Tiger HTTPS domains and original Pages origin are allowed",async()=>{
+  assert.deepEqual(PUBLIC_TRAJECTORY_ORIGINS,[
+    "https://pabloinaciosilvestreinacio-collab.github.io",
+    "https://mecatiger.com.br",
+    "https://www.mecatiger.com.br"
+  ]);
+  const entry=await readFile(new URL("../supabase/functions/mecasim-trajectories/index.ts",import.meta.url),"utf8");
+  assert.match(entry,/allowedOrigins: ALLOWED_TRAJECTORY_ORIGINS/);
+  for(const origin of PUBLIC_TRAJECTORY_ORIGINS) {
+    const preflight=await handler(new Request("https://example.invalid",{
+      method:"OPTIONS",headers:{"Origin":origin}
+    }));
+    assert.equal(preflight.status,204);
+    assert.equal(preflight.headers.get("access-control-allow-origin"),origin);
+    const response=await call("valid-A",{action:"list"},origin);
+    assert.equal(response.status,200);
+    assert.equal(response.headers.get("access-control-allow-origin"),origin);
+    assert.equal((await response.json()).trajectories.length,1);
+  }
+});
+test("HTTP downgrade, unrelated sites and origin lookalikes remain blocked",async()=>{
+  for(const origin of ["http://mecatiger.com.br","https://mecatiger.com.br.attacker.invalid",
+     "https://evil.mecatiger.com.br","https://attacker.invalid"]) {
+    const r=await call("valid-A",{action:"list"},origin);
+    assert.equal(r.status,403);
+    assert.equal(r.headers.get("access-control-allow-origin"),null);
+  }
 });
 test("foreign origin rejected even with valid JWT",async()=>{
   const r=await call("valid-A",{action:"list"},"https://hostile.example");
