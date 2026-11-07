@@ -1,5 +1,8 @@
 # Meca Tiger — Auth, SMTP gratuito e primeiro administrador | Preparação sem deploy
 
+> **Atualização 07/11/2026:** `mecatiger.com.br` foi informado como registrado. Os impedimentos por ausência de domínio descritos abaixo são uma fotografia de **24/10**, e não o estado atual do registro. DNS, HTTPS, identidade de remetente e SMTP **ainda não estão verificados**. Consultar `DOMINIO_MECATIGER_20261107.md` e `scripts/auth-smtp-preflight.mjs` para o plano de migração das URLs exatas.
+
+
 **Fotografia: 24/10/2026. Status: PR draft, somente planejamento verificado + testes locais.** Não houve criação de provedor, domínio, usuário real, gasto, login no dashboard, escrita no Supabase hospedado ou merge. Esta documentação não concede autorização para mudança em produção.
 
 ## 1. Resultado da investigação

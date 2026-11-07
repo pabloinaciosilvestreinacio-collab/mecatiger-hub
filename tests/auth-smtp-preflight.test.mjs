@@ -2,7 +2,28 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {spawnSync} from "node:child_process";
 import {inspectAuth,validateRedirect,assertNoUnsafeRedirect,HOSTED_REDIRECTS,
-  AUTH_ROUTES,SITE_BASE} from "../scripts/auth-smtp-preflight.mjs";
+  AUTH_ROUTES,SITE_BASE,CUSTOM_SITE_BASE,WWW_SITE_BASE,CUSTOM_DOMAIN_REDIRECTS,
+  TRANSITION_REDIRECTS,validateTransitionRedirect,assertSafeTransitionRedirects} from "../scripts/auth-smtp-preflight.mjs";
+
+
+test("registered-domain migration retains only exact apex/www and old redirects",()=>{
+  assert.equal(CUSTOM_SITE_BASE,"https://mecatiger.com.br/");
+  assert.equal(WWW_SITE_BASE,"https://www.mecatiger.com.br/");
+  assert.equal(CUSTOM_DOMAIN_REDIRECTS.length,10);
+  assert.equal(TRANSITION_REDIRECTS.length,15);
+  assert.ok(assertSafeTransitionRedirects(TRANSITION_REDIRECTS));
+  for(const value of TRANSITION_REDIRECTS) assert.equal(validateTransitionRedirect(value),true);
+  for(const bad of [
+    "https://mecatiger.com.br/mecatiger-hub/entrar.html?next=rede.html",
+    "https://mecatiger.com.br/entrar.html?next=https://evil.example",
+    "http://mecatiger.com.br/entrar.html?next=rede.html",
+    "https://mecatiger.com.br.attacker.invalid/entrar.html?next=rede.html",
+    "https://evil.mecatiger.com.br/entrar.html?next=rede.html",
+    "https://www.mecatiger.com.br/entrar.html?next=admin.html&recovery=1",
+    "https://mecatiger.com.br/entrar.html?next=admin.html/**"
+  ]) assert.equal(validateTransitionRedirect(bad),false,bad);
+  assert.equal(assertSafeTransitionRedirects([...TRANSITION_REDIRECTS,TRANSITION_REDIRECTS[0]]),false);
+});
 
 test("five hosted redirects are exact and remain on the GitHub Pages origin",()=>{
   assert.equal(HOSTED_REDIRECTS.length,5);
