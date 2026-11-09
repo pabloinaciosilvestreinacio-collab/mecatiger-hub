@@ -7,6 +7,9 @@
 .rede-page a:not(.button) { color: #ffa647; }
 .rede-page p a:not(.button) { text-decoration:underline; text-decoration-thickness:.08em; text-underline-offset:.16em; }
 .rede-box { border:1px solid rgba(242,138,26,.36); border-radius:16px; background:rgba(10,11,12,.6); padding: clamp(16px,3.5vw,30px); margin:24px 0; }
+.rede-account-entry { border-color:rgba(242,138,26,.65); background:rgba(242,138,26,.08); }
+.rede-account-entry p { max-width:720px; }
+.rede-account-entry .button { display:inline-flex; margin-top:12px; text-align:center; justify-content:center; }
 .rede-form { display:grid; gap:12px; margin-top:16px; }
 .rede-form label { font-weight:700; }
 .rede-form input,.rede-form select,.rede-form textarea { box-sizing:border-box; width:100%; padding:13px 14px; background:#171819; border:1px solid #666; border-radius:8px; color:#fff; font:inherit; }
