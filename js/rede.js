@@ -27,6 +27,7 @@ function syncIdentityControls() {
   const authed = !identityLoading && Boolean(currentUser);
   const usable = authed && identityResolved;
   $("rede-signin").hidden = identityLoading || authed;
+  $("rede-access-callout").hidden = identityLoading || authed;
   $("rede-signout").hidden = !authed;
   $("perfil").hidden = !authed;
   $("meus-conteudos").hidden = !authed;

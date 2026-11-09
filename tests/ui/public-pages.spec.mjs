@@ -59,16 +59,18 @@ for (const [path, title] of pages) {
 }
 
 
-test("Home opens the metrics and account-access notice in one first-visit panel", async ({ page }) => {
+test("Home presents only metrics registration on the first visit", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const panel = page.locator("#cadastro-panel");
   await expect(panel).toBeVisible();
   await expect(panel).toHaveAttribute("role", "dialog");
   await expect(panel).toHaveAttribute("aria-modal", "true");
-  await expect(panel).toContainText("PARTICIPE COM SUA CONTA");
+  await expect(panel).toContainText("Cadastro para as métricas");
+  await expect(panel).not.toContainText("PARTICIPE COM SUA CONTA");
   await expect(panel).toContainText("não cria uma conta autenticada");
-  await expect(page.locator(".registration-account-callout a")).toHaveAttribute("href", "entrar.html?next=rede.html");
+  await expect(panel.locator('a[href*="entrar.html"]')).toHaveCount(0);
+  await expect(panel.locator('button[type="submit"]')).toHaveText("Registrar participação →");
   const skipButton = page.getByRole("button", { name: /continuar explorando o site/i });
   await expect(skipButton).toBeVisible();
   await skipButton.click();
@@ -130,6 +132,10 @@ test("Meca Sim exige login antes de mostrar a prévia autenticada", async ({ pag
 // Published-read-only scenario: explanatory content must not pretend to be user posts.
 test("Rede explica o processo completo e a separação dos cadastros", async ({ page }) => {
   await page.goto("/rede.html", {waitUntil:"domcontentloaded"});
+  const accountCallout = page.locator("#rede-access-callout");
+  await expect(accountCallout).toBeVisible();
+  await expect(accountCallout).toContainText("PARTICIPE COM SUA");
+  await expect(accountCallout.locator("#rede-signin")).toHaveAttribute("href", "entrar.html?next=rede.html");
   const section=page.locator("#como-funciona");
   await expect(section).toBeVisible();
   await expect(section.locator("ol > li")).toHaveCount(4);
